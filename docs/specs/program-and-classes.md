@@ -1,7 +1,7 @@
 # Spec: program, class guide & gap-filler
 
-**Status:** DRAFT — awaiting Sean's confirmation (2026-10-26). Nothing here is
-built yet; the live scaffold still runs Perennial's program.
+**Status:** CONFIRMED by Sean 2026-10-26 (answers folded in below; see
+"Decisions from Sean"). Building.
 
 Wolfram is for someone heading into their 40s and 50s who loves studio classes
 (yoga, pilates, barre) and wants to build and hold bone. Classes stay the
@@ -73,14 +73,36 @@ confirms or changes it.
 *barbell, lifting, powerlifting, strength*, then check the description for
 "barbell" or "heavy". *Sculpt, tone, pump* almost never mean heavy.
 
-### Weekly targets (proposed; see open question 1)
+### Weekly targets: defaults, adjustable with sliders (Settings)
 
-- **Heavy:** 2 per week, at least 48 h apart (LIFTMOR's frequency).
-- **Impact:** 3 per week. One "set" is 10–20 jumps with 30 s between them
-  (Tucker's dose), or an impact class.
-- **Studio:** no target. It's counted and celebrated, and suggested only if
-  the week has none.
-- Week = Monday–Sunday, local time.
+| Variable | Default | Slider | Note |
+|---|---|---|---|
+| Heavy sessions / week | 2 | 0–4 | LIFTMOR's frequency |
+| Hours between heavy sessions | 48 | 24–72 (step 12) | |
+| Impact sets / week | 3 | 0–14 | One set = 10 jumps, 30 s apart, or an impact class |
+| Studio classes / week | 0 = no target | 0–7 | Counted and celebrated either way |
+
+**On the impact default:** Tucker's protocol was one set *twice a day*,
+which is 14 a week. Three a week is an easy starting point well below the
+studied dose, not the dose itself. The Settings copy says so, and the slider
+goes up to 14 for when jumping feels routine.
+
+Week = Monday–Sunday, local time.
+
+### Where training happens
+
+- **The home gym** (visited about once a week): barbell with fractional
+  plates (1.25 lb, so 2.5 lb jumps on the bar), squat rack with spotter
+  arms, pull-up bar, and dip attachment, a lifting platform, flat and incline
+  benches, light dumbbells (2.5–10 lb), loadable dumbbells, 35 and 53 lb
+  kettlebells, and medicine balls. This is the **only place the app's heavy
+  session runs**, preset as the equipment list (editable in Settings).
+- **At home:** a yoga mat, maybe light dumbbells later. Impact sets need
+  nothing. Light dumbbells never count as Heavy.
+- **Consequence:** one gym visit a week covers at most one Heavy session. The
+  second Heavy normally has to come from a **barbell class**, which is why
+  highlighting strength classes leads the planner. If none fits, the week
+  honestly ends at Heavy 1/2 and the gap-filler leans on impact.
 
 ### Class library and weekly planner
 
@@ -113,14 +135,17 @@ confirms or changes it.
 
 ### Program content
 
-- **Heavy session (home gym, ~40 min):** squat pattern, hinge
-  (deadlift/RDL), overhead press, pull, plus a landing drill. Equipment-aware
-  through the existing variant chains (barbell → dumbbell → kettlebell →
-  bodyweight).
-- **Weeks 1–4, "Learn the lifts":** 3×8 at RPE 6–7. Technique first, for
-  someone new to heavy work.
-- **Week 5 on, "Heavy":** 5×5, building to RPE 8. That's LIFTMOR's intensity
-  expressed as effort, because we don't test one-rep maxes.
+- **Heavy session (home gym, ~40 min): the LIFTMOR four.** Back squat,
+  deadlift, standing overhead press, and jumping chin-up with a drop landing,
+  each in an equipment-aware variant chain (barbell → kettlebell/dumbbell →
+  bodyweight) so a missing item never dead-ends the session.
+- **Phases are counted in sessions, not weeks**, because the home gym is
+  about once a week. **Learn the lifts** covers the first 6 home-gym sessions:
+  3×8 at RPE 7, technique first. **Heavy** starts at session 7: 5×5 at RPE 8.
+  That's LIFTMOR's intensity expressed as effort, because we don't test
+  one-rep maxes.
+- Rest during Heavy is 1.5× the learning-phase base (squat/deadlift 3:00),
+  still bent by logged RPE.
 - **Impact set:** 10 jumps, 30 s timer between each (the existing rest timer).
   Progression: pogo hops → countermovement jumps → step-down landings →
   multidirectional hops.
@@ -162,6 +187,9 @@ confirms or changes it.
    and a "covered" state when all targets are met.
 7. Export → import round-trips the class library, exposures and skip days.
 8. Every new text colour meets ≥ 4.5:1 on `--bg` and `--bg-card`.
+9. Moving a target slider updates Today's tally and the gap-filler right away.
+   A target of 0 hides that bucket's goal; its tally still shows the count.
+10. The 7th home-gym session is the first one prescribed at 5×5 / RPE 8.
 
 ## Test plan
 
@@ -178,15 +206,17 @@ confirms or changes it.
 
 None. Personal PWA, local-only; no data leaves the device.
 
-## Open questions for Sean
+## Decisions from Sean (2026-10-26)
 
-1. Are the weekly targets right: **2 heavy (≥ 48 h apart), 3 impact, studio
-   uncounted**?
-2. Home gym inventory: barbell + rack + plates + bench + dumbbells? Anything
-   else (trap bar, kettlebells, plyo box)?
-3. How often is the user at the home gym: weekly, or occasionally? That
-   decides whether home-gym sessions are the default Heavy source or the
-   backup.
-4. Any equipment at the user's own place? (Impact sets need none.)
-5. Any diagnosed low bone density, past fracture or injury to design around?
-   (Answer in chat. It won't be committed.)
+1. Targets: 2 heavy ≥ 48 h apart, 3 impact, studio uncounted, **for now**.
+   The user adjusts all of them with sliders (table above).
+2. Home gym inventory: as listed under "Where training happens".
+3. Home gym roughly once a week, so classes supply the second Heavy.
+4. At home: a yoga mat; light dumbbells possibly later.
+5. No injury constraints to design around.
+
+**Onboarding therefore asks no equipment question.** The home gym is preset.
+Onboarding is a short welcome, the DEXA note, and an invitation to add classes.
+
+**Non-goal added:** a light-dumbbell home strength session. It wouldn't be
+Heavy, and impact sets plus classes already cover home days.
