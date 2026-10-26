@@ -38,11 +38,11 @@ const COLLECTIONS = ['sessions', 'sets', 'perf', 'notes'];
 const EMPTY = { sessions: [], sets: [], perf: [], notes: {} };
 
 // Preference stores owned by Zustand. They sit outside the four collections,
-// but a backup or a recovery that loses them would drop the user's equipment list
-// and standing exercise swaps — so they ride along. The in-progress session
+// but a backup or a recovery that loses them would drop the user's equipment list,
+// class library, and standing exercise swaps — so they ride along. The in-progress session
 // buffer ('wolfram-session') is deliberately excluded: restoring a
 // half-finished workout onto another device is noise, not data.
-const PREF_KEYS = [PREFIX + 'settings', PREFIX + 'slots'];
+const PREF_KEYS = [PREFIX + 'settings', PREFIX + 'slots', PREFIX + 'classes'];
 
 export const BACKUP_FORMAT = { app: 'wolfram', version: 1 };
 
@@ -285,14 +285,25 @@ export function getSessions() {
 }
 
 // payload: { dayId, dayLabel, sessionRpe, energy, setsBuffer, perfBuffer,
-//            warmupChecked, warmupTotal, sessionStartedAt, sessionEndedAt }
+//            warmupChecked, warmupTotal, sessionStartedAt, sessionEndedAt,
+//            kind, buckets, performedAt?, classId?, format?, wentHeavy?, studio? }
+//
+// kind + buckets drive the weekly tally (lib/plan.js): kind is where the
+// session came from ('gym' | 'impact' | 'class'), buckets what it counted as.
+// performedAt lets a class be logged after the fact, on the day it happened.
 export function saveSession(payload) {
   const id = uuid();
   const now = new Date().toISOString();
 
   const session = {
     id,
-    performed_at: now,
+    performed_at: payload.performedAt ?? now,
+    kind: payload.kind ?? null,
+    buckets: payload.buckets ?? [],
+    class_id: payload.classId ?? null,
+    format: payload.format ?? null,
+    went_heavy: payload.wentHeavy ?? null,
+    studio: payload.studio ?? null,
     day_id: payload.dayId ?? null,
     day_label: payload.dayLabel ?? 'Workout',
     session_rpe: payload.sessionRpe ?? null,

@@ -1,201 +1,111 @@
-// Wolfram exercise library — movement for the next forty years.
+// Wolfram exercise library: the LIFTMOR four (squat, deadlift, overhead press,
+// jumping chin-up with a drop landing), each with fallbacks so a missing piece
+// of equipment never dead-ends the session.
 //
-// Written for an adult easing into (or back into) training. Every cue is
-// plain language, every prescription leaves reps in the tank. The athletic
-// DNA (hip coil, carries, hinging — a gentle nod to Judd Lienhard's movement
-// ideas) is here, minus the intensity.
+// Cues are plain language. Where studio training helps, they say so plainly:
+// side-rib breathing carries straight over to bracing, but heavy lifting wants
+// the belly pressed OUT against an imaginary belt, not drawn in.
 //
 //   needs      — equipment ids required (see EQUIPMENT in data/program.js).
 //                Empty/absent = bodyweight, always available.
 //   bodyweight — true hides the weight column in the set table.
-//   target     — sets×reps the table pre-fills; "2-3 in the tank" is the rule.
-//   type       — everything strength-style logs sets/reps; 'move' items log
-//                minutes + a note.
+//   impact     — logging sets of this exercise also earns Impact credit
+//                (the drop landing is the impact bone responds to).
+//   target     — fallback sets×reps; the home-gym session overrides it by
+//                phase (learn 3×8, heavy 5×5).
 
 const YT = (name) =>
   'https://www.youtube.com/results?search_query=' +
   encodeURIComponent(name + ' exercise how to');
 
 export const EX = {
-  // ─── SQUAT family ──────────────────────────────────────────
-  goblet_squat_db: {
-    name: 'Goblet squat (dumbbell)', target: '2×8', type: 'strength', needs: ['dumbbells'],
-    url: YT('goblet squat dumbbell'),
-    cue: 'Hold one dumbbell at your chest. Sit down between your hips, chest proud, heels heavy. Inhale on the way down, exhale as you push the floor away. Smooth beats deep.',
+  // ─── SQUAT ─────────────────────────────────────────────────
+  back_squat: {
+    name: 'Back squat', target: '3×8', type: 'strength', needs: ['barbell', 'rack'],
+    url: YT('barbell back squat beginner'),
+    cue: 'Bar across the meaty part of your upper back, not your neck. Feet about shoulder-width, toes turned out a little. Breathe into your belly and side ribs, brace, then sit down between your heels and stand by pushing the floor away. Set the spotter arms just below your lowest point: if a rep stalls, sit the bar onto them and step out.',
   },
   goblet_squat_kb: {
-    name: 'Goblet squat (kettlebell)', target: '2×8', type: 'strength', needs: ['kettlebell'],
+    name: 'Goblet squat (kettlebell)', target: '3×8', type: 'strength', needs: ['kettlebell'],
     url: YT('goblet squat kettlebell'),
-    cue: 'Bell held at the chest, elbows soft. Sit between your hips, stand tall. If depth feels cranky, stop where it feels strong.',
+    cue: 'Bell held at the chest by the horns, elbows tucked. Sit down between your hips, chest proud, heels heavy. Stand by pushing the floor away.',
+  },
+  goblet_squat_db: {
+    name: 'Goblet squat (dumbbell)', target: '3×8', type: 'strength', needs: ['dumbbells'],
+    url: YT('goblet squat dumbbell'),
+    cue: 'Hold one dumbbell upright at your chest. Sit down between your hips, chest proud, heels heavy, then push the floor away to stand.',
   },
   chair_squat: {
-    name: 'Sit-to-stand squat', target: '2×10', type: 'strength', needs: [], bodyweight: true,
+    name: 'Sit-to-stand squat', target: '3×10', type: 'strength', needs: [], bodyweight: true,
     url: YT('sit to stand squat form'),
-    cue: 'Stand from a chair without hands, tap the seat, stand again. Slow on the way down, exhale on the way up. The single most useful strength skill for the next 40 years.',
+    cue: 'Stand from a chair without your hands, tap the seat, stand again. Slow on the way down.',
   },
 
-  // ─── HINGE family ──────────────────────────────────────────
+  // ─── HINGE ─────────────────────────────────────────────────
+  deadlift: {
+    name: 'Deadlift', target: '3×8', type: 'strength', needs: ['barbell'],
+    url: YT('conventional deadlift beginner form'),
+    cue: 'Bar over the middle of your feet, shins an inch away. Hinge down and grip just outside your legs. Proud chest, flat back. Breathe in, brace, then push the floor away until you stand tall; squeeze your glutes at the top and don’t lean back. Lower by sending the hips back first. If your plates are small, start the bar on blocks or stacked plates so it sits at mid-shin.',
+  },
   kb_deadlift: {
-    name: 'Kettlebell deadlift', target: '2×8', type: 'strength', needs: ['kettlebell'],
+    name: 'Kettlebell deadlift', target: '3×8', type: 'strength', needs: ['kettlebell'],
     url: YT('kettlebell deadlift form'),
-    cue: 'Bell between your feet. Push your hips back, flat back, grab it, stand by squeezing your glutes. Lower the same way. Hips do the work, not the back. One slow breath into the belt line before each pickup — that gentle all-around firmness IS the brace.',
+    cue: 'Bell between your feet. Push your hips back, flat back, grab it, and stand by squeezing your glutes. Lower the same way. The hips do the work, not the back.',
   },
   db_rdl: {
-    name: 'Dumbbell RDL', target: '2×8', type: 'strength', needs: ['dumbbells'],
+    name: 'Dumbbell Romanian deadlift', target: '3×8', type: 'strength', needs: ['dumbbells'],
     url: YT('dumbbell romanian deadlift'),
-    cue: 'Soft knees, slide the dumbbells down your thighs as your hips travel back. Stop when the hamstrings say hello. Breathe low and wide, keep the soft brace, exhale as you drive the hips through to stand.',
-  },
-  barbell_rdl: {
-    name: 'Barbell RDL', target: '2×8', type: 'strength', needs: ['barbell'],
-    url: YT('barbell romanian deadlift light'),
-    cue: 'Soft knees, bar slides down the thighs as the hips travel back — flat back the whole way, stop well before it wants to round. Start embarrassingly light; with a low-back history, the empty bar for a few weeks IS the program. Inhale low, gentle all-around firmness, exhale up.',
+    cue: 'Soft knees. Slide the dumbbells down your thighs as your hips travel back, and stop when the hamstrings pull. Drive the hips through to stand.',
   },
   glute_bridge: {
-    name: 'Glute bridge', target: '2×12', type: 'strength', needs: [], bodyweight: true,
+    name: 'Glute bridge', target: '3×12', type: 'strength', needs: [], bodyweight: true,
     url: YT('glute bridge form'),
-    cue: 'On your back, knees bent. Squeeze your glutes to lift your hips into a straight line, pause a beat, lower slow. No lower-back arching — the squeeze is the exercise.',
+    cue: 'On your back, knees bent. Squeeze your glutes to lift your hips into a straight line, pause, lower slowly. The squeeze is the exercise, not the arch.',
   },
 
-  // ─── PUSH family ───────────────────────────────────────────
-  db_floor_press: {
-    name: 'Dumbbell floor press', target: '2×8', type: 'strength', needs: ['dumbbells'],
-    url: YT('dumbbell floor press'),
-    cue: 'On your back, press the dumbbells up until arms are straight, lower until your upper arms rest gently on the floor. Shoulder-friendly pressing.',
-  },
-  band_chest_press: {
-    name: 'Band chest press', target: '2×10', type: 'strength', needs: ['bands'],
-    url: YT('resistance band chest press standing'),
-    cue: 'Band around your upper back, press both hands forward to full reach. Control the return — the band always wants to win the way back.',
-  },
-  incline_pushup: {
-    name: 'Incline push-up', target: '2×8', type: 'strength', needs: [], bodyweight: true,
-    url: YT('incline push up counter'),
-    cue: 'Hands on a counter or sturdy table, body one straight line. Chest to the edge, press away. Lower the surface as it gets easy — that IS the progress.',
+  // ─── PRESS ─────────────────────────────────────────────────
+  ohp: {
+    name: 'Overhead press', target: '3×8', type: 'strength', needs: ['barbell', 'rack'],
+    url: YT('barbell overhead press beginner'),
+    cue: 'Bar resting on the front of your shoulders, hands just outside them, elbows slightly ahead of the bar. Squeeze your glutes, brace, and press straight up, moving your face back out of the way, then push your head through the window at the top. Ribs down: don’t lean back to finish a rep.',
   },
   db_press: {
-    name: 'Dumbbell shoulder press (neutral grip)', target: '2×8', type: 'strength', needs: ['dumbbells'],
-    url: YT('neutral grip dumbbell shoulder press'),
-    cue: 'Palms facing each other — the shoulder-friendliest pressing angle. Press up and very slightly forward; full overhead lockout is optional. Stop below any pinch, always. Ribs down, no leaning back.',
+    name: 'Dumbbell overhead press', target: '3×8', type: 'strength', needs: ['dumbbells'],
+    url: YT('standing dumbbell overhead press'),
+    cue: 'Standing, dumbbells at your shoulders, palms facing each other. Press up and slightly in until your arms are straight. Ribs down, glutes tight, no leaning back.',
   },
-  band_press: {
-    name: 'Band overhead press', target: '2×10', type: 'strength', needs: ['bands'],
-    url: YT('resistance band overhead press'),
-    cue: 'Stand on the band, press up — full lockout only if the shoulder is happy there; stopping short is fine. Squeeze your belly so the ribs stay down.',
+  kb_press: {
+    name: 'Kettlebell press (one arm)', target: '3×6 each', type: 'strength', needs: ['kettlebell'],
+    url: YT('single arm kettlebell press'),
+    cue: 'Bell resting on your forearm at the shoulder, wrist straight. Squeeze your free fist and glutes, press up until the arm is straight. Too heavy for a clean rep? Use dumbbells instead.',
   },
-  wall_pushup_plus: {
-    name: 'Push-up plus (incline)', target: '2×10', type: 'strength', needs: [], bodyweight: true,
-    url: YT('push up plus scapular'),
-    cue: 'Incline push-up, then at the top push the floor away an extra inch so your shoulder blades spread. That extra inch keeps shoulders happy for decades.',
+  incline_pushup: {
+    name: 'Incline push-up', target: '3×8', type: 'strength', needs: [], bodyweight: true,
+    url: YT('incline push up counter'),
+    cue: 'Hands on a counter or sturdy table, body one straight line. Chest to the edge, press away. Lower the surface as it gets easy.',
   },
 
-  // ─── PULL family ───────────────────────────────────────────
-  trx_row: {
-    name: 'Suspension row (TRX/rings)', target: '2×10', type: 'strength', needs: ['suspension'], bodyweight: true,
-    url: YT('trx row form beginner'),
-    cue: 'Lean back holding the straps, body one straight line, pull your chest to your hands and squeeze the shoulder blades. Walk your feet to make it easier or harder. The most back-friendly row there is — no bent-over position to hold.',
+  // ─── PULL + LANDING ────────────────────────────────────────
+  jumping_chinup: {
+    name: 'Jumping chin-up + drop landing', target: '3×5', type: 'strength', needs: ['pullup_bar'],
+    bodyweight: true, impact: true,
+    url: YT('jumping chin up slow negative'),
+    cue: 'Stand under the bar, on a step if you need one. Palms facing you, jump up until your chin clears the bar, then lower yourself as slowly as you can, aiming for three seconds. Let go and land on both feet, knees soft, absorbing like a spring. The landing is part of the exercise: it’s the impact bone responds to.',
+  },
+  inverted_row: {
+    name: 'Inverted row (bar in the rack)', target: '3×8', type: 'strength', needs: ['rack'], bodyweight: true,
+    url: YT('inverted row barbell in rack'),
+    cue: 'Set the bar in the rack at about hip height. Hang underneath it, heels on the floor, body in one straight line. Pull your chest to the bar, squeeze the shoulder blades, lower slowly. Walk your feet back to make it harder.',
   },
   db_row: {
-    name: 'One-arm dumbbell row', target: '2×10', type: 'strength', needs: ['dumbbells'],
-    url: YT('one arm dumbbell row chair support'),
-    cue: 'One hand braced on a chair so your back never works unsupported, flat back. Pull the dumbbell to your hip — elbow, not hand, leads. Lower with control.',
-  },
-  band_row: {
-    name: 'Band row', target: '2×12', type: 'strength', needs: ['bands'],
-    url: YT('resistance band row anchored'),
-    cue: 'Band anchored at chest height (door anchor or railing). Pull elbows past your ribs, squeeze the shoulder blades, slow return.',
+    name: 'One-arm dumbbell row', target: '3×10', type: 'strength', needs: ['dumbbells'],
+    url: YT('one arm dumbbell row bench'),
+    cue: 'One hand and knee braced on a bench or chair, flat back. Pull the dumbbell to your hip, elbow leading. Lower with control.',
   },
   backpack_row: {
-    name: 'Backpack row', target: '2×10', type: 'strength', needs: [], bodyweight: false,
+    name: 'Backpack row', target: '3×10', type: 'strength', needs: [],
     url: YT('backpack row bent over'),
-    cue: 'Load a backpack with books, hinge over with a flat back, row it to your hip. The humble backpack is a fine barbell.',
-  },
-  dead_hang: {
-    name: 'Dead hang', target: '3×20 sec', type: 'strength', needs: ['pullup_bar'], bodyweight: true,
-    url: YT('dead hang benefits form'),
-    cue: 'Hang from the bar, shoulders relaxed but not slack, breathe. Keep your toes on the floor or a step and take some weight through them if the shoulder complains — a partial hang still counts. Grip strength is one of the best-studied longevity markers.',
-  },
-  band_pulldown: {
-    name: 'Band pulldown', target: '2×12', type: 'strength', needs: ['bands'],
-    url: YT('resistance band lat pulldown kneeling'),
-    cue: 'Band anchored high. Kneel, pull elbows down to your ribs, feel the armpit muscles do it. Slow up, smooth down.',
-  },
-  prone_swimmers: {
-    name: 'Prone swimmers', target: '2×6', type: 'strength', needs: [], bodyweight: true,
-    url: YT('prone swimmers shoulder exercise'),
-    cue: 'Lying face down, float your arms and sweep them from overhead to your hips like a slow backstroke. Small, honest movement — huge shoulder-health payoff.',
-  },
-
-  // ─── SINGLE LEG ────────────────────────────────────────────
-  split_squat_db: {
-    name: 'Split squat (dumbbells)', target: '2×8 each', type: 'strength', needs: ['dumbbells'],
-    url: YT('dumbbell split squat'),
-    cue: 'Stagger stance, drop the back knee toward the floor, stand through the front heel. Hold dumbbells at your sides. Wobble is normal — that is balance being built.',
-  },
-  split_squat_bw: {
-    name: 'Split squat', target: '2×10 each', type: 'strength', needs: [], bodyweight: true,
-    url: YT('bodyweight split squat'),
-    cue: 'Stagger stance, back knee toward the floor, up through the front heel. Fingertips on a wall for balance is completely allowed.',
-  },
-  step_up: {
-    name: 'Step-up', target: '2×8 each', type: 'strength', needs: ['bench'],
-    url: YT('step up exercise form'),
-    cue: 'Whole foot on the bench or bottom stair. Drive through that foot — do not push off the floor leg. Step down slow. Add dumbbells when it feels easy.',
-  },
-
-  // ─── CARRY family ──────────────────────────────────────────
-  suitcase_carry_db: {
-    name: 'Suitcase carry (dumbbell)', target: '3×30 sec', type: 'strength', needs: ['dumbbells'],
-    url: YT('suitcase carry form'),
-    cue: 'One dumbbell in one hand, walk tall — do NOT lean toward the weight. Switch hands each round. Tall spine, steady breath, attention on staying level.',
-  },
-  suitcase_carry_kb: {
-    name: 'Suitcase carry (kettlebell)', target: '3×30 sec', type: 'strength', needs: ['kettlebell'],
-    url: YT('kettlebell suitcase carry'),
-    cue: 'Bell in one hand, walk tall and level. The trunk resisting the lean is the whole point.',
-  },
-  backpack_carry: {
-    name: 'Loaded backpack carry', target: '3×45 sec', type: 'strength', needs: [],
-    url: YT('weighted carry rucking benefits'),
-    cue: 'Load the backpack, hold it in one hand like a suitcase (or hug it to your chest) and walk tall. Rucking-lite — cheap, effective, kind to the joints. Tall spine, unhurried breath.',
-  },
-
-  // ─── ROTATION & COIL — the gentle Lienhard nod ─────────────
-  hip_coil_walk: {
-    name: 'Walking hip coil', target: '2×8 each', type: 'strength', needs: [], bodyweight: true,
-    url: 'https://www.youtube.com/results?search_query=Judd+Lienhard+hip+coil+walk',
-    cue: 'Walk slowly; on each step let the standing hip rotate you slightly over it, arms swinging naturally across. Athletic hips at conversation pace. No intensity needed — just the pattern and the breath.',
-  },
-  kb_coil_walk: {
-    name: 'Walking coil with kettlebell', target: '2×6 each', type: 'strength', needs: ['kettlebell'],
-    url: 'https://www.youtube.com/results?search_query=Judd+Lienhard+walking+KB+high+pull+coil',
-    cue: 'Walk forward; each step, draw the bell up your side as the same-side hip coils under you. Light bell, smooth rhythm. Stop the set the moment it stops feeling springy.',
-  },
-  medball_rotation: {
-    name: 'Med-ball rotation toss', target: '2×8 each', type: 'strength', needs: ['medball'],
-    url: YT('medicine ball rotational toss light wall'),
-    cue: 'Side-on to a wall with a LIGHT ball. Turn the hips away, then unwind and toss it gently into the wall — the hips do the throwing, the shoulders just come along. Smooth and playful, never max effort.',
-  },
-  band_rotation: {
-    name: 'Band rotation', target: '2×10 each', type: 'strength', needs: ['bands'],
-    url: YT('standing band rotation core'),
-    cue: 'Band anchored at chest height, arms long, rotate away from the anchor by turning your hips first, then shoulders. Unwind with control.',
-  },
-
-  // ─── BALANCE & CORE ────────────────────────────────────────
-  sl_balance_reach: {
-    name: 'Single-leg balance reach', target: '2×5 each', type: 'strength', needs: [], bodyweight: true,
-    url: YT('single leg balance reach'),
-    cue: 'Stand on one leg, soft knee, reach the other foot forward, then to the side. Balance is use-it-or-lose-it — five quiet reps a side keeps it.',
-  },
-  dead_bug: {
-    name: 'Dead bug', target: '2×8 each', type: 'strength', needs: [], bodyweight: true,
-    url: YT('dead bug core exercise'),
-    cue: 'On your back, low back gently pressed to the floor. Lower opposite arm and leg slowly, exhaling slowly as they travel — let the breath set the tempo. If the back lifts, shrink the movement.',
-  },
-  side_plank_knees: {
-    name: 'Side plank (from knees)', target: '3×20 sec each', type: 'strength', needs: [], bodyweight: true,
-    url: YT('side plank from knees'),
-    cue: 'On your elbow and bent knees, lift the hips into a straight line and hold with calm, even breathing — never breath-holding. Straight-leg version when the 20 seconds feel easy.',
+    cue: 'Load a backpack with books, hinge over with a flat back, row it to your hip.',
   },
 };
 

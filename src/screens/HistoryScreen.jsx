@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import styles from './HistoryScreen.module.css';
 import { useSessions, useDeleteSession } from '../hooks/useSessions';
-import { DAYS } from '../data/program';
-import { formatDate } from '../lib/dateFormat';
+import chips from '../components/Buckets.module.css';
+import { formatDate } from '../lib/dateFormat.js';
+import { BUCKET_LABEL } from '../lib/labels.js';
 
-const DAY_EMOJI = { a: '🏋️', b: '🌿', move: '🚶' };
+// Where a session came from, as a short kicker above its name.
+const KIND_LABEL = { gym: 'Home gym', impact: 'Impact set', class: 'Class' };
 
 export function HistoryScreen() {
   const { data: sessions, isLoading } = useSessions();
@@ -28,23 +30,30 @@ export function HistoryScreen() {
 
       {rows.length === 0 && (
         <div className={styles.empty}>
-          <div className={styles.emptyEmoji}>🌱</div>
           <div className={styles.emptyText}>
-            Nothing here yet — your first session will be. That's the fun part.
+            Nothing here yet. Log a class or start a session, and it’ll show up
+            here with what it counted toward.
           </div>
         </div>
       )}
 
       {rows.map((s) => (
         <div key={s.id} className={styles.card}>
-          <span className={styles.emoji}>{DAY_EMOJI[s.day_id] ?? '💪'}</span>
           <div className={styles.mid}>
-            <div className={styles.title}>{DAYS[s.day_id]?.name ?? s.day_label}</div>
+            {KIND_LABEL[s.kind] && <div className={styles.kind}>{KIND_LABEL[s.kind]}</div>}
+            <div className={styles.title}>{s.day_label}</div>
             <div className={styles.meta}>
               {formatDate(s.performed_at)}
-              {s.sets_logged > 0 && ` · ${s.sets_logged} sets`}
-              {s.perf_logged > 0 && ` · moved`}
+              {s.studio && ` · ${s.studio}`}
+              {s.sets_logged > 0 && ` · ${s.sets_logged} set${s.sets_logged === 1 ? '' : 's'}`}
               {s.session_rpe != null && ` · effort ${s.session_rpe}`}
+            </div>
+            <div className={`${chips.row} ${styles.counted}`}>
+              {(s.buckets ?? []).length === 0
+                ? <span className={styles.noCredit}>Didn’t count toward the week</span>
+                : s.buckets.map((b) => (
+                  <span key={b} className={`${chips.chip} ${chips[b]}`}>{BUCKET_LABEL[b]}</span>
+                ))}
             </div>
           </div>
           {pendingDelete === s.id ? (

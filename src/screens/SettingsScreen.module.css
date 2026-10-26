@@ -116,3 +116,29 @@
   color: var(--t4);
   margin-top: 30px;
 }
+
+/* ── Weekly target sliders ──────────────────────────────────── */
+.sliderRow { padding: 14px 0; border-bottom: 0.5px solid var(--hairline); }
+.sliderRow:last-child { border-bottom: none; }
+.sliderHead { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+.sliderVal {
+  font-family: var(--font-display);
+  font-variant-numeric: lining-nums tabular-nums;
+  font-weight: 600;
+  font-size: 20px;
+  color: var(--green);
+  white-space: nowrap;
+}
+.slider { width: 100%; margin: 10px 0 6px; accent-color: var(--green); height: 28px; }
+
+/* ── Bone health ────────────────────────────────────────────── */
+.dexa {
+  background: var(--bg-card);
+  border-left: 3px solid var(--sage);
+  border-radius: var(--r1);
+  padding: 12px 14px;
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--t2);
+  margin-bottom: 10px;
+}

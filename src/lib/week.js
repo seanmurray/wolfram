@@ -48,3 +48,10 @@ export function formatTime(time) {
   const hr = ((h + 11) % 12) + 1;
   return `${hr}:${String(m || 0).padStart(2, '0')} ${h < 12 ? 'am' : 'pm'}`;
 }
+
+// "2026-10-26" — the local date of that week's Monday. Stable key for
+// per-week state like skip days.
+export function weekKey(d) {
+  const s = weekStart(d);
+  return `${s.getFullYear()}-${String(s.getMonth() + 1).padStart(2, '0')}-${String(s.getDate()).padStart(2, '0')}`;
+}

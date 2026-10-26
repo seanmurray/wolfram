@@ -1,0 +1,127 @@
+/* Bottom sheet for logging a class. Same chrome as PostSessionSheet; taller,
+   so the body scrolls. */
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--scrim);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 300;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s var(--ease-sheet);
+}
+.overlay.open { opacity: 1; pointer-events: auto; }
+
+.sheet {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%) translateY(100%);
+  width: 100%;
+  max-width: var(--app-max-w);
+  max-height: 88svh;
+  background: var(--bg-card);
+  border-radius: var(--r4) var(--r4) 0 0;
+  border-top: 0.5px solid var(--hairline);
+  z-index: 400;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.32s var(--ease-sheet);
+  padding-bottom: var(--sab);
+}
+.sheet.open { transform: translateX(-50%) translateY(0); }
+
+.handle {
+  width: 36px;
+  height: 4px;
+  background: var(--hairline-strong);
+  border-radius: 2px;
+  margin: 12px auto 0;
+  flex-shrink: 0;
+}
+
+.header { padding: 14px 20px 10px; border-bottom: 0.5px solid var(--hairline); }
+.title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 26px;
+  letter-spacing: -0.01em;
+  color: var(--t1);
+}
+
+.body { padding: 6px 20px 20px; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+
+.q {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--t3);
+  margin: 18px 0 9px;
+}
+
+.options { display: flex; flex-direction: column; gap: 6px; }
+.option {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  padding: 11px 14px;
+  border-radius: var(--r2);
+  border: 1px solid var(--bg-raised);
+  background: var(--bg);
+  min-height: var(--tap);
+}
+.option.on { border-color: var(--green); background: var(--green-bg); box-shadow: inset 0 0 0 1px var(--green); }
+.optName { font-size: 16px; font-weight: 600; color: var(--t1); }
+.optMeta { font-size: 14px; color: var(--t3); margin-top: 2px; }
+
+.input {
+  width: 100%;
+  margin-top: 10px;
+  min-height: var(--tap);
+  padding: 0 14px;
+  border-radius: var(--r2);
+  border: 1px solid var(--bg-raised);
+  background: var(--bg-input);
+  font-size: 16px; /* 16px stops iOS Safari zooming on focus */
+  color: var(--t1);
+}
+
+.hint { font-size: 14px; line-height: 1.5; color: var(--t3); margin: 2px 0 10px; }
+
+.yesNo { display: flex; gap: 8px; flex-wrap: wrap; }
+
+.counts {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-top: 18px;
+  font-size: 15px;
+  color: var(--t2);
+}
+.countsNote { font-size: 14px; color: var(--t3); flex-basis: 100%; }
+
+.actions { display: flex; gap: 8px; margin-top: 20px; }
+.cta {
+  flex: 1;
+  height: 52px;
+  background: var(--green);
+  color: var(--on-accent);
+  border-radius: var(--r3);
+  font-weight: 700;
+  font-size: 18px;
+}
+.cta:disabled { opacity: 0.45; }
+.secondary {
+  height: 52px;
+  padding: 0 20px;
+  background: var(--bg-pill);
+  color: var(--t2);
+  border-radius: var(--r3);
+  font-size: 17px;
+  font-weight: 500;
+}

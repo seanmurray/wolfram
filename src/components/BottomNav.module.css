@@ -38,12 +38,11 @@
   color: var(--green);
 }
 
-.icon {
-  font-size: 20px;
-  line-height: 1;
+.svg {
+  display: block;
   transition: transform 0.15s var(--ease-spring);
 }
 
-.item.active .icon {
-  transform: scale(1.1);
+.item.active .svg {
+  transform: scale(1.08);
 }

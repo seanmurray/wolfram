@@ -12,27 +12,25 @@
 //   rpe  — how hard the set actually felt. Effort is the honest signal, so the
 //          prescription bends to it rather than the other way round.
 
-// Seconds, by slot role (see DAYS in data/program.js).
-//
-// Calibrated for THIS program, not for a powerlifter: two sets per exercise at
-// a target of three reps in the tank, five slots, half an hour door to door.
-// The bases stay modest so that even the longest adjusted rest (3:00, after a
-// genuinely hard squat) doesn't turn the session into an hour.
+// Seconds, by slot role (see DAYS in data/program.js). These are the
+// learning-phase bases (3×8 with three reps in the tank); the heavy phase
+// scales them (HEAVY_FACTOR below).
 const BASE_BY_ROLE = {
   squat: 120,
-  hinge: 120,        // the two that load the whole body — and the lower back
-  single_leg: 90,
+  hinge: 120,        // the two that load the whole body
   press: 90,
-  push: 90,
-  pull: 90,
-  upper_back: 90,
-  carry: 90,         // grip and trunk recover faster than legs
-  rotation: 60,
-  balance: 60,       // skill work; long rests just make it a longer workout
+  pull: 90,          // jumping chin-ups: the landing is the point, not fatigue
+  jump: 30,          // impact sets: 30 s between single jumps (Tucker 2015).
+                     // Bone cells respond best to loads with rest between them.
 };
 
+// Heavy phase (5×5 at about two reps in the tank): strength needs longer to
+// come back between sets, so every base stretches by half. Squat and deadlift
+// land on 3:00, the press and pull on 2:15.
+const HEAVY_FACTOR = 1.5;
+
 // Fallback when a block has no role (core work, the easy day).
-const BASE_BY_CONTEXT = { strength: 90, core: 60, move: 60 };
+const BASE_BY_CONTEXT = { strength: 90, heavy: 135, core: 60, move: 60 };
 
 // What the set tables start on: "about three good reps still in you".
 export const TARGET_RPE = 7;
@@ -68,7 +66,11 @@ const BANDS = [
 const clamp = (n, lo, hi) => Math.min(hi, Math.max(lo, n));
 
 export function baseRest({ role, context = 'strength' } = {}) {
-  return BASE_BY_ROLE[role] ?? BASE_BY_CONTEXT[context] ?? 120;
+  const base = BASE_BY_ROLE[role] ?? BASE_BY_CONTEXT[context] ?? 120;
+  if (context === 'heavy' && BASE_BY_ROLE[role] != null) {
+    return Math.round((base * HEAVY_FACTOR) / 15) * 15;
+  }
+  return base;
 }
 
 // → { seconds, base, delta, adjusted, why }

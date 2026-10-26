@@ -1,111 +1,106 @@
-// The Wolfram program — three days a week, fit for life.
+// The Wolfram program: what the app itself prescribes. Classes do the rest
+// (see lib/plan.js for how the week is balanced around them).
 //
-// Two short full-body strength days (A and B) and one Move day (easy cardio +
-// mobility). Strength twice a week plus regular zone-2 movement is the
-// best-evidenced minimum for healthspan: muscle, bone, balance, and the
-// engine — without living in a gym.
+//   gym    — the home-gym heavy session: the LIFTMOR four. It's the only place
+//            heavy lifting is prescribed, because it's the only place with the
+//            kit. Phased by session count: learn the lifts, then go heavy.
+//   impact — a five-minute jump set, anywhere: 10 jumps, 30 s apart
+//            (Tucker 2015's per-session dose), progressing through levels.
 //
-// EQUIPMENT-AWARE SLOTS: each strength slot lists variants in preference
-// order; the app picks the first one whose `needs` are covered by what the
-// user said they own (Settings → Equipment, set during onboarding). The last
-// variant in every chain needs nothing, so the program always resolves — a
-// fully bodyweight run is a first-class version of the plan, not a fallback
-// apology.
+// EQUIPMENT-AWARE SLOTS: each slot lists variants in preference order; the app
+// picks the first one whose `needs` the home-gym equipment covers. The last
+// variant always needs nothing, so the session always resolves.
 
 import { EX } from './exercises';
+import { LEARN_SESSIONS } from '../lib/plan.js';
 
-// Onboarding / Settings equipment catalog. Includes the usual home-gym
-// candidates so the plan grows as the gym does — tick a new box in Settings
-// the day something arrives and the slots upgrade themselves.
+// The home gym. Preset to what's there; editable in Settings if it changes.
 export const EQUIPMENT = [
-  { id: 'dumbbells',  label: 'Dumbbells',            hint: 'Any pair, adjustable or fixed' },
-  { id: 'kettlebell', label: 'Kettlebell',           hint: 'One is plenty' },
-  { id: 'bands',      label: 'Resistance bands',     hint: 'Loop or handle style' },
-  { id: 'pullup_bar', label: 'Pull-up bar',          hint: 'Doorway bar counts' },
-  { id: 'bench',      label: 'Bench / sturdy step',  hint: 'A solid bottom stair works' },
-  { id: 'barbell',    label: 'Barbell + plates',     hint: 'Even a light technique bar' },
-  { id: 'suspension', label: 'Suspension trainer',   hint: 'TRX, rings, or similar straps' },
-  { id: 'medball',    label: 'Medicine ball',        hint: 'A light one, 4–8 lbs' },
+  { id: 'barbell',    label: 'Barbell + plates',  hint: 'With 1.25 lb plates for small jumps' },
+  { id: 'rack',       label: 'Squat rack',        hint: 'With spotter arms' },
+  { id: 'pullup_bar', label: 'Pull-up bar',       hint: 'On the rack counts' },
+  { id: 'dumbbells',  label: 'Dumbbells',         hint: 'Light pairs or loadable handles' },
+  { id: 'kettlebell', label: 'Kettlebells',       hint: 'Any weight' },
 ];
+export const HOME_GYM_PRESET = EQUIPMENT.map((e) => e.id);
 
-// Warm-up — same short list both strength days. ~4 minutes, no equipment.
-// Inherited from Perennial, gentle on shoulders and lower back: thoracic
-// rotation and scapular work instead of big arm swings, and every back-adjacent
-// item cued to pain-free range.
+// ~6 minutes. The last line matters most: warm-up sets are how a heavy set
+// stops being scary.
 export const WARMUP = [
-  'Diaphragm breaths — 5 slow: inhale low and wide into the lower ribs and belt line. This breath becomes the brace',
-  'March in place — 60 sec, arms swinging easy',
-  'Cat-cow — 8 slow rounds, moving with the breath',
-  'Open-book rotations — 5 each side, lying on your side (frees the mid-back so the low back and shoulders don’t have to)',
-  'Wall slides — 8 slow, forearms on the wall, only through the arc that feels smooth',
-  'Bodyweight good morning — 10, hands on hips, pain-free range only',
-  'Half-kneeling hip flexor stretch — 30 sec each side (tight hip flexors nag the low back)',
+  'Breathing — 5 slow breaths, low and wide into the belly and side ribs. This breath is the start of every brace today',
+  'Brisk march or easy bike — 3 min, just get warm',
+  'Cat-cow — 6 slow rounds',
+  'Goblet squat hold — 3 × 20 sec at the bottom, elbows nudging the knees out',
+  'Hip hinge with the empty bar or a broomstick — 8 slow reps, feel the hamstrings load',
+  'Dead hang from the bar — 2 × 15–20 sec, shoulders gently engaged',
+  'Small pogo hops — 2 × 10, light and springy',
+  'Before each lift: the empty bar × 5, then two lighter sets of 3. They don’t count, and they make the working sets feel familiar',
 ];
 
-// ── Strength day slots ──────────────────────────────────────────────────────
-// slot: { role, label, variants: [exKey, ...] } — variants in preference
-// order; resolution picks the first whose needs ⊆ owned equipment.
-
-export const DAYS = {
-  a: {
-    id: 'a',
-    name: 'Foundations A',
-    blurb: 'Squat, push, pull, carry. About 30 minutes.',
-    kind: 'strength',
-    slots: [
-      { role: 'squat',   label: 'Squat',          variants: ['goblet_squat_db', 'goblet_squat_kb', 'chair_squat'] },
-      { role: 'push',    label: 'Push',           variants: ['db_floor_press', 'band_chest_press', 'incline_pushup'] },
-      // TRX row leads when owned — the most lumbar-friendly row there is
-      // (body supported, no hinge to hold).
-      { role: 'pull',    label: 'Pull',           variants: ['trx_row', 'db_row', 'band_row', 'backpack_row'] },
-      { role: 'carry',   label: 'Carry',          variants: ['suitcase_carry_db', 'suitcase_carry_kb', 'backpack_carry'] },
-      { role: 'balance', label: 'Balance & core', variants: ['sl_balance_reach'] },
-    ],
+// Per-phase prescription for the home-gym lifts.
+export const PHASES = {
+  learn: {
+    label: 'Learning the lifts',
+    rx: { sets: 3, reps: 8, target_rpe: 7 },
+    pullRx: { sets: 3, reps: 5, target_rpe: 7 },
+    blurb: `Sessions 1–${LEARN_SESSIONS}: three sets of eight with about three good reps left in you. Technique first; the weight comes later.`,
   },
-  b: {
-    id: 'b',
-    name: 'Foundations B',
-    blurb: 'Hinge, single leg, press, rotation. About 30 minutes.',
-    kind: 'strength',
-    slots: [
-      // KB/DB stay ahead of the barbell on purpose: with a low-back history,
-      // earn the hinge light before loading it long.
-      { role: 'hinge',      label: 'Hinge',        variants: ['kb_deadlift', 'db_rdl', 'barbell_rdl', 'glute_bridge'] },
-      { role: 'single_leg', label: 'Single leg',   variants: ['split_squat_db', 'step_up', 'split_squat_bw'] },
-      { role: 'press',      label: 'Press',        variants: ['db_press', 'band_press', 'wall_pushup_plus'] },
-      { role: 'upper_back', label: 'Upper back',   variants: ['dead_hang', 'band_pulldown', 'prone_swimmers'] },
-      { role: 'rotation',   label: 'Rotation',     variants: ['kb_coil_walk', 'medball_rotation', 'band_rotation', 'hip_coil_walk'] },
-    ],
-  },
-  move: {
-    id: 'move',
-    name: 'Move & Breathe',
-    blurb: 'An easy 30–45 minute walk (or ride) plus five minutes of mobility.',
-    kind: 'move',
-    cardio: {
-      key: 'zone2_walk',
-      name: 'Easy walk / ride / anything',
-      cue: 'Comfortable pace — you should be able to talk in full sentences the whole time. Calm nasal breathing is a perfect pace-keeper. Outside beats treadmill for the soul, but both count. Log the minutes.',
-      targetMin: '30–45 min',
-    },
-    // Gentle by design, with shoulders and lower back leading the
-    // choices: mid-back rotation and hip work do the mobilizing so the
-    // touchy areas get relief without being cranked on. Nothing here should
-    // ever be pushed into a pinch.
-    mobility: [
-      'Cat-cow — 8 slow rounds, let the spine wave through',
-      'Open-book rotations — 6 each side, top knee heavy on the floor',
-      'Child’s pose, walking the hands to each side — 30 sec per side (low-back decompression)',
-      'Doorway chest stretch — 30 sec each side, arm low, staying WELL below any shoulder pinch',
-      'One-minute single-leg balance — eyes forward, switch halfway',
-    ],
+  heavy: {
+    label: 'Heavy',
+    rx: { sets: 5, reps: 5, target_rpe: 8 },
+    pullRx: { sets: 5, reps: 5, target_rpe: 8 },
+    blurb: 'Five sets of five with about two reps left. This is the loading bone responds to. Add weight in small jumps whenever the last set still has two reps in it.',
   },
 };
 
-export const DAY_ORDER = ['a', 'b', 'move'];
+export const DAYS = {
+  gym: {
+    id: 'gym',
+    kind: 'gym',
+    name: 'Home gym · heavy',
+    blurb: 'Squat, deadlift, press, and jumping chin-ups. About 40 minutes.',
+    slots: [
+      { role: 'squat', label: 'Squat',          variants: ['back_squat', 'goblet_squat_kb', 'goblet_squat_db', 'chair_squat'] },
+      { role: 'hinge', label: 'Deadlift',       variants: ['deadlift', 'kb_deadlift', 'db_rdl', 'glute_bridge'] },
+      { role: 'press', label: 'Press',          variants: ['ohp', 'db_press', 'kb_press', 'incline_pushup'] },
+      { role: 'pull',  label: 'Pull + landing', variants: ['jumping_chinup', 'inverted_row', 'db_row', 'backpack_row'], pull: true },
+    ],
+  },
+  impact: {
+    id: 'impact',
+    kind: 'impact',
+    name: 'Impact set',
+    blurb: '10 jumps, 30 seconds apart. About five minutes, anywhere.',
+  },
+};
 
-// Weekly rhythm suggestion shown on Today (no enforcement — life happens).
-export const WEEK_SHAPE = 'A · Move · B — with easy days between. Any order that fits your week is right.';
+export const JUMPS_PER_SET = 10;
+export const JUMP_REST_SEC = 30;
+// A set this short still counts; anything less is a false start.
+export const MIN_JUMPS_TO_COUNT = 5;
+export const IMPACT_LEVEL_EVERY = 6;
+
+// The impact progression: a new level every IMPACT_LEVEL_EVERY completed sets.
+// Strain rises by height, then by drop, then by direction (bone likes loads it
+// hasn't seen before).
+export const IMPACT_LEVELS = [
+  {
+    name: 'Small jumps',
+    cue: 'Jump straight up about a hand’s height. Land softly on the balls of your feet and let your heels kiss the floor, knees bending to absorb it.',
+  },
+  {
+    name: 'Full jumps',
+    cue: 'Dip, swing your arms, and jump as high as you can. Land softly on both feet with your knees bending, quiet as you can make it.',
+  },
+  {
+    name: 'Step-down landings',
+    cue: 'Step off a low step (a bottom stair is perfect), land on both feet, absorb, then jump straight up as high as you can.',
+  },
+  {
+    name: 'Jumps in every direction',
+    cue: 'Full jumps, changing direction each time: forward, to the side, back, to the other side. Land softly and reset between each.',
+  },
+];
 
 // ── Equipment resolution ────────────────────────────────────────────────────
 export function resolveVariant(variants, owned) {
@@ -117,8 +112,7 @@ export function resolveVariant(variants, owned) {
   return variants[variants.length - 1]; // last is always bodyweight
 }
 
-// All variants the user could run right now (for the swap picker): the ones
-// their equipment allows, with the rest shown disabled by the UI if desired.
+// All variants the user could run right now (for the swap picker).
 export function availableVariants(variants, owned) {
   const have = new Set(owned ?? []);
   return variants.filter((key) => (EX[key]?.needs ?? []).every((n) => have.has(n)));

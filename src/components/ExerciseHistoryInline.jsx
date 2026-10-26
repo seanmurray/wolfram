@@ -1,6 +1,6 @@
 import styles from './ExerciseHistoryInline.module.css';
 import { useExerciseHistory } from '../hooks/useExerciseHistory';
-import { formatDate } from '../lib/dateFormat';
+import { formatDate } from '../lib/dateFormat.js';
 
 // Inline "Recent" block — last 3 sessions of one exercise.
 //   'sets' — set-table exercises (set count × reps @ weight · RPE)

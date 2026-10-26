@@ -1,78 +1,182 @@
-.weekCard {
-  display: flex;
-  align-items: center;
-  gap: 16px;
+/* ── Weekly tally: three meters ─────────────────────────────── */
+.tally {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin: 16px 0 14px;
+}
+
+.meter {
   background: var(--bg-card);
   border: 1px solid var(--bg-raised);
-  border-radius: var(--r3);
-  padding: 16px 18px;
-  margin: 16px 0 22px;
+  border-radius: var(--r2);
+  padding: 12px 12px 11px;
+  --tone: var(--green);
+  --tone-bg: var(--green-bg);
 }
+.meter.impact { --tone: var(--amber); --tone-bg: var(--amber-bg); }
+.meter.studio { --tone: var(--sage);  --tone-bg: var(--sage-bg); }
+.meter.met { background: var(--tone-bg); border-color: transparent; }
 
-.weekCount {
-  font-family: var(--font-display); font-variant-numeric: lining-nums tabular-nums; font-weight: 600;
-  font-size: 44px;
+.meterCount {
+  font-family: var(--font-display);
+  font-variant-numeric: lining-nums tabular-nums;
+  font-weight: 600;
+  font-size: 32px;
   line-height: 1;
-  color: var(--green);
+  color: var(--tone);
 }
-.weekGoal { font-size: 26px; color: var(--t3); }
+.meterGoal { font-size: 19px; color: var(--t3); margin-left: 1px; }
 
-.weekText { flex: 1; }
-.weekLabel {
-  font-size: 14px;
+.meterLabel {
+  font-size: 13px;
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--t3);
+  margin-top: 6px;
 }
-.weekShape { font-size: 14px; color: var(--t2); margin-top: 4px; line-height: 1.4; }
 
-.sectionLabel {
+.meterBar {
+  height: 4px;
+  border-radius: 2px;
+  background: var(--bg-raised);
+  margin-top: 8px;
+  overflow: hidden;
+}
+.meterBar span {
+  display: block;
+  height: 100%;
+  background: var(--tone);
+  border-radius: 2px;
+  transition: width 0.3s var(--ease-sheet);
+}
+
+/* ── The one suggestion ─────────────────────────────────────── */
+.suggest {
+  background: var(--bg-card);
+  border-radius: var(--r3);
+  border-left: 3px solid var(--green);
+  padding: 16px 16px 16px 18px;
+  margin-bottom: 12px;
+}
+.suggestLabel {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--green);
+}
+.suggestTitle {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 24px;
+  letter-spacing: -0.01em;
+  line-height: 1.15;
+  color: var(--t1);
+  margin-top: 6px;
+}
+.suggestBody { font-size: 16px; line-height: 1.5; color: var(--t2); margin-top: 6px; }
+.suggestBtn {
+  margin-top: 14px;
+  width: 100%;
+  min-height: var(--tap);
+  border-radius: var(--r2);
+  background: var(--green);
+  color: var(--on-accent);
+  font-size: 17px;
+  font-weight: 700;
+}
+.suggestBtn:active { transform: scale(0.98); }
+
+/* ── Quick actions ──────────────────────────────────────────── */
+.quick {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.quickBtn {
+  min-height: var(--tap);
+  border-radius: var(--r2);
+  background: var(--bg-card);
+  border: 1px solid var(--bg-raised);
+  color: var(--t1);
   font-size: 15px;
+  font-weight: 600;
+  padding: 0 6px;
+}
+.quickBtn:active { background: var(--bg-raised); }
+
+/* ── Planner ────────────────────────────────────────────────── */
+.sectionLabel {
+  font-size: 14px;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--t3);
-  margin-bottom: 12px;
+  margin: 22px 0 10px;
 }
 
-.dayCard {
+.planner { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+
+.occ {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
   background: var(--bg-card);
   border: 1px solid var(--bg-raised);
   border-radius: var(--r2);
-  padding: 16px;
-  margin-bottom: 12px;
+  padding: 12px 12px 12px 14px;
 }
-.dayCard.suggested { border-color: var(--green-line); background: var(--green-bg); }
+.occFills { border-color: var(--green-line); box-shadow: inset 3px 0 0 var(--green); }
+.occSkipped { opacity: 0.6; }
+.occSkipped .occName { text-decoration: line-through; }
 
-.dayHead { display: flex; gap: 12px; align-items: flex-start; }
-.dayEmoji { font-size: 28px; }
-.dayName { font-size: 19px; font-weight: 700; color: var(--t1); }
-.suggestTag {
-  margin-left: 8px;
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--green);
+.occWhen { display: flex; flex-direction: column; width: 62px; flex-shrink: 0; }
+.occDay { font-size: 15px; font-weight: 700; color: var(--t1); }
+.occTime { font-size: 14px; color: var(--t3); margin-top: 1px; font-variant-numeric: tabular-nums; }
+
+.occMain { flex: 1; min-width: 0; }
+.occName { font-size: 16px; font-weight: 600; color: var(--t1); line-height: 1.3; }
+.occStudio { font-size: 14px; color: var(--t3); margin-top: 1px; }
+.occMeta { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; margin-top: 7px; }
+.occStatus { font-size: 14px; color: var(--t2); }
+.occFills .occStatus { color: var(--green); font-weight: 600; }
+
+.skipBtn {
+  flex-shrink: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--t3);
+  padding: 6px 8px;
+  border-radius: var(--r1);
+  min-height: 36px;
+}
+.skipBtn:active { background: var(--bg-raised); }
+
+.emptyCard {
+  background: var(--bg-card);
+  border: 1px dashed var(--hairline-strong);
+  border-radius: var(--r2);
+  padding: 16px;
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--t2);
+}
+.emptyBtn {
+  margin-top: 12px;
+  min-height: var(--tap-min);
+  padding: 0 16px;
+  border-radius: var(--r1);
   background: var(--green-bg);
   border: 1px solid var(--green-line);
-  border-radius: 999px;
-  padding: 2px 8px;
-  vertical-align: middle;
+  color: var(--green);
+  font-size: 15px;
+  font-weight: 700;
 }
-.dayBlurb { font-size: 15px; color: var(--t2); margin-top: 3px; line-height: 1.45; }
 
-.startBtn {
-  margin-top: 12px;
-  width: 100%;
-  padding: 13px;
-  border-radius: var(--r1);
-  background: var(--green);
-  color: var(--on-accent);
-  font-size: 16px;
-  font-weight: 800;
-}
+.quiet { font-size: 15px; color: var(--t3); }
 
 .footNote {
   font-size: 14px;

@@ -1,0 +1,43 @@
+/* What a session counts as: Heavy (filament ember), Impact (glow amber),
+   Studio (olive), Cardio (slate). Shared by Today, Classes, History and the
+   log sheet so a colour always means the same thing. */
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 3px 9px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+
+.heavy, .lifting  { color: var(--green); background: var(--green-bg); border-color: var(--green-line); }
+/* Impact and Studio chips use lighter tints than their tokens so the text
+   clears 4.5:1 on the page background as well as on cards. */
+.impact { color: var(--amber); background: rgba(214, 160, 82, 0.14); border-color: var(--amber-line); }
+.studio { color: var(--sage); background: rgba(95, 106, 73, 0.08); border-color: var(--purple-line); }
+.cardio { color: var(--blue); background: var(--blue-bg); border-color: var(--blue-line); }
+
+.row { display: flex; gap: 6px; flex-wrap: wrap; }
+
+/* Selectable variant for choosers (format, day). */
+.pick {
+  font-size: 15px;
+  font-weight: 600;
+  padding: 9px 14px;
+  border-radius: 999px;
+  background: var(--bg-card);
+  color: var(--t2);
+  border: 1px solid var(--bg-raised);
+  min-height: var(--tap-min);
+}
+.pick.on {
+  background: var(--green);
+  color: var(--on-accent);
+  border-color: var(--green);
+}
+.pick:disabled { opacity: 0.4; }

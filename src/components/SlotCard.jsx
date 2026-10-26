@@ -6,10 +6,12 @@ import { EX } from '../data/exercises';
 import { useSlotStore } from '../stores/slotStore';
 import { useSettingsStore } from '../stores/settingsStore';
 import { resolveSlot, savedNameFor, badgeFor } from '../lib/resolveSlot';
+import { PHASES } from '../data/program';
 
 // One workout slot: resolves the exercise (today swap > standing preference >
 // equipment), renders the card with set logging, recent history, and the
-// swap picker.
+// swap picker. On the home-gym day the phase sets the prescription (learn
+// 3×8 @ 7, heavy 5×5 @ 8) whichever variant is running.
 
 const DEFAULT_RX = { sets: 2, reps: 8 };
 
@@ -19,7 +21,7 @@ function parseTarget(target) {
   return m ? { sets: Number(m[1]), reps: Number(m[2]) } : null;
 }
 
-export function SlotCard({ slot, dayId }) {
+export function SlotCard({ slot, dayId, phase = null }) {
   const slotId = `${dayId}:${slot.role}`;
   const todayChoice = useSlotStore((s) => s.today[slotId]);
   const alwaysChoice = useSlotStore((s) => s.always[slotId]);
@@ -30,8 +32,13 @@ export function SlotCard({ slot, dayId }) {
   const savedName = savedNameFor(res);
   const badge = badgeFor(res);
 
-  const target = activeEx?.target ?? `${DEFAULT_RX.sets}×${DEFAULT_RX.reps}`;
-  const prescription = parseTarget(target) ?? DEFAULT_RX;
+  const phaseRx = phase ? (slot.pull ? PHASES[phase].pullRx : PHASES[phase].rx) : null;
+  const target = phaseRx
+    ? `${phaseRx.sets}×${phaseRx.reps}`
+    : activeEx?.target ?? `${DEFAULT_RX.sets}×${DEFAULT_RX.reps}`;
+  const prescription = phaseRx ?? parseTarget(target) ?? DEFAULT_RX;
+  // Heavy work gets longer rest (lib/rest.js HEAVY_FACTOR).
+  const context = phase === 'heavy' ? 'heavy' : 'strength';
   const showWeight = res.isCustom ? true : !activeEx?.bodyweight;
 
   return (
@@ -49,7 +56,7 @@ export function SlotCard({ slot, dayId }) {
         exerciseName={savedName}
         prescription={prescription}
         role={slot.role}
-        context="strength"
+        context={context}
         showWeight={showWeight}
       />
       <ExerciseHistoryInline exerciseKey={res.activeKey} kind="sets" />

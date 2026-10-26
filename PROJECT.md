@@ -1,6 +1,6 @@
 # Wolfram — project status
 
-**Last updated:** 2026-10-26 — forked from Perennial, rebranded, repo + Pages live; program still Perennial's.
+**Last updated:** 2026-10-26 — program + classes spec built and verified locally; not pushed (no GitHub repo yet).
 
 Section headers stay fixed so both machines and every session find things.
 Newest entries go at the TOP of each list. Keep the Last-updated line to one
@@ -8,9 +8,9 @@ sentence; history lives in Release log / Incidents, not here.
 
 ## Status
 
-- Web: https://seanmurray.github.io/wolfram/ — **scaffold, not ready to share.**
-  Brand, palette, storage and deploy are Wolfram's; the training program is
-  still Perennial's gentle three-day plan until the spec below is built.
+- Web: **not deployed.** Planned at https://seanmurray.github.io/wolfram/ once
+  the repo exists (see Blockers). The app is feature-complete for v1 per
+  `docs/specs/program-and-classes.md` and verified in the local dev build.
 - Android: n/a (personal PWA)
 - iOS: n/a — installed to the iPhone Home Screen as a PWA (see Decisions)
 
@@ -18,16 +18,20 @@ sentence; history lives in Release log / Incidents, not here.
 
 | Date | Step | Where | Notes |
 |---|---|---|---|
+| 2026-10-26 | v1 spec built: LIFTMOR-four gym session (learn → heavy at session 7), impact sets with levels, class library + planner, log-a-class, Today tally/suggestion, target sliders, bone-health settings | local | Verified in the dev build at 375×812 against spec criteria 1–10; 52 unit tests |
 | 2026-10-26 | Forked from Perennial `8945518` (tracked files only, fresh history) | `C:\dev\personal\wolfram` | Perennial artwork, README, person-specific comments removed |
 | 2026-10-26 | Template layer applied | repo | `.gitattributes`, `.editorconfig`, `.githooks` (pre-commit check, pre-push build), `.claude/settings.json`, `check-live.mjs` |
-| 2026-10-26 | GitHub repo created (public) + Pages enabled (`build_type=workflow`) | `seanmurray/wolfram` | Pages enabled *before* first push, so the first run can't fail on it |
+
+When the repo is created: enable Pages with `build_type=workflow` *before* the
+first push, so the first workflow run can't fail on it (Perennial's did).
 
 ## Backlog (top = next)
 
-1. Build `docs/specs/program-and-classes.md` (confirmed 2026-10-26): program + exercises, sessions with kinds/buckets, class library, Today tally + suggestion + planner, log-a-class, Settings sliders
-2. Final brand artwork — `brand/mark.svg` is a placeholder (lit filament "W"); Sean may supply art, as he did for Perennial
-3. Install-to-Home-Screen prompt for iOS Safari (persistence depends on it)
-4. Resolve the npm `edgesOut` crash (Incidents) before the next devDependency is needed
+1. Create the GitHub repo + Pages (Blockers), push, verify with `npm run check-live`
+2. On-device pass on the user's iPhone: Home Screen install, log a class, force-quit, reopen, data intact (can't be done from Windows)
+3. Final brand artwork — `brand/mark.svg` is a placeholder (lit filament "W"); Sean may supply art, as he did for Perennial
+4. Install-to-Home-Screen prompt for iOS Safari (persistence depends on it)
+5. Resolve the npm `edgesOut` crash (Incidents) before the next devDependency is needed
 
 ## Blockers
 
@@ -49,8 +53,9 @@ sentence; history lives in Release log / Incidents, not here.
 
 | Date | What broke | Root cause | Fix / rule added |
 |---|---|---|---|
+| 2026-10-26 | History showed "Invalid Date" on every session | `lib/dateFormat.js` came from the soccer app, where `performed_at` was a Postgres DATE ("2026-10-26"); localdb writes ISO timestamps, so the day parsed as NaN. **Also live in Perennial** (same file, same storage) | Formatter handles both shapes, shows timestamps in local time; 4 tests incl. a 10 pm-local/next-day-UTC case |
 | 2026-10-26 | `npm install -D vitest@<any>` crashes: `Cannot read properties of null (reading 'edgesOut')` in arborist `#loadPeerSet` (npm 10.9.2). Lockfile and node_modules left untouched | **Open.** Crash is inside npm's peer-set resolution while walking vitest's optional peers (`@vitest/browser-playwright`, `@vitejs/devtools-vitest`). Same with 4.1.12 and 5.0.4, so not version mixing. `npm ci` works. Two attempts made; stopped per the two-attempt rule. Untried: deleting node_modules only (keep lockfile), `--legacy-peer-deps` (may prune peers), newer npm | Tests use Node's built-in `node:test` instead (no install, works on CI Node 20). **Gotcha found along the way:** a failed `npm i` then `npx vitest` silently fetched vitest@latest into the npx cache. Run tests via `npm test` only |
-| 2026-10-26 | A timezone set as `TZ=… node` in Git Bash never reached Node | MSYS strips `TZ` from the environment of native Windows programs | `scripts/test-tz.mjs` sets `process.env.TZ` at runtime via `--import` (works everywhere). Negative control verified: without it the env check fails |
+| 2026-10-26 | A timezone set as `TZ=… node` in Git Bash never reached Node | MSYS strips `TZ` from the environment of native Windows programs | `scripts/tz-preload.mjs` sets `process.env.TZ` at runtime via `--import` (works everywhere). Negative control verified: without it the env check fails |
 
 ## Release log
 

@@ -9,12 +9,13 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 export const useSessionStore = create(
   persist(
     (set) => ({
-      dayId: null,              // 'a' | 'b' | 'move' | null (no active session)
+      dayId: null,              // 'gym' | 'impact' | null (no active session)
       setsBuffer: [],
       perfBuffer: [],
       warmupChecked: [],
       sessionStartedAt: null,
       sessionEndedAt: null,
+      jumps: 0,                 // impact set: jumps completed so far
 
       startSession: (dayId) =>
         set({
@@ -24,7 +25,10 @@ export const useSessionStore = create(
           warmupChecked: [],
           sessionStartedAt: new Date().toISOString(),
           sessionEndedAt: null,
+          jumps: 0,
         }),
+
+      setJumps: (n) => set({ jumps: Math.max(0, n) }),
 
       markSessionEnd: () => set({ sessionEndedAt: new Date().toISOString() }),
 
@@ -46,6 +50,7 @@ export const useSessionStore = create(
           warmupChecked: [],
           sessionStartedAt: null,
           sessionEndedAt: null,
+          jumps: 0,
         }),
     }),
     {

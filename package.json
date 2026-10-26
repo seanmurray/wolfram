@@ -12,7 +12,7 @@
     "gen-icons": "node scripts/gen-icons.mjs",
     "check-live": "node scripts/check-live.mjs https://seanmurray.github.io/wolfram/",
     "prepare": "git config core.hooksPath .githooks",
-    "test": "node --import ./scripts/test-tz.mjs --test"
+    "test": "node --import ./scripts/tz-preload.mjs --test --test-reporter=dot"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.100.9",

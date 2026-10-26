@@ -71,3 +71,65 @@
 }
 .moveLog:disabled { opacity: 0.55; }
 .moveLogged { background: var(--bg-raised); color: var(--green); }
+
+/* ── Gym: spacing note ──────────────────────────────────────── */
+.spacingNote {
+  background: var(--amber-bg);
+  border-left: 3px solid var(--amber);
+  border-radius: var(--r1);
+  padding: 11px 13px;
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--t2);
+  margin-bottom: 16px;
+}
+
+/* ── Impact set ─────────────────────────────────────────────── */
+.impactCard {
+  background: var(--bg-card);
+  border-radius: var(--r3);
+  border-left: 3px solid var(--amber);
+  padding: 18px 18px 16px;
+  margin-bottom: 16px;
+  text-align: center;
+}
+.impactLevel {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 24px;
+  letter-spacing: -0.01em;
+  color: var(--t1);
+}
+.impactCue { font-size: 16px; line-height: 1.55; color: var(--t2); margin-top: 8px; text-align: left; }
+
+.counter { margin-top: 18px; display: flex; justify-content: center; align-items: baseline; gap: 6px; }
+.counterNum {
+  font-family: var(--font-display);
+  font-variant-numeric: lining-nums tabular-nums;
+  font-weight: 600;
+  font-size: 72px;
+  line-height: 1;
+  color: var(--amber);
+}
+.counterOf { font-size: 24px; color: var(--t3); font-variant-numeric: tabular-nums; }
+
+.dots { display: flex; justify-content: center; gap: 6px; margin-top: 12px; }
+.dot, .dotOn { width: 10px; height: 10px; border-radius: 50%; background: var(--bg-raised); }
+.dotOn { background: var(--amber); }
+
+.jumpBtn {
+  margin-top: 18px;
+  width: 100%;
+  min-height: 64px;
+  border-radius: var(--r3);
+  background: var(--green);
+  color: var(--on-accent);
+  font-size: 20px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.jumpBtn:disabled { background: var(--bg-raised); color: var(--t2); }
+.jumpBtn:not(:disabled):active { transform: scale(0.98); }
+
+.impactDone { margin-top: 18px; font-size: 17px; font-weight: 600; color: var(--amber); }
+.impactWhy { margin-top: 14px; font-size: 14px; line-height: 1.5; color: var(--t3); text-align: left; }

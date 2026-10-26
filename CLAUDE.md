@@ -47,3 +47,4 @@ specific to this app. Keep it under 200 lines; history goes in `PROJECT.md`.
 ## Gotchas already hit (one line each; move detail to PROJECT.md → Incidents)
 
 - 2026-10-26 — Bebas Neue → Fraunces: caps strings and 0.04–0.08em tracking were tuned for an all-caps condensed face; titles are sentence case now.
+- 2026-10-26 — Git Bash `grep` strips carriage returns, so it reports CRLF files as clean (and multi-line perl/sed edits silently miss). Check line endings with `git ls-files --eol`, never grep.

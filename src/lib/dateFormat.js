@@ -1,13 +1,21 @@
-// Shared date formatter for `performed_at` columns (DATE type in Postgres,
-// surfaced as "YYYY-MM-DD" strings). Constructing a Date directly from the
-// ISO string puts it at UTC midnight, which can shift a day in some
-// timezones; we split the parts and use the local-timezone constructor.
+// Shared date formatter for `performed_at` values. Two shapes exist:
+//
+//   "2026-10-26T17:20:54.000Z" — what localdb writes: an instant. Shown in
+//                                local time, so a 10 pm session stays on its
+//                                own day even though UTC has rolled over.
+//   "2026-10-26"               — a bare calendar date. Built with the local
+//                                constructor: new Date("2026-10-26") would be
+//                                UTC midnight and can show as the day before.
+//
+// (The bare-date branch is all this used to handle; the code came from a
+// Postgres DATE column, so every local timestamp rendered "Invalid Date".)
 
 const DATE_FMT = { weekday: 'short', month: 'short', day: 'numeric' };
 
 export function formatDate(iso) {
   if (!iso) return '—';
-  const [y, m, d] = iso.split('-').map(Number);
-  const date = new Date(y, (m ?? 1) - 1, d ?? 1);
-  return date.toLocaleDateString(undefined, DATE_FMT);
+  const date = /^\d{4}-\d{2}-\d{2}$/.test(iso)
+    ? (([y, m, d]) => new Date(y, m - 1, d))(iso.split('-').map(Number))
+    : new Date(iso);
+  return Number.isNaN(date.getTime()) ? '—' : date.toLocaleDateString(undefined, DATE_FMT);
 }

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import styles from './SettingsScreen.module.css';
 import { EQUIPMENT } from '../data/program';
+import { TARGET_LIMITS } from '../lib/plan.js';
 import { useSettingsStore } from '../stores/settingsStore';
 import { TimerSoundRecorder } from '../components/TimerSoundRecorder';
 import { exportAll, importAll, markExported, unbackedUpCount, storageInfo } from '../lib/localdb';
@@ -23,11 +24,38 @@ function ToggleRow({ label, sub, checked, onChange }) {
   );
 }
 
+// One weekly-target slider. Range and step come from lib/plan.js so the
+// store, the planner and the UI can't disagree about the limits.
+function TargetSlider({ id, label, value, format, sub, onChange }) {
+  const { min, max, step } = TARGET_LIMITS[id];
+  return (
+    <div className={styles.sliderRow}>
+      <div className={styles.sliderHead}>
+        <label htmlFor={`target-${id}`} className={styles.rowLabel}>{label}</label>
+        <span className={styles.sliderVal}>{format(value)}</span>
+      </div>
+      <input
+        id={`target-${id}`}
+        type="range"
+        min={min}
+        max={max}
+        step={step}
+        value={value}
+        className={styles.slider}
+        onChange={(e) => onChange(id, Number(e.target.value))}
+      />
+      <div className={styles.rowSub}>{sub}</div>
+    </div>
+  );
+}
+
 export function SettingsScreen() {
   const equipment = useSettingsStore((s) => s.equipment);
   const toggleEquipment = useSettingsStore((s) => s.toggleEquipment);
-  const weeklyGoal = useSettingsStore((s) => s.weeklyGoal);
-  const setWeeklyGoal = useSettingsStore((s) => s.setWeeklyGoal);
+  const targets = useSettingsStore((s) => s.targets);
+  const setTarget = useSettingsStore((s) => s.setTarget);
+  const lowBoneDensity = useSettingsStore((s) => s.lowBoneDensity);
+  const setLowBoneDensity = useSettingsStore((s) => s.setLowBoneDensity);
   const timerPrefs = useSettingsStore((s) => s.timerPrefs);
   const setTimerPref = useSettingsStore((s) => s.setTimerPref);
 
@@ -124,8 +152,51 @@ export function SettingsScreen() {
       <div className="overline">Make it yours</div>
       <div className="title-xl">Settings</div>
 
-      <div className={styles.sectionLabel}>My equipment</div>
-      <div className={styles.hint}>The plan re-adapts the moment you change these.</div>
+      <div className={styles.sectionLabel}>Weekly targets</div>
+      <div className={styles.hint}>
+        Starting points, not rules. Today’s tally and suggestion follow these
+        the moment you move them.
+      </div>
+      <div className={styles.group}>
+        <TargetSlider
+          id="heavy"
+          label="Heavy sessions a week"
+          value={targets.heavy}
+          format={(v) => (v === 0 ? 'No goal' : String(v))}
+          sub="The lifting that builds bone. Two is what the research used."
+          onChange={setTarget}
+        />
+        <TargetSlider
+          id="spacingHours"
+          label="Time between heavy sessions"
+          value={targets.spacingHours}
+          format={(v) => `${v} hours`}
+          sub="Recovery between heavy days. Wolfram won’t suggest a heavy class or session sooner than this."
+          onChange={setTarget}
+        />
+        <TargetSlider
+          id="impact"
+          label="Impact sets a week"
+          value={targets.impact}
+          format={(v) => (v === 0 ? 'No goal' : String(v))}
+          sub="The study this is based on used one set twice a day, which is 14 a week. Three is an easy start; raise it once jumping feels routine. Impact classes count too."
+          onChange={setTarget}
+        />
+        <TargetSlider
+          id="studio"
+          label="Studio classes a week"
+          value={targets.studio}
+          format={(v) => (v === 0 ? 'No goal' : String(v))}
+          sub="Yoga, pilates, barre: counted either way. Set a goal if you want the nudge."
+          onChange={setTarget}
+        />
+      </div>
+
+      <div className={styles.sectionLabel}>The home gym</div>
+      <div className={styles.hint}>
+        The heavy session only runs here. Untick anything that isn’t there and
+        the lifts swap to what is.
+      </div>
       <div className={styles.group}>
         {EQUIPMENT.map((eq) => (
           <ToggleRow
@@ -138,11 +209,19 @@ export function SettingsScreen() {
         ))}
       </div>
 
-      <div className={styles.sectionLabel}>Weekly goal</div>
-      <div className={styles.goalRow}>
-        <button type="button" className={styles.stepBtn} onClick={() => setWeeklyGoal(weeklyGoal - 1)} aria-label="Lower goal">−</button>
-        <div className={styles.goalVal}>{weeklyGoal} days / week</div>
-        <button type="button" className={styles.stepBtn} onClick={() => setWeeklyGoal(weeklyGoal + 1)} aria-label="Raise goal">+</button>
+      <div className={styles.sectionLabel}>Bone health</div>
+      <div className={styles.dexa}>
+        Wolfram isn’t medical advice. A DEXA scan gives you a baseline bone
+        density reading; ask your doctor about one, and whether heavy lifting
+        and jumping are right for you.
+      </div>
+      <div className={styles.group}>
+        <ToggleRow
+          label="Keep impact gentle"
+          sub="I’ve been told I have low bone density, or I’ve broken a bone in a minor fall. Impact sets stay at the first level until a doctor or physio clears more."
+          checked={lowBoneDensity}
+          onChange={setLowBoneDensity}
+        />
       </div>
 
       <div className={styles.sectionLabel}>Rest timer</div>

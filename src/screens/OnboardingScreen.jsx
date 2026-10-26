@@ -1,21 +1,11 @@
-import { useState } from 'react';
 import styles from './OnboardingScreen.module.css';
-import { EQUIPMENT } from '../data/program';
 import { useSettingsStore } from '../stores/settingsStore';
 
-// First-run screen — one friendly question: what do you have on hand?
-// Every workout slot resolves against this, and it's editable any time in
-// Settings, so there's no wrong answer. "Nothing yet" is a complete program.
+// First run: what Wolfram does, and the one thing to do before heavy lifting
+// and jumping. No equipment question: the home gym is preset (Settings can
+// change it), and everything else is classes and bodyweight.
 export function OnboardingScreen() {
   const completeOnboarding = useSettingsStore((s) => s.completeOnboarding);
-  const [picked, setPicked] = useState(new Set());
-
-  const toggle = (id) =>
-    setPicked((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id); else next.add(id);
-      return next;
-    });
 
   return (
     <main className={`screen ${styles.wrap}`}>
@@ -24,42 +14,37 @@ export function OnboardingScreen() {
         <span className={styles.wordmark}>Wolfram</span>
       </div>
       <p className={styles.tagline}>
-        Strength for the long run. Heavy lifting and impact work — the loading
-        bone actually responds to — fitted around the classes you already love.
+        Strength for the long run. Heavy lifting and impact work, the loading
+        bone actually responds to, fitted around the classes you already love.
         Everything stays on your phone.
       </p>
 
-      <div className={styles.question}>What equipment do you have on hand?</div>
-      <div className={styles.hint}>
-        Tap everything that applies — or nothing at all. The plan adapts
-        either way, and you can change this in Settings whenever.
+      <ol className={styles.steps}>
+        <li>
+          <span className={styles.stepTitle}>Your classes stay at the centre.</span>
+          Add the ones you take, and Wolfram shows which of them actually load
+          bone, and which to book each week.
+        </li>
+        <li>
+          <span className={styles.stepTitle}>It fills the gap.</span>
+          Heavy lifting at the home gym and five-minute jump sets, sized to what
+          your week still needs.
+        </li>
+        <li>
+          <span className={styles.stepTitle}>One suggestion a day.</span>
+          Log a class in a couple of taps and the week adds itself up.
+        </li>
+      </ol>
+
+      <div className={styles.dexa}>
+        <div className={styles.dexaTitle}>Before you start</div>
+        Ask your doctor about a DEXA scan for a baseline bone density reading,
+        and check that heavy lifting and jumping are right for you. Wolfram is a
+        training plan, not medical advice.
       </div>
 
-      <div className={styles.grid}>
-        {EQUIPMENT.map((eq) => {
-          const on = picked.has(eq.id);
-          return (
-            <button
-              key={eq.id}
-              type="button"
-              className={`${styles.card} ${on ? styles.on : ''}`}
-              onClick={() => toggle(eq.id)}
-              aria-pressed={on}
-            >
-              <span className={styles.check}>{on ? '✓' : ''}</span>
-              <span className={styles.label}>{eq.label}</span>
-              <span className={styles.eqHint}>{eq.hint}</span>
-            </button>
-          );
-        })}
-      </div>
-
-      <button
-        type="button"
-        className={styles.cta}
-        onClick={() => completeOnboarding([...picked])}
-      >
-        {picked.size === 0 ? 'Start with just my bodyweight →' : 'Build my plan →'}
+      <button type="button" className={styles.cta} onClick={completeOnboarding}>
+        Let’s start
       </button>
     </main>
   );

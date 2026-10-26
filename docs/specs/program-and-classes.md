@@ -1,7 +1,7 @@
 # Spec: program, class guide & gap-filler
 
-**Status:** CONFIRMED by Sean 2026-10-26 (answers folded in below; see
-"Decisions from Sean"). Building.
+**Status:** BUILT 2026-10-26, verified locally against criteria 1–10 (not yet deployed). Confirmed by Sean 2026-10-26 (see
+"Decisions from Sean").
 
 Wolfram is for someone heading into their 40s and 50s who loves studio classes
 (yoga, pilates, barre) and wants to build and hold bone. Classes stay the

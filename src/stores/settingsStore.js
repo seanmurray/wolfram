@@ -1,9 +1,10 @@
-// Settings — equipment on hand, onboarding state, weekly goal, timer prefs.
-// Persisted to localStorage; equipment can be changed any time in Settings
-// and every workout slot re-resolves immediately.
+// Settings: onboarding state, the home-gym equipment list, weekly targets,
+// the low-bone-density setting, timer prefs. Persisted to localStorage.
 
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
+import { HOME_GYM_PRESET } from '../data/program';
+import { DEFAULT_TARGETS, TARGET_LIMITS } from '../lib/plan.js';
 
 const initialTimerPrefs = {
   autoStart: true,
@@ -12,17 +13,19 @@ const initialTimerPrefs = {
   keepAwake: true,
 };
 
+const clampTarget = (key, n) => {
+  const { min, max } = TARGET_LIMITS[key];
+  return Math.max(min, Math.min(max, Math.round(n)));
+};
+
 export const useSettingsStore = create(
   persist(
     (set) => ({
-      // First-run: the equipment question gates the app until answered.
       onboarded: false,
-      equipment: [],            // EQUIPMENT ids the user owns
-      weeklyGoal: 3,            // target training days per week
+      completeOnboarding: () => set({ onboarded: true }),
 
-      completeOnboarding: (equipment) =>
-        set({ onboarded: true, equipment: [...equipment] }),
-
+      // The home gym's kit: the only place the heavy session runs.
+      equipment: HOME_GYM_PRESET,
       toggleEquipment: (id) =>
         set((s) => ({
           equipment: s.equipment.includes(id)
@@ -30,7 +33,14 @@ export const useSettingsStore = create(
             : [...s.equipment, id],
         })),
 
-      setWeeklyGoal: (n) => set({ weeklyGoal: Math.max(1, Math.min(7, n)) }),
+      // Weekly targets: defaults from the spec, every one a slider.
+      targets: DEFAULT_TARGETS,
+      setTarget: (key, n) => set((s) => ({ targets: { ...s.targets, [key]: clampTarget(key, n) } })),
+
+      // "I've been told I have low bone density, or had a fracture from a
+      // minor fall": impact sets stay at the first level.
+      lowBoneDensity: false,
+      setLowBoneDensity: (v) => set({ lowBoneDensity: !!v }),
 
       timerPrefs: initialTimerPrefs,
       setTimerPref: (key, value) =>
@@ -39,6 +49,14 @@ export const useSettingsStore = create(
     {
       name: 'wolfram-settings',
       storage: createJSONStorage(() => localStorage),
+      // v1: Wolfram's own shape. Anything older came from the Perennial
+      // scaffold (a generic equipment list, a days-per-week goal), so it
+      // resets to the home-gym preset and default targets.
+      version: 1,
+      migrate: (state, from) =>
+        from < 1
+          ? { ...state, equipment: HOME_GYM_PRESET, targets: DEFAULT_TARGETS, weeklyGoal: undefined }
+          : state,
     }
   )
 );
