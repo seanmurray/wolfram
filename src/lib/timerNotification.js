@@ -14,15 +14,16 @@ import { isNative } from './nativeFile.js';
 
 const NOTIF_ID = 4207;
 
-let pluginPromise = null;
-function getPlugin() {
+// Resolves to the module, never the plugin itself: Capacitor's plugin proxy
+// answers every property, `then` included, so any promise resolved with it
+// calls LocalNotifications.then(), which rejects as unimplemented (that made
+// this a silent no-op on native). Callers read `.LocalNotifications` after
+// the await.
+let modPromise = null;
+function getModule() {
   if (!isNative()) return Promise.resolve(null);
-  if (!pluginPromise) {
-    pluginPromise = import('@capacitor/local-notifications')
-      .then((m) => m.LocalNotifications)
-      .catch(() => null);
-  }
-  return pluginPromise;
+  if (!modPromise) modPromise = import('@capacitor/local-notifications').catch(() => null);
+  return modPromise;
 }
 
 // Asks once, the first time a timer runs. A "no" just means no screen-off
@@ -38,7 +39,7 @@ async function ensurePermission(ln) {
 // Best-effort: any failure (permission denied, plugin missing) means no
 // background alert; the in-app foreground behaviour is unaffected.
 export async function scheduleTimerEndNotification({ endsAt, exerciseName, role, sound }) {
-  const ln = await getPlugin();
+  const ln = (await getModule())?.LocalNotifications;
   if (!ln) return;
   try {
     if (!(await ensurePermission(ln))) return;
@@ -59,7 +60,7 @@ export async function scheduleTimerEndNotification({ endsAt, exerciseName, role,
 }
 
 export async function cancelTimerEndNotification() {
-  const ln = await getPlugin();
+  const ln = (await getModule())?.LocalNotifications;
   if (!ln) return;
   try { await ln.cancel({ notifications: [{ id: NOTIF_ID }] }); } catch { /* ignore */ }
 }

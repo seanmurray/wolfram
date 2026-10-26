@@ -5,8 +5,9 @@ import reactRefresh from 'eslint-plugin-react-refresh'
 import { defineConfig, globalIgnores } from 'eslint/config'
 
 export default defineConfig([
-  // ios/ holds a copy of the built bundle (cap sync) — generated, not source.
-  globalIgnores(['dist', 'dev-dist', 'ios']),
+  // ios/ holds a copy of the built bundle (cap sync); build/ is Xcode's
+  // DerivedData and archives on the Mac. Generated, not source.
+  globalIgnores(['dist', 'dev-dist', 'ios', 'build']),
   {
     files: ['**/*.{js,jsx}'],
     extends: [

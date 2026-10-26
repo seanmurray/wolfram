@@ -1,6 +1,6 @@
 # Wolfram — project status
 
-**Last updated:** 2026-10-26 — Capacitor iOS shell ready for a TestFlight build (Mac next); web unchanged and live.
+**Last updated:** 2026-10-26 — First TestFlight build 1.0 (1) uploaded from the Mac; external testing group is next.
 
 Section headers stay fixed so both machines and every session find things.
 Newest entries go at the TOP of each list. Keep the Last-updated line to one
@@ -12,14 +12,17 @@ sentence; history lives in Release log / Incidents, not here.
   with `npm run check-live` (compares the served build id to local HEAD).
   Feature-complete for v1 per `docs/specs/program-and-classes.md`.
 - Android: n/a (personal PWA)
-- iOS: **Capacitor 7 shell committed, never built yet.** Next: the Mac builds
-  and uploads to TestFlight (`HANDOFF.md`); the user installs from an
-  external-tester invite. Spec: `docs/specs/native-ios.md`.
+- iOS: **TestFlight build 1.0 (1) uploaded 2026-10-26** (Xcode 26.3).
+  Simulator pass for criteria 2–5 done. Next: External Testing group with
+  the user's email + Beta App Review (PC/browser, `HANDOFF.md` → After the
+  upload), then criterion 6 on the iPhone. Spec: `docs/specs/native-ios.md`.
 
 ## Done ledger (dated — never redo these)
 
 | Date | Step | Where | Notes |
 |---|---|---|---|
+| 2026-10-26 | First TestFlight upload: 1.0 (1), archive + `-exportArchive` with `ExportOptions.plist` (Xcode 26.3 via DEVELOPER_DIR) | Mac → App Store Connect | App record confirmed first in the console ("Wolfram Strength", bundle select = com.seanmurray.wolfram). Upload took ~2 s, no CDUploads stall. Build processed to Ready to Submit in TestFlight → iOS Builds. Apple warning: deployment target iOS 14.0; from April 2027 uploads need 15.0+ (backlog) |
+| 2026-10-26 | Simulator pass, spec criteria 2–5 (Xcode 26.3, **iPhone 16 Pro / iOS 26.3**: the only runtime installed; the iOS 18.0 runtime in `HANDOFF.md` is unavailable under 26.3) | Mac simulator | (2) indirect: no ServiceWorkers store in the app's WebKit data, CacheStorage holds only its salt (no Web Inspector session). (3) onboarding + class "Barbell Strength" logged heavy → `Documents/wolfram-data.json` held the session + `wolfram-settings`/`wolfram-classes`; app terminated, LocalStorage + IndexedDB dirs deleted, relaunch showed Heavy 1/2 and the class. (4) share sheet showed `wolfram-backup-2026-10-26` (JSON, 2 KB). (5) **failed first** (see Incidents), passed after the fix: bridge logged checkPermissions → requestPermissions → granted → schedule id 4207; app backgrounded; SpringBoard logged the notification added with shouldPresentAlert 1 at end of the 30 s. Side note: iOS logged `Failed to find sound "default"` (the plugin treats `sound` as a file name) |
 | 2026-10-26 | TestFlight Test Information saved: beta description, feedback email, Beta App Review contact, review notes (no sign-in), privacy policy URL `https://seanmurray.github.io/wolfram/privacy.html` | App Store Connect → Wolfram Strength → TestFlight → Test Information | Sean approved all values; contact details live only in ASC (public repo). Verified after reload |
 | 2026-10-26 | Privacy page published (`public/privacy.html`): nothing collected, data stays on device, local notifications, mic only for the recorded timer sound, GitHub Pages hosting | GitHub Pages | No personal details on the page |
 | 2026-10-26 | App Store Connect app record created: name **"Wolfram Strength"** ("Wolfram" is taken; the home screen still says Wolfram), Apple ID **6827281356**, SKU `wolfram-ios`, English (U.S.), Full Access | App Store Connect, team 6RWD7M34MY | Sean approved the values. Verified after reload on App Information (bundle select = com.seanmurray.wolfram). A "user access could not be saved" notice appeared; the result is all users, which matches the Full Access choice |
@@ -33,12 +36,13 @@ sentence; history lives in Release log / Incidents, not here.
 
 ## Backlog (top = next)
 
-1. Mac: simulator pass for spec criteria 2–5, then the first TestFlight upload (`HANDOFF.md`)
-2. TestFlight external group with the user's email (the External Testing section only appears once a build exists); first build through Beta App Review
-3. On-device pass on the user's iPhone: TestFlight install, log a class, force-quit, reopen, data intact
-4. Final brand artwork — `brand/mark.svg` is a placeholder (lit filament "W"); Sean may supply art, as he did for Perennial
-5. Upload a fresh TestFlight build at least every 90 days (builds expire)
-6. Resolve the npm `edgesOut` crash (Incidents) before vitest is needed
+1. TestFlight external group with the user's email (the External Testing section only appears once a build exists); first build through Beta App Review
+2. On-device pass on the user's iPhone: TestFlight install, log a class, force-quit, reopen, data intact
+3. Final brand artwork — `brand/mark.svg` is a placeholder (lit filament "W"); Sean may supply art, as he did for Perennial
+4. Upload a fresh TestFlight build at least every 90 days (builds expire; 1.0 (1) uploaded 2026-10-26 → by 2027-01-24)
+5. Raise the iOS deployment target 14.0 → 15.0 before April 2027 (ITMS-90068 on build 1; uploads below 15.0 are refused from then)
+6. Notification sound: plugin treats `sound: 'default'` as a file name (iOS logs "Failed to find sound"); check on the device whether the alert sounds
+7. Resolve the npm `edgesOut` crash (Incidents) before vitest is needed
 
 ## Blockers
 
@@ -60,6 +64,7 @@ sentence; history lives in Release log / Incidents, not here.
 
 | Date | What broke | Root cause | Fix / rule added |
 |---|---|---|---|
+| 2026-10-26 | Native timer notifications never scheduled: no permission prompt, no bridge calls | `getPlugin()` resolved a promise with the Capacitor plugin proxy. The proxy answers every property, `then` included, so the promise called `LocalNotifications.then()`, which rejected as unimplemented; `.catch(() => null)` swallowed it, so everything was a silent no-op | `timerNotification.js` caches the module and reads `.LocalNotifications` after the await. Rule: never return or resolve a Capacitor plugin proxy from a promise or async function |
 | 2026-10-26 | History showed "Invalid Date" on every session | `lib/dateFormat.js` came from the soccer app, where `performed_at` was a Postgres DATE ("2026-10-26"); localdb writes ISO timestamps, so the day parsed as NaN. **Also live in Perennial** (same file, same storage) | Formatter handles both shapes, shows timestamps in local time; 4 tests incl. a 10 pm-local/next-day-UTC case |
 | 2026-10-26 | `npm install -D vitest@<any>` crashes: `Cannot read properties of null (reading 'edgesOut')` in arborist `#loadPeerSet` (npm 10.9.2). Lockfile and node_modules left untouched | **Open.** Crash is inside npm's peer-set resolution while walking vitest's optional peers (`@vitest/browser-playwright`, `@vitejs/devtools-vitest`). Same with 4.1.12 and 5.0.4, so not version mixing. `npm ci` works, and so do other installs: the Capacitor 7 packages installed cleanly the same day (74 added, 0 changed), so the crash is specific to vitest's peer chain. Two attempts made; stopped per the two-attempt rule. Untried: deleting node_modules only (keep lockfile), `--legacy-peer-deps` (may prune peers), newer npm | Tests use Node's built-in `node:test` instead (no install, works on CI Node 20). **Gotcha found along the way:** a failed `npm i` then `npx vitest` silently fetched vitest@latest into the npx cache. Run tests via `npm test` only |
 | 2026-10-26 | A timezone set as `TZ=… node` in Git Bash never reached Node | MSYS strips `TZ` from the environment of native Windows programs | `scripts/tz-preload.mjs` sets `process.env.TZ` at runtime via `--import` (works everywhere). Negative control verified: without it the env check fails |
@@ -68,7 +73,8 @@ sentence; history lives in Release log / Incidents, not here.
 
 | Date | Version | Build | Target | Status |
 |---|---|---|---|---|
+| 2026-10-26 | 1.0 | 1 | TestFlight (iOS) | Processed: Ready to Submit (no Missing Compliance); expires in 90 days. ITMS-90068 warning email (deployment target 14.0) |
 
 ## Needs the other machine
 
-- PC → Mac: first TestFlight build: simulator pass for spec criteria 2–5, archive, upload (`HANDOFF.md`).
+- Mac → PC/browser: create the TestFlight External Testing group, add the user's email, submit 1.0 (1) for Beta App Review (`HANDOFF.md` → After the upload).

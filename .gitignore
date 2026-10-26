@@ -54,3 +54,6 @@ CLAUDE.local.md
 Thumbs.db
 .DS_Store
 * - Copy.*
+
+# Xcode DerivedData, archives and exports (Mac: HANDOFF.md steps 6-7)
+build/
