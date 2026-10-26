@@ -31,6 +31,9 @@ export default defineConfig(({ mode }) => {
     },
     VitePWA({
       registerType: 'autoUpdate',
+      // Registered by hand in main.jsx, web only: inside the native WebView a
+      // service worker serves the previous build after every cap sync.
+      injectRegister: null,
       includeAssets: ['favicon.png', 'apple-touch-icon.png'],
       manifest: {
         name: 'Wolfram — Strength for the Long Run',
@@ -52,19 +55,6 @@ export default defineConfig(({ mode }) => {
         // Cache-first for the app shell.
         globPatterns: ['**/*.{js,css,html,svg,png,ico,woff2}'],
         navigateFallback: 'index.html',
-        runtimeCaching: [
-          {
-            urlPattern: /^https:\/\/fonts\.(googleapis|gstatic)\.com\/.*/i,
-            handler: 'CacheFirst',
-            options: {
-              // Prefixed: every github.io project page shares one origin, and
-              // with it one Cache Storage namespace.
-              cacheName: 'wolfram-google-fonts',
-              expiration: { maxEntries: 30, maxAgeSeconds: 60 * 60 * 24 * 365 },
-              cacheableResponse: { statuses: [0, 200] },
-            },
-          },
-        ],
       },
     }),
   ],

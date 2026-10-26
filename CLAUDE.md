@@ -11,7 +11,9 @@ specific to this app. Keep it under 200 lines; history goes in `PROJECT.md`.
 
 ## Commands
 
-- Dev: `npm run dev` (launch config `wolfram-dev`) · Check: `npm run check` (lint)
+- Dev: `npm run dev` (launch config `wolfram-dev`) · Check: `npm run check` (lint + `node:test`)
+- Production preview: launch config `wolfram-preview` (port 5191); use it to check service-worker behaviour
+- iOS: `npm run build:native` (vite build → `cap sync ios` → `scripts/fix-spm-paths.mjs`). Xcode, signing and upload happen on the Mac; see `HANDOFF.md`
 - Build: `npm run build` · Icons: `npm run gen-icons` (from `brand/mark.svg`)
 - Deploy: push to `main` → GitHub Actions → Pages. Then `npm run check-live`
   (exit 0 = the pushed sha is what's being served). Pushes queue for anywhere
@@ -47,4 +49,7 @@ specific to this app. Keep it under 200 lines; history goes in `PROJECT.md`.
 ## Gotchas already hit (one line each; move detail to PROJECT.md → Incidents)
 
 - 2026-10-26 — Bebas Neue → Fraunces: caps strings and 0.04–0.08em tracking were tuned for an all-caps condensed face; titles are sentence case now.
+- 2026-10-26 — Never put text containing backticks inside a double-quoted bash string (`node -e "…"`): bash runs each backticked span as a command (it emptied PROJECT.md's inline code and tried to execute a spec file). Edit files with the Edit/Write tools.
+- 2026-10-26 — `cap sync` on Windows writes backslash paths into `ios/App/CapApp-SPM/Package.swift`; `build:native` runs `scripts/fix-spm-paths.mjs` after every sync.
+- 2026-10-26 — Zustand stores hydrate from localStorage at import time, before boot recovery. After a restore, `main.jsx` must `persist.rehydrate()` them, or they keep defaults and overwrite the restore.
 - 2026-10-26 — Git Bash `grep` strips carriage returns, so it reports CRLF files as clean (and multi-line perl/sed edits silently miss). Check line endings with `git ls-files --eol`, never grep.

@@ -6,6 +6,7 @@ import { create } from 'zustand';
 import { restFor } from '../lib/rest';
 import { useSettingsStore } from './settingsStore';
 import { playTimerSound } from '../lib/timerSound';
+import { scheduleTimerEndNotification, cancelTimerEndNotification } from '../lib/timerNotification.js';
 
 let intervalId = null;
 let audioCtx = null;
@@ -41,11 +42,18 @@ const audio = {
   end:   () => { if (!playTimerSound()) playTone(523, 0.6, 'sine', 0.25); },
 };
 
+// Seconds left until `endsAt`, rounded up so "1" shows until the very end.
+const secondsUntil = (endsAt) => Math.max(0, Math.ceil((endsAt - Date.now()) / 1000));
+
 export const useRestTimer = create((set, get) => ({
   visible: false,
   exerciseName: '',
+  role: null,
   total: 0,        // total seconds for this rest period
   remaining: 0,
+  endsAt: 0,       // epoch ms. The countdown derives from this, not from ticks,
+                   // because iOS suspends JS in the background: a tick counter
+                   // would resume from wherever it froze.
   rpeNote: '',     // human-readable adjustment hint, e.g. "+15 sec from RPE 8.5"
 
   // auto: true means "the app is starting this because a set was ticked off",
@@ -59,20 +67,24 @@ export const useRestTimer = create((set, get) => ({
     // Same call the card uses for its suggestion, so the number on the card
     // and the number in the ring can never disagree.
     const { seconds: total, why } = restFor({ role, context, rpe });
-    const remaining = total;
     const note = rpe == null ? '' : why;
+    const endsAt = Date.now() + total * 1000;
 
     if (intervalId) clearInterval(intervalId);
-
-    set({ visible: true, exerciseName, total, remaining, rpeNote: note });
+    set({ visible: true, exerciseName, role, total, remaining: total, endsAt, rpeNote: note });
 
     if (prefs.audio) audio.tick();
     if (prefs.vibrate && navigator.vibrate) navigator.vibrate(20);
+    // Native: alerts even with the screen off. Web: no-op.
+    scheduleTimerEndNotification({ endsAt, exerciseName, role, sound: prefs.audio });
 
+    let beeped = false;
     intervalId = setInterval(() => {
-      const cur = get().remaining;
-      const next = cur - 1;
-      if (next === 5 && prefs.audio) {
+      const { endsAt: end, remaining: shown } = get();
+      const next = secondsUntil(end);
+      if (next > 5) beeped = false; // +15 pushed it back past the warning
+      if (!beeped && next > 0 && next <= 5 && prefs.audio) {
+        beeped = true;
         // 3 quick beeps at 5 sec.
         audio.beep();
         setTimeout(() => audio.beep(), 220);
@@ -81,25 +93,38 @@ export const useRestTimer = create((set, get) => ({
       if (next <= 0) {
         clearInterval(intervalId);
         intervalId = null;
-        if (prefs.audio) audio.end();
-        if (prefs.vibrate && navigator.vibrate) navigator.vibrate([100, 60, 100]);
+        // Back from the background long after the end: the notification has
+        // already alerted, so don't ding a second time.
+        const late = Date.now() - end > 2000;
+        if (!late) {
+          if (prefs.audio) audio.end();
+          if (prefs.vibrate && navigator.vibrate) navigator.vibrate([100, 60, 100]);
+        }
         set({ visible: false, remaining: 0 });
         return;
       }
-      set({ remaining: next });
-    }, 1000);
+      if (next !== shown) set({ remaining: next });
+    }, 250);
   },
 
   adjust: (deltaSec) => {
     const cur = get();
-    const remaining = Math.max(0, cur.remaining + deltaSec);
+    const endsAt = Math.max(Date.now(), cur.endsAt + deltaSec * 1000);
+    const remaining = secondsUntil(endsAt);
     const total = Math.max(cur.total, remaining);
-    set({ remaining, total });
+    set({ endsAt, remaining, total });
+    scheduleTimerEndNotification({
+      endsAt,
+      exerciseName: cur.exerciseName,
+      role: cur.role,
+      sound: useSettingsStore.getState().timerPrefs.audio,
+    });
   },
 
   skip: () => {
     if (intervalId) clearInterval(intervalId);
     intervalId = null;
     set({ visible: false, remaining: 0 });
+    cancelTimerEndNotification();
   },
 }));

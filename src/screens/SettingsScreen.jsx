@@ -7,6 +7,7 @@ import { useSettingsStore } from '../stores/settingsStore';
 import { TimerSoundRecorder } from '../components/TimerSoundRecorder';
 import { exportAll, importAll, markExported, unbackedUpCount, storageInfo } from '../lib/localdb';
 import { queryClient } from '../lib/queryClient';
+import { isNative, shareBackup } from '../lib/nativeFile.js';
 
 function ToggleRow({ label, sub, checked, onChange }) {
   return (
@@ -85,7 +86,21 @@ export function SettingsScreen() {
   // the last resort, since a long blob is easy to lose.
   const doExport = async () => {
     const json = exportAll();
-    const name = `wolfram-backup-${new Date().toISOString().slice(0, 10)}.json`;
+    // Local date: toISOString() is UTC, which names a 9 pm export tomorrow.
+    const d = new Date();
+    const ymd = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    const name = `wolfram-backup-${ymd}.json`;
+
+    // In the iOS app: the native share sheet is the only path. A blob
+    // download is a silent no-op inside WKWebView.
+    if (isNative()) {
+      if (await shareBackup(name, json)) {
+        markExported();
+        refreshHealth();
+        setBackupMsg('Shared ✓');
+      }
+      return;
+    }
 
     try {
       const file = new File([json], name, { type: 'application/json' });

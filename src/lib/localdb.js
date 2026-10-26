@@ -25,6 +25,8 @@
 //   4. Quota is visible before it bites (see storageInfo), and Settings nags
 //      for a manual export once enough new sessions have piled up.
 
+import { writeDataFile, readDataFile } from './nativeFile.js';
+
 const PREFIX = 'wolfram-';
 const KEYS = {
   sessions: PREFIX + 'sessions',
@@ -106,11 +108,16 @@ function emptyLike(name) {
 }
 
 function readSnapshotSafely() {
+  return readSnapshotRecord()?.data ?? null;
+}
+
+// { at, data } or null.
+function readSnapshotRecord() {
   try {
     const raw = localStorage.getItem(SNAPSHOT_KEY);
     if (!raw) return null;
     const snap = JSON.parse(raw);
-    return snap && snap.data ? snap.data : null;
+    return snap && snap.data ? snap : null;
   } catch {
     return null;
   }
@@ -158,14 +165,25 @@ function writeAll(patch) {
   return { ok: true };
 }
 
-// Last-known-good snapshot + IndexedDB mirror. Best-effort and non-blocking:
-// the primary write already succeeded, these are the safety nets.
+// Last-known-good snapshot + IndexedDB mirror + (native) the data file.
+// Best-effort and non-blocking: the primary write already succeeded, these
+// are the safety nets.
 function persistBackups() {
   const data = snapshotData();
+  const at = new Date().toISOString();
   try {
-    localStorage.setItem(SNAPSHOT_KEY, JSON.stringify({ at: new Date().toISOString(), data }));
+    localStorage.setItem(SNAPSHOT_KEY, JSON.stringify({ at, data }));
   } catch { /* snapshot is a bonus; never fail the save for it */ }
   idbPut(data).catch(() => {});
+  writeDataFile({ at, data }).catch(() => {});
+}
+
+// Preference stores (settings, classes, slot swaps) change outside localdb's
+// writes, so their stores call this. Debounced: a slider drag is one backup.
+let backupTimer = null;
+export function backupSoon() {
+  clearTimeout(backupTimer);
+  backupTimer = setTimeout(persistBackups, 800);
 }
 
 function snapshotData() {
@@ -246,24 +264,39 @@ async function idbGet() {
 // Called once before render. If localStorage lost the primary keys (eviction,
 // a partial clear) but a backup survives, put the data back.
 // Returns a short description when it restored something, else null.
+// Nothing to recover while either the training log or the settings survive:
+// settings count too, so someone who set up classes but hasn't logged a
+// session yet is still protected.
+function hasPrimaryData() {
+  try {
+    return !!localStorage.getItem(KEYS.sessions) || !!localStorage.getItem(KEYS.sets) ||
+      !!localStorage.getItem(PREFIX + 'settings');
+  } catch {
+    return false;
+  }
+}
+
 export async function recoverIfNeeded() {
-  const hasPrimary = (() => {
-    try {
-      return !!localStorage.getItem(KEYS.sessions) || !!localStorage.getItem(KEYS.sets);
-    } catch {
-      return false;
-    }
-  })();
-  if (hasPrimary) return null;
+  if (hasPrimaryData()) return null;
 
-  const snap = readSnapshotSafely();
-  let mirror = null;
-  try { mirror = await idbGet(); } catch { /* ignore */ }
+  // Every surviving copy, newest wins: the native data file, the IndexedDB
+  // mirror, the localStorage snapshot.
+  const copies = [];
+  const file = await readDataFile().catch(() => null);
+  if (file) copies.push({ ...file, from: 'app storage' });
+  try {
+    const mirror = await idbGet();
+    if (mirror?.data) copies.push({ ...mirror, from: 'device backup' });
+  } catch { /* ignore */ }
+  const snap = readSnapshotRecord();
+  if (snap) copies.push({ ...snap, from: 'snapshot' });
+  if (!copies.length) return null;
 
-  const candidate = mirror?.data ?? snap;
-  if (!candidate) return null;
+  copies.sort((a, b) => String(b.at ?? '').localeCompare(String(a.at ?? '')));
+  const { data: candidate, from } = copies[0];
   const count = candidate.sessions?.length ?? 0;
-  if (count === 0 && !(candidate.sets?.length)) return null;
+  const hasPrefs = Object.keys(candidate.prefs ?? {}).length > 0;
+  if (count === 0 && !(candidate.sets?.length) && !hasPrefs) return null;
 
   try {
     for (const n of COLLECTIONS) {
@@ -273,7 +306,7 @@ export async function recoverIfNeeded() {
     return null;
   }
   writePrefs(candidate.prefs);
-  return { restored: count, from: mirror?.data ? 'device backup' : 'snapshot' };
+  return { restored: count, from, prefs: hasPrefs };
 }
 
 // ── Sessions ───────────────────────────────────────────────────────────────

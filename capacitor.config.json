@@ -1,0 +1,9 @@
+{
+  "appId": "com.seanmurray.wolfram",
+  "appName": "Wolfram",
+  "webDir": "dist",
+  "ios": {
+    "contentInset": "never",
+    "backgroundColor": "#f5efe6"
+  }
+}
