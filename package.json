@@ -7,11 +7,12 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "check": "npm run lint",
+    "check": "npm run lint && npm test",
     "preview": "vite preview",
     "gen-icons": "node scripts/gen-icons.mjs",
     "check-live": "node scripts/check-live.mjs https://seanmurray.github.io/wolfram/",
-    "prepare": "git config core.hooksPath .githooks"
+    "prepare": "git config core.hooksPath .githooks",
+    "test": "node --import ./scripts/test-tz.mjs --test"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.100.9",

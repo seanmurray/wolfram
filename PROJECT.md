@@ -24,17 +24,14 @@ sentence; history lives in Release log / Incidents, not here.
 
 ## Backlog (top = next)
 
-1. Spec the program: bone-loading strength + impact, class guide, class logging, gap-filler — `docs/specs/program-and-classes.md`
-2. Replace `src/data/program.js` + `exercises.js` with the bone-loading program (home-gym equipment-aware)
-3. Class guide + weekly free-window planner ("what to book this week")
-4. Class logging + weekly loading tally + gap-filler suggestions
-5. Unit tests (vitest) for the loading tally / gap-filler math; add to `npm run check`
-6. Final brand artwork — `brand/mark.svg` is a placeholder (lit filament "W"); Sean may supply art, as he did for Perennial
-7. Install-to-Home-Screen prompt for iOS Safari (persistence depends on it)
+1. Build `docs/specs/program-and-classes.md` (confirmed 2026-10-26): program + exercises, sessions with kinds/buckets, class library, Today tally + suggestion + planner, log-a-class, Settings sliders
+2. Final brand artwork — `brand/mark.svg` is a placeholder (lit filament "W"); Sean may supply art, as he did for Perennial
+3. Install-to-Home-Screen prompt for iOS Safari (persistence depends on it)
+4. Resolve the npm `edgesOut` crash (Incidents) before the next devDependency is needed
 
 ## Blockers
 
-- None.
+- **Public GitHub repo + Pages** — auto mode blocked `gh repo create --public` pending Sean's explicit OK (2026-10-26). Everything is committed locally, nothing pushed.
 
 ## Decisions (with "do not chase")
 
@@ -45,12 +42,15 @@ sentence; history lives in Release log / Incidents, not here.
 | 2026-10-26 | Every storage key, IDB name, and Cache Storage name is `wolfram-`-prefixed | All `seanmurray.github.io/*` project pages share one origin — and with it localStorage, IndexedDB and Cache Storage — with Perennial and soccer-coach | Never |
 | 2026-10-26 | Public repo; no personal details in committed files | Both working Pages repos are public; Pages-on-private needs a paid plan, which couldn't be confirmed (`gh api user` → `plan: null`). The person this is for is described by goals only | Repo goes private |
 | 2026-10-26 | Studio-warm look: bone canvas, filament-ember accent, graphite ink; Fraunces display + DM Sans body | Sean's pick; tungsten = density, "heavy stone", warm light. All text colours ≥ 4.5:1 on bg and card | Sean asks for a new direction |
+| 2026-10-26 | Unit tests on `node:test` + `node:assert`, run by `npm test` with a TZ preload; part of `npm run check` (pre-commit + CI) | No install needed (npm crash above); Dressed already uses it; pure modules use explicit `.js` imports so Node ESM resolves them | A component/DOM test is needed |
 | 2026-10-26 | Personal app, GitHub Pages (not Cloudflare Workers) | Sean chose "personal, like Perennial"; Workers default is for commercial work | Promoted to an MML product — then also rename (Wolfram is a Wolfram Research trademark) |
 
 ## Incidents (root cause, not symptoms)
 
 | Date | What broke | Root cause | Fix / rule added |
 |---|---|---|---|
+| 2026-10-26 | `npm install -D vitest@<any>` crashes: `Cannot read properties of null (reading 'edgesOut')` in arborist `#loadPeerSet` (npm 10.9.2). Lockfile and node_modules left untouched | **Open.** Crash is inside npm's peer-set resolution while walking vitest's optional peers (`@vitest/browser-playwright`, `@vitejs/devtools-vitest`). Same with 4.1.12 and 5.0.4, so not version mixing. `npm ci` works. Two attempts made; stopped per the two-attempt rule. Untried: deleting node_modules only (keep lockfile), `--legacy-peer-deps` (may prune peers), newer npm | Tests use Node's built-in `node:test` instead (no install, works on CI Node 20). **Gotcha found along the way:** a failed `npm i` then `npx vitest` silently fetched vitest@latest into the npx cache. Run tests via `npm test` only |
+| 2026-10-26 | A timezone set as `TZ=… node` in Git Bash never reached Node | MSYS strips `TZ` from the environment of native Windows programs | `scripts/test-tz.mjs` sets `process.env.TZ` at runtime via `--import` (works everywhere). Negative control verified: without it the env check fails |
 
 ## Release log
 
