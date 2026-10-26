@@ -20,6 +20,8 @@ sentence; history lives in Release log / Incidents, not here.
 
 | Date | Step | Where | Notes |
 |---|---|---|---|
+| 2026-10-26 | App Store Connect app record created: name **"Wolfram Strength"** ("Wolfram" is taken; the home screen still says Wolfram), Apple ID **6827281356**, SKU `wolfram-ios`, English (U.S.), Full Access | App Store Connect, team 6RWD7M34MY | Sean approved the values. Verified after reload on App Information (bundle select = com.seanmurray.wolfram). A "user access could not be saved" notice appeared; the result is all users, which matches the Full Access choice |
+| 2026-10-26 | App ID `com.seanmurray.wolfram` registered (explicit, description "Wolfram", no extra capabilities; In-App Purchase is Apple's default) | developer.apple.com, team 6RWD7M34MY | Verified after reload in Identifiers |
 | 2026-10-26 | Capacitor 7 iOS shell (SPM): bundle `com.seanmurray.wolfram`, team `6RWD7M34MY`, iPhone + portrait only, no-encryption flag, mic usage string, icon + launch screen, `ExportOptions.plist` (upload, Xcode-managed build numbers) | local → pushed | Native data file in Documents + restore (newest copy wins), share-sheet export, screen-off timer notifications, SW torn down on native. Web checked in a production preview: SW still registers, fonts bundled, zero third-party requests |
 | 2026-10-26 | Class availability: evenings / workday / weekends (alternating, anchored on-device), usual-before-sometimes planning, one-week overrides, open-windows card | local → pushed | Spec criteria 11–13 verified in the dev build; 63 unit tests |
 | 2026-10-26 | GitHub repo created (public) + Pages enabled (`build_type=workflow`, before the first push); first push deployed | `seanmurray/wolfram` | Sean approved in chat. Run 40380168936 succeeded; check-live confirmed build c764418 |
@@ -29,9 +31,9 @@ sentence; history lives in Release log / Incidents, not here.
 
 ## Backlog (top = next)
 
-1. App Store Connect app record for `com.seanmurray.wolfram` (browser; must exist before the Mac can upload)
-2. Mac: simulator pass for spec criteria 2–5, then the first TestFlight upload (`HANDOFF.md`)
-3. TestFlight external group with the user's email; first build through Beta App Review
+1. Mac: simulator pass for spec criteria 2–5, then the first TestFlight upload (`HANDOFF.md`)
+2. TestFlight Test Information (beta description, feedback email, review contact, privacy policy URL); waiting on Sean's values
+3. TestFlight external group with the user's email (the External Testing section only appears once a build exists); first build through Beta App Review
 4. On-device pass on the user's iPhone: TestFlight install, log a class, force-quit, reopen, data intact
 5. Final brand artwork — `brand/mark.svg` is a placeholder (lit filament "W"); Sean may supply art, as he did for Perennial
 6. Upload a fresh TestFlight build at least every 90 days (builds expire)

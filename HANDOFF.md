@@ -16,9 +16,10 @@ Read `PROJECT.md` first, then this. Spec: `docs/specs/native-ios.md`.
   notifications (`src/lib/timerNotification.js`), service worker torn down.
 - **Not done:** any Xcode build, simulator run, or upload. Nothing here has
   run on iOS yet.
-- **Prerequisite:** the App Store Connect app record for
-  `com.seanmurray.wolfram` must exist before step 7 can upload. See
-  `PROJECT.md` (Done ledger / Blockers) for whether it's been created.
+- **App Store Connect is ready:** App ID `com.seanmurray.wolfram` is
+  registered and the app record exists as **"Wolfram Strength"** (Apple ID
+  6827281356; "Wolfram" was taken). The home-screen name is still "Wolfram"
+  (`CFBundleDisplayName`), so don't change it.
 
 ## Steps
 
