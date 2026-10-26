@@ -4,7 +4,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { HOME_GYM_PRESET } from '../data/program';
-import { DEFAULT_TARGETS, TARGET_LIMITS } from '../lib/plan.js';
+import { DEFAULT_TARGETS, TARGET_LIMITS, DEFAULT_AVAILABILITY } from '../lib/plan.js';
 
 const initialTimerPrefs = {
   autoStart: true,
@@ -36,6 +36,12 @@ export const useSettingsStore = create(
       // Weekly targets: defaults from the spec, every one a slider.
       targets: DEFAULT_TARGETS,
       setTarget: (key, n) => set((s) => ({ targets: { ...s.targets, [key]: clampTarget(key, n) } })),
+
+      // When classes are realistic (see DEFAULT_AVAILABILITY in lib/plan.js).
+      // The alternating-weekend anchor is answered on the device, never
+      // preset: which weekends are free is the user's own information.
+      availability: DEFAULT_AVAILABILITY,
+      setAvailability: (patch) => set((s) => ({ availability: { ...s.availability, ...patch } })),
 
       // "I've been told I have low bone density, or had a fracture from a
       // minor fall": impact sets stay at the first level.

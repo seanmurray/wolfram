@@ -55,3 +55,15 @@ export function weekKey(d) {
   const s = weekStart(d);
   return `${s.getFullYear()}-${String(s.getMonth() + 1).padStart(2, '0')}-${String(s.getDate()).padStart(2, '0')}`;
 }
+
+// "2026-10-26" → that date at local midnight.
+export function parseWeekKey(key) {
+  const [y, m, d] = String(key).split('-').map(Number);
+  return new Date(y, m - 1, d);
+}
+
+// Whole weeks from a's week to b's week (negative if b is earlier). Rounded,
+// because a span containing a DST change is 7 days ± 1 hour.
+export function weeksBetween(a, b) {
+  return Math.round((weekStart(b) - weekStart(a)) / (7 * 86400000));
+}

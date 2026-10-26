@@ -1,0 +1,22 @@
+.editor { display: flex; flex-direction: column; }
+
+.q {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--t2);
+  margin: 14px 0 8px;
+}
+.q:first-child { margin-top: 2px; }
+
+.hint { font-size: 14px; line-height: 1.5; color: var(--t3); margin-top: 8px; }
+
+.weekend {
+  margin-top: 12px;
+  padding: 12px 14px;
+  border-radius: var(--r2);
+  background: var(--bg);
+  border: 1px solid var(--bg-raised);
+}
+.weekendQ { font-size: 15px; font-weight: 600; color: var(--t1); margin-bottom: 9px; }
+.dates { font-weight: 400; color: var(--t3); }

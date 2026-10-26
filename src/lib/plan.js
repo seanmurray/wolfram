@@ -5,7 +5,7 @@
 // 'heavy' | 'impact' | 'studio' | 'cardio'. `kind` says where it came from:
 // 'gym' (the home-gym heavy session), 'impact' (a jump set), 'class'.
 
-import { weekStart, weekEnd, weekdayIndex, dateInWeek } from './week.js';
+import { weekStart, weekEnd, weekdayIndex, dateInWeek, parseWeekKey, weeksBetween } from './week.js';
 import { FORMATS } from './classify.js';
 
 export const DEFAULT_TARGETS = { heavy: 2, impact: 3, studio: 0, spacingHours: 48 };
@@ -65,43 +65,110 @@ export function gapsFor(tally, targets) {
   };
 }
 
+// When the user can get to a class. Levels: 'usual' (plan around it),
+// 'sometimes' (use it only if usual times can't cover the week), 'no'.
+//   evenings      weekday indexes (0 = Mon … 4 = Fri) usually free from 5 pm
+//   daytime       weekday classes before 5 pm: 'usual' | 'sometimes' | 'no'
+//   weekends      'every' | 'alternate' | 'never'
+//   freeWeekendOf alternate only: the week key (its Monday) of a week whose
+//                 weekend IS free; null = not answered yet.
+export const DEFAULT_AVAILABILITY = { evenings: [0, 1], daytime: 'sometimes', weekends: 'alternate', freeWeekendOf: null };
+export const EVENING_FROM_HOUR = 17;
+
+// true / false, or null while an alternating schedule hasn't been anchored.
+export function isFreeWeekend(at, freeWeekendOf) {
+  if (!freeWeekendOf) return null;
+  return weeksBetween(parseWeekKey(freeWeekendOf), at) % 2 === 0;
+}
+
+// → { level, reason }; reason explains a 'no': 'offWeekend' | 'outside'.
+export function availabilityOf(at, av) {
+  if (!av) return { level: 'usual', reason: null };
+  const d = new Date(at);
+  const wd = weekdayIndex(d);
+  if (wd >= 5) {
+    if (av.weekends === 'every') return { level: 'usual', reason: null };
+    if (av.weekends === 'never') return { level: 'no', reason: 'outside' };
+    const free = isFreeWeekend(d, av.freeWeekendOf);
+    if (free === null) return { level: 'sometimes', reason: null };
+    return free ? { level: 'usual', reason: null } : { level: 'no', reason: 'offWeekend' };
+  }
+  if (d.getHours() >= EVENING_FROM_HOUR) {
+    return (av.evenings ?? []).includes(wd)
+      ? { level: 'usual', reason: null }
+      : { level: 'no', reason: 'outside' };
+  }
+  const level = av.daytime ?? 'sometimes';
+  return { level, reason: level === 'no' ? 'outside' : null };
+}
+
 // The rest of this week's library classes, in time order, each marked with
-// what it would fill. Greedy on purpose: the earliest class that can fill a
-// gap gets it, so two back-to-back lifting classes don't both claim the last
-// heavy slot, and the second one shows as too soon rather than as a plan.
+// its availability and what it would fill. Gaps go to 'usual' times first,
+// then 'sometimes' times, each pass in time order. Greedy on purpose: two
+// lifting classes don't both claim the last heavy slot. Heavy sessions keep
+// the spacing rule against every heavy, logged or planned, before or after.
 //
-// skipDays: weekday indexes (0 = Mon) the user can't make this week.
-export function planWeek({ library = [], sessions = [], targets = DEFAULT_TARGETS, now = new Date(), skipDays = [] }) {
+// overrides: this week's per-day choices, { [weekday]: 'skip' | 'go' }.
+// skipDays: the older form of 'skip' overrides, still accepted.
+export function planWeek({
+  library = [], sessions = [], targets = DEFAULT_TARGETS, now = new Date(),
+  skipDays = [], overrides = null, availability = null,
+}) {
   const tally = weekTally(sessions, now);
   const gap = gapsFor(tally, targets);
   const left = { ...gap };
-  let lastHeavy = lastHeavyAt(sessions);
+  const lastHeavy = lastHeavyAt(sessions);
+  const heavyTimes = lastHeavy ? [lastHeavy] : [];
+  const spaced = (at) => heavyTimes.every((t) => Math.abs(at - t) >= targets.spacingHours * HOUR);
+  const ov = { ...Object.fromEntries(skipDays.map((d) => [d, 'skip'])), ...(overrides ?? {}) };
+  const levelOn = (at) => {
+    const override = ov[weekdayIndex(at)] ?? null;
+    const base = availabilityOf(at, availability);
+    if (override === 'skip') return { override, level: 'no', reason: 'skipped' };
+    if (override === 'go') return { override, level: 'usual', reason: null };
+    return { override, ...base };
+  };
 
   const occurrences = library
     .map((cls) => ({ cls, at: dateInWeek(now, cls.weekday, cls.time) }))
     .filter((o) => o.at >= now)
     .sort((a, b) => a.at - b.at)
     .map((o) => {
-      const skipped = skipDays.includes(weekdayIndex(o.at));
-      const fills = [];
-      let tooSoon = false;
-      if (!skipped) {
-        if (FORMATS[o.cls.format]?.heavyEligible && left.heavy > 0) {
-          if (heavyAllowedAt(o.at, lastHeavy, targets.spacingHours)) {
-            fills.push('heavy');
-            left.heavy -= 1;
-            lastHeavy = o.at;
-          } else {
-            tooSoon = true;
-          }
-        }
-        if (o.cls.format === 'impact' && left.impact > 0) { fills.push('impact'); left.impact -= 1; }
-        if (o.cls.format === 'studio' && left.studio > 0) { fills.push('studio'); left.studio -= 1; }
-      }
-      return { ...o, skipped, fills, tooSoon: tooSoon && fills.length === 0 };
+      const l = levelOn(o.at);
+      return { ...o, ...l, skipped: l.override === 'skip', fills: [], blocked: false };
     });
 
-  return { tally, gap, uncovered: left, occurrences, lastHeavy: lastHeavyAt(sessions) };
+  for (const pass of ['usual', 'sometimes']) {
+    for (const o of occurrences) {
+      if (o.level !== pass) continue;
+      if (FORMATS[o.cls.format]?.heavyEligible && left.heavy > 0) {
+        if (spaced(o.at)) { o.fills.push('heavy'); left.heavy -= 1; heavyTimes.push(o.at); }
+        else o.blocked = true;
+      }
+      if (o.cls.format === 'impact' && left.impact > 0) { o.fills.push('impact'); left.impact -= 1; }
+      if (o.cls.format === 'studio' && left.studio > 0) { o.fills.push('studio'); left.studio -= 1; }
+    }
+  }
+  for (const o of occurrences) {
+    o.tooSoon = o.blocked && o.fills.length === 0;
+    delete o.blocked;
+  }
+
+  // Open windows: usual times left this week with nothing planned that day,
+  // where a heavy class would still keep the spacing. Shown only while Heavy
+  // is short and there's an availability schedule to read.
+  const windows = [];
+  if (availability && left.heavy > 0) {
+    const plannedDays = new Set(occurrences.filter((o) => o.fills.length).map((o) => weekdayIndex(o.at)));
+    for (let wd = weekdayIndex(now); wd <= 6; wd++) {
+      if (plannedDays.has(wd)) continue;
+      const at = dateInWeek(now, wd, wd >= 5 ? '10:00' : '18:00');
+      if (at < now) continue;
+      if (levelOn(at).level === 'usual' && spaced(at)) windows.push({ at, part: wd >= 5 ? 'weekend' : 'evening' });
+    }
+  }
+
+  return { tally, gap, uncovered: left, occurrences, lastHeavy, windows };
 }
 
 // The single primary suggestion for today. Classes come first: they're what

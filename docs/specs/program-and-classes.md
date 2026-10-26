@@ -1,6 +1,6 @@
 # Spec: program, class guide & gap-filler
 
-**Status:** BUILT 2026-10-26, verified locally against criteria 1–10 (not yet deployed). Confirmed by Sean 2026-10-26 (see
+**Status:** BUILT 2026-10-26 and live; criteria 1–13 verified in the dev build. Confirmed by Sean 2026-10-26 (see
 "Decisions from Sean").
 
 Wolfram is for someone heading into their 40s and 50s who loves studio classes
@@ -104,6 +104,26 @@ Week = Monday–Sunday, local time.
   highlighting strength classes leads the planner. If none fits, the week
   honestly ends at Heavy 1/2 and the gap-filler leans on impact.
 
+### Availability (added 2026-10-26)
+
+When classes are realistic, set in onboarding and editable in Settings:
+
+- **Evenings from 5 pm**, per weekday. Default: Monday and Tuesday.
+- **During the workday:** usually / sometimes / rarely. Default: sometimes.
+- **Weekends:** every / every other / rarely. Default: every other.
+  Alternating weekends are anchored by one question on the device: "Is this
+  weekend free?" Which weekends are free is the user's own information, so it
+  is never preset in code.
+
+The planner fills gaps from **usual** times first, then **sometimes** times;
+unavailable times never fill. Heavy spacing is checked against every heavy,
+logged or planned, in both directions. Each class row offers a one-week
+override: "Can't go" on a usual day, "I can go" on an unavailable one.
+
+**Open windows:** while Heavy is short, Today lists the usual times left
+this week that have nothing planned and keep the spacing ("nothing's booked
+tonight or Tuesday evening"), with a nudge to find a barbell class then.
+
 ### Class library and weekly planner
 
 - A library entry has: name, studio, weekday, time, bucket. It's entered once
@@ -190,6 +210,15 @@ Week = Monday–Sunday, local time.
 9. Moving a target slider updates Today's tally and the gap-filler right away.
    A target of 0 hides that bucket's goal; its tally still shows the count.
 10. The 7th home-gym session is the first one prescribed at 5×5 / RPE 8.
+11. Onboarding can't finish on alternating weekends until "Is this weekend
+    free?" is answered. "No" makes next weekend the first free one, then every
+    other weekend after it, including across the DST change.
+12. A class at an unavailable time never fills a gap; a "sometimes" class
+    fills only what usual times can't; "Can't go" / "I can go" apply to the
+    current week only.
+13. While Heavy is short, Today lists the usual windows left this week with
+    nothing planned that keep the spacing; it lists none once Heavy is
+    covered.
 
 ## Test plan
 

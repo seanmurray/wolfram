@@ -130,7 +130,8 @@
   padding: 12px 12px 12px 14px;
 }
 .occFills { border-color: var(--green-line); box-shadow: inset 3px 0 0 var(--green); }
-.occSkipped { opacity: 0.6; }
+/* Dimmed by surface, not opacity: opacity would drop the text under 4.5:1. */
+.occSkipped, .occOff { background: transparent; border-style: dashed; box-shadow: none; }
 .occSkipped .occName { text-decoration: line-through; }
 
 .occWhen { display: flex; flex-direction: column; width: 62px; flex-shrink: 0; }
@@ -185,3 +186,22 @@
   margin-top: 18px;
   text-align: center;
 }
+
+
+/* ── Open windows ───────────────────────────────────────────── */
+.windows {
+  margin-top: 14px;
+  background: var(--bg-card);
+  border-radius: var(--r2);
+  border-left: 3px solid var(--green);
+  padding: 14px 16px;
+}
+.windowsTitle {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--green);
+}
+.windowsBody { font-size: 15px; line-height: 1.55; color: var(--t2); margin-top: 6px; }
+.windowsBody strong { color: var(--t1); font-weight: 700; }

@@ -142,3 +142,5 @@
   color: var(--t2);
   margin-bottom: 10px;
 }
+
+.groupPad { padding: 14px 16px 16px; }

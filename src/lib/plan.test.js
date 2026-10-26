@@ -1,9 +1,10 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  weekTally, planWeek, suggestToday, heavyPhase, impactLevel,
+  weekTally, planWeek, suggestToday, heavyPhase, impactLevel, availabilityOf,
   DEFAULT_TARGETS, LEARN_SESSIONS,
 } from './plan.js';
+import { weekdayIndex } from './week.js';
 
 const at = (y, m, d, h = 12, min = 0) => new Date(y, m - 1, d, h, min);
 const row = (date, buckets, kind = 'class') => ({ performed_at: date.toISOString(), buckets, kind });
@@ -135,5 +136,94 @@ describe('progressions', () => {
     assert.equal(impactLevel(sets(6), { levels: 4 }), 1);
     assert.equal(impactLevel(sets(100), { levels: 4 }), 3);
     assert.equal(impactLevel(sets(100), { levels: 4, capLow: true }), 0);
+  });
+});
+
+describe('availability', () => {
+  // Mon + Tue evenings usual, weekday daytime sometimes, alternating weekends
+  // with the weekend of Oct 31–Nov 1 off (so the week of Nov 2 is free).
+  const AV = { evenings: [0, 1], daytime: 'sometimes', weekends: 'alternate', freeWeekendOf: '2026-11-02' };
+  const lvl = (d) => availabilityOf(d, AV);
+
+  it('reads usual evenings, daytime, and other evenings', () => {
+    assert.deepEqual(lvl(at(2026, 10, 26, 18, 30)), { level: 'usual', reason: null });     // Mon evening
+    assert.deepEqual(lvl(at(2026, 10, 27, 17, 0)), { level: 'usual', reason: null });      // Tue 5 pm sharp
+    assert.deepEqual(lvl(at(2026, 10, 28, 18, 30)), { level: 'no', reason: 'outside' });  // Wed evening
+    assert.deepEqual(lvl(at(2026, 10, 29, 12, 0)), { level: 'sometimes', reason: null }); // Thu lunch
+  });
+
+  it('alternates weekends from the anchor, across the DST change', () => {
+    assert.deepEqual(lvl(at(2026, 10, 31, 10)), { level: 'no', reason: 'offWeekend' }); // Sat, off
+    assert.deepEqual(lvl(at(2026, 11, 1, 10)), { level: 'no', reason: 'offWeekend' });  // Sun (DST ends 2 am)
+    assert.equal(lvl(at(2026, 11, 7, 10)).level, 'usual');                                // next Sat, free
+    assert.equal(lvl(at(2026, 11, 14, 10)).level, 'no');
+    assert.equal(lvl(at(2026, 10, 24, 10)).level, 'usual');                               // the Sat before
+  });
+
+  it('treats an unanswered alternating schedule as sometimes', () => {
+    assert.equal(availabilityOf(at(2026, 10, 31, 10), { ...AV, freeWeekendOf: null }).level, 'sometimes');
+  });
+
+  it('plans usual times before sometimes times, even when the sometimes one is earlier', () => {
+    const library = [cls('tue-lunch', 1, '12:00', 'lifting'), cls('tue-eve', 1, '18:30', 'lifting')];
+    const { occurrences } = planWeek({ library, availability: AV, targets: { ...DEFAULT_TARGETS, heavy: 1 }, now: MON });
+    assert.deepEqual(occurrences.map((o) => [o.cls.id, o.level, o.fills]), [
+      ['tue-lunch', 'sometimes', []],
+      ['tue-eve', 'usual', ['heavy']],
+    ]);
+  });
+
+  it('keeps spacing against a LATER planned heavy (two-pass)', () => {
+    const library = [cls('mon-lunch', 0, '12:00', 'lifting'), cls('tue-eve', 1, '18:30', 'lifting')];
+    const { occurrences, uncovered } = planWeek({ library, availability: AV, now: MON });
+    assert.deepEqual(occurrences.map((o) => [o.cls.id, o.fills, o.tooSoon]), [
+      ['mon-lunch', [], true],     // 30.5 h before Tuesday's planned heavy
+      ['tue-eve', ['heavy'], false],
+    ]);
+    assert.equal(uncovered.heavy, 1);
+  });
+
+  it('never fills from an unavailable evening or an off weekend', () => {
+    const library = [cls('wed-eve', 2, '18:30', 'lifting'), cls('sat', 5, '09:00', 'lifting')];
+    const { occurrences } = planWeek({ library, availability: AV, now: MON });
+    assert.deepEqual(occurrences.map((o) => [o.cls.id, o.reason, o.fills]), [
+      ['wed-eve', 'outside', []],
+      ['sat', 'offWeekend', []],
+    ]);
+  });
+
+  it('honours this week’s overrides: "I can go" and "can’t go"', () => {
+    const library = [cls('wed-eve', 2, '18:30', 'lifting'), cls('tue-eve', 1, '18:30', 'lifting')];
+    const { occurrences } = planWeek({ library, availability: AV, now: MON, overrides: { 2: 'go', 1: 'skip' } });
+    assert.deepEqual(occurrences.map((o) => [o.cls.id, o.level, o.fills]), [
+      ['tue-eve', 'no', []],
+      ['wed-eve', 'usual', ['heavy']],
+    ]);
+  });
+});
+
+describe('open windows (where a heavy class would fit)', () => {
+  const AV = { evenings: [0, 1], daytime: 'sometimes', weekends: 'alternate', freeWeekendOf: '2026-11-02' };
+  const days = (w) => w.map((x) => [weekdayIndex(x.at), x.part]);
+
+  it('lists usual evenings left this week; skips daytime and the off weekend', () => {
+    const { windows } = planWeek({ availability: AV, now: MON });
+    assert.deepEqual(days(windows), [[0, 'evening'], [1, 'evening']]);
+  });
+
+  it('drops days with a planned class and windows too close to it', () => {
+    const { windows } = planWeek({ library: [cls('tue-eve', 1, '18:30', 'lifting')], availability: AV, now: MON });
+    assert.deepEqual(windows, []); // Monday 6 pm is only 24.5 h before Tuesday’s class
+  });
+
+  it('drops tonight once the evening has started, and shows free weekends', () => {
+    const { windows } = planWeek({ availability: AV, now: at(2026, 11, 2, 19) }); // Mon of a free weekend
+    assert.deepEqual(days(windows), [[1, 'evening'], [5, 'weekend'], [6, 'weekend']]);
+  });
+
+  it('shows nothing once Heavy is covered, or without a schedule', () => {
+    const done = [row(at(2026, 10, 19, 7), ['heavy']), row(at(2026, 10, 26, 7), ['heavy']), row(at(2026, 10, 26, 7, 30), ['heavy'])];
+    assert.deepEqual(planWeek({ availability: AV, sessions: done, now: MON }).windows, []);
+    assert.deepEqual(planWeek({ now: MON }).windows, []);
   });
 });

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import styles from './SettingsScreen.module.css';
 import { EQUIPMENT } from '../data/program';
 import { TARGET_LIMITS } from '../lib/plan.js';
+import { AvailabilityEditor } from '../components/AvailabilityEditor';
 import { useSettingsStore } from '../stores/settingsStore';
 import { TimerSoundRecorder } from '../components/TimerSoundRecorder';
 import { exportAll, importAll, markExported, unbackedUpCount, storageInfo } from '../lib/localdb';
@@ -56,6 +57,8 @@ export function SettingsScreen() {
   const setTarget = useSettingsStore((s) => s.setTarget);
   const lowBoneDensity = useSettingsStore((s) => s.lowBoneDensity);
   const setLowBoneDensity = useSettingsStore((s) => s.setLowBoneDensity);
+  const availability = useSettingsStore((s) => s.availability);
+  const setAvailability = useSettingsStore((s) => s.setAvailability);
   const timerPrefs = useSettingsStore((s) => s.timerPrefs);
   const setTimerPref = useSettingsStore((s) => s.setTimerPref);
 
@@ -190,6 +193,15 @@ export function SettingsScreen() {
           sub="Yoga, pilates, barre: counted either way. Set a goal if you want the nudge."
           onChange={setTarget}
         />
+      </div>
+
+      <div className={styles.sectionLabel}>When you can get to class</div>
+      <div className={styles.hint}>
+        The planner only counts on these times. For a one-off week, use
+        “Can’t go” or “I can go” on Today instead.
+      </div>
+      <div className={`${styles.group} ${styles.groupPad}`}>
+        <AvailabilityEditor value={availability} onChange={setAvailability} />
       </div>
 
       <div className={styles.sectionLabel}>The home gym</div>

@@ -1,6 +1,6 @@
 # Wolfram — project status
 
-**Last updated:** 2026-10-26 — program + classes spec built and verified locally; not pushed (no GitHub repo yet).
+**Last updated:** 2026-10-26 — live on GitHub Pages; class availability (usual/sometimes times, alternating weekends) added.
 
 Section headers stay fixed so both machines and every session find things.
 Newest entries go at the TOP of each list. Keep the Last-updated line to one
@@ -8,9 +8,9 @@ sentence; history lives in Release log / Incidents, not here.
 
 ## Status
 
-- Web: **not deployed.** Planned at https://seanmurray.github.io/wolfram/ once
-  the repo exists (see Blockers). The app is feature-complete for v1 per
-  `docs/specs/program-and-classes.md` and verified in the local dev build.
+- Web: **live** at https://seanmurray.github.io/wolfram/. Verify any deploy
+  with `npm run check-live` (compares the served build id to local HEAD).
+  Feature-complete for v1 per `docs/specs/program-and-classes.md`.
 - Android: n/a (personal PWA)
 - iOS: n/a — installed to the iPhone Home Screen as a PWA (see Decisions)
 
@@ -18,24 +18,22 @@ sentence; history lives in Release log / Incidents, not here.
 
 | Date | Step | Where | Notes |
 |---|---|---|---|
+| 2026-10-26 | Class availability: evenings / workday / weekends (alternating, anchored on-device), usual-before-sometimes planning, one-week overrides, open-windows card | local → pushed | Spec criteria 11–13 verified in the dev build; 63 unit tests |
+| 2026-10-26 | GitHub repo created (public) + Pages enabled (`build_type=workflow`, before the first push); first push deployed | `seanmurray/wolfram` | Sean approved in chat. Run 40380168936 succeeded; check-live confirmed build c764418 |
 | 2026-10-26 | v1 spec built: LIFTMOR-four gym session (learn → heavy at session 7), impact sets with levels, class library + planner, log-a-class, Today tally/suggestion, target sliders, bone-health settings | local | Verified in the dev build at 375×812 against spec criteria 1–10; 52 unit tests |
 | 2026-10-26 | Forked from Perennial `8945518` (tracked files only, fresh history) | `C:\dev\personal\wolfram` | Perennial artwork, README, person-specific comments removed |
 | 2026-10-26 | Template layer applied | repo | `.gitattributes`, `.editorconfig`, `.githooks` (pre-commit check, pre-push build), `.claude/settings.json`, `check-live.mjs` |
 
-When the repo is created: enable Pages with `build_type=workflow` *before* the
-first push, so the first workflow run can't fail on it (Perennial's did).
-
 ## Backlog (top = next)
 
-1. Create the GitHub repo + Pages (Blockers), push, verify with `npm run check-live`
-2. On-device pass on the user's iPhone: Home Screen install, log a class, force-quit, reopen, data intact (can't be done from Windows)
-3. Final brand artwork — `brand/mark.svg` is a placeholder (lit filament "W"); Sean may supply art, as he did for Perennial
-4. Install-to-Home-Screen prompt for iOS Safari (persistence depends on it)
-5. Resolve the npm `edgesOut` crash (Incidents) before the next devDependency is needed
+1. On-device pass on the user's iPhone: Home Screen install, log a class, force-quit, reopen, data intact (can't be done from Windows)
+2. Final brand artwork — `brand/mark.svg` is a placeholder (lit filament "W"); Sean may supply art, as he did for Perennial
+3. Install-to-Home-Screen prompt for iOS Safari (persistence depends on it)
+4. Resolve the npm `edgesOut` crash (Incidents) before the next devDependency is needed
 
 ## Blockers
 
-- **Public GitHub repo + Pages** — auto mode blocked `gh repo create --public` pending Sean's explicit OK (2026-10-26). Everything is committed locally, nothing pushed.
+- None.
 
 ## Decisions (with "do not chase")
 

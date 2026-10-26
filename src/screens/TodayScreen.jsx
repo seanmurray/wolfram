@@ -2,10 +2,10 @@ import styles from './TodayScreen.module.css';
 import chips from '../components/Buckets.module.css';
 import { useSessions } from '../hooks/useSessions';
 import { useSettingsStore } from '../stores/settingsStore';
-import { useClassStore } from '../stores/classStore';
+import { useClassStore, overridesFor } from '../stores/classStore';
 import { suggestToday, heavyPhase, impactLevel } from '../lib/plan.js';
 import { FORMATS } from '../lib/classify.js';
-import { WEEKDAYS, weekdayIndex, weekKey, formatTime } from '../lib/week.js';
+import { WEEKDAYS, WEEKDAYS_LONG, weekdayIndex, formatTime } from '../lib/week.js';
 import { BUCKET_LABEL, fillsText } from '../lib/labels.js';
 import { PHASES, IMPACT_LEVELS, IMPACT_LEVEL_EVERY } from '../data/program';
 
@@ -16,14 +16,15 @@ export function TodayScreen({ onStart, onLogClass, onOpenClasses }) {
   const sessions = data ?? [];
   const targets = useSettingsStore((s) => s.targets);
   const lowBoneDensity = useSettingsStore((s) => s.lowBoneDensity);
+  const availability = useSettingsStore((s) => s.availability);
   const library = useClassStore((s) => s.library);
-  const skip = useClassStore((s) => s.skip);
-  const toggleSkipDay = useClassStore((s) => s.toggleSkipDay);
+  const overrideState = useClassStore((s) => s.overrides);
+  const toggleOverride = useClassStore((s) => s.toggleOverride);
 
   const now = new Date();
-  const skipDays = skip.week === weekKey(now) ? skip.days : [];
-  const suggestion = suggestToday({ library, sessions, targets, now, skipDays });
-  const { tally, occurrences } = suggestion.plan;
+  const overrides = overridesFor({ overrides: overrideState }, now);
+  const suggestion = suggestToday({ library, sessions, targets, now, overrides, availability });
+  const { tally, occurrences, windows, uncovered } = suggestion.plan;
   const phase = heavyPhase(sessions);
   const level = IMPACT_LEVELS[impactLevel(sessions, {
     levels: IMPACT_LEVELS.length, every: IMPACT_LEVEL_EVERY, capLow: lowBoneDensity,
@@ -85,17 +86,26 @@ export function TodayScreen({ onStart, onLogClass, onOpenClasses }) {
           {occurrences.map((o) => {
             const day = weekdayIndex(o.at);
             const isToday = day === weekdayIndex(now);
+            const unavailable = o.level === 'no';
             const status = o.skipped
               ? 'Can’t make it this week'
-              : o.fills.length
-                ? fillsText(o.fills)
-                : o.tooSoon
-                  ? 'Too soon after your last heavy session'
-                  : null;
+              : o.reason === 'offWeekend'
+                ? 'Not one of your free weekends'
+                : o.reason === 'outside'
+                  ? 'Outside your usual class times'
+                  : o.fills.length
+                    ? (o.level === 'sometimes' ? 'If you can get there: ' : '') + fillsText(o.fills).replace(/^C/, o.level === 'sometimes' ? 'c' : 'C')
+                    : o.tooSoon
+                      ? 'Too close to another heavy day'
+                      : null;
+            const btn = o.override ? 'Undo' : unavailable ? 'I can go' : 'Can’t go';
+            const btnAria = o.override
+              ? `Undo this week’s change for ${WEEKDAYS_LONG[day]}`
+              : unavailable ? `I can make ${WEEKDAYS_LONG[day]} this week` : `I can’t make ${WEEKDAYS_LONG[day]} this week`;
             return (
               <li
                 key={`${o.cls.id}-${o.at.toISOString()}`}
-                className={`${styles.occ} ${o.fills.length && !o.skipped ? styles.occFills : ''} ${o.skipped ? styles.occSkipped : ''}`}
+                className={`${styles.occ} ${o.fills.length ? styles.occFills : ''} ${o.skipped ? styles.occSkipped : unavailable ? styles.occOff : ''}`}
               >
                 <div className={styles.occWhen}>
                   <span className={styles.occDay}>{isToday ? 'Today' : WEEKDAYS[day]}</span>
@@ -112,15 +122,39 @@ export function TodayScreen({ onStart, onLogClass, onOpenClasses }) {
                 <button
                   type="button"
                   className={styles.skipBtn}
-                  onClick={() => toggleSkipDay(day, now)}
-                  aria-label={o.skipped ? `I can make ${WEEKDAYS[day]} after all` : `I can’t make ${WEEKDAYS[day]} this week`}
+                  onClick={() => toggleOverride(day, !unavailable, now)}
+                  aria-label={btnAria}
                 >
-                  {o.skipped ? 'Undo' : 'Can’t go'}
+                  {btn}
                 </button>
               </li>
             );
           })}
         </ul>
+      )}
+
+      {windows.length > 0 && (
+        <section className={styles.windows} aria-label="Room for a heavy class">
+          <div className={styles.windowsTitle}>Room for a heavy class</div>
+          <p className={styles.windowsBody}>
+            You still need {uncovered.heavy === 1 ? 'one heavy session' : `${uncovered.heavy} heavy sessions`} this
+            week, and nothing’s booked{' '}
+            {windows.map((w, i) => {
+              const wd = weekdayIndex(w.at);
+              const label = wd === weekdayIndex(now)
+                ? (w.part === 'evening' ? 'tonight' : 'today')
+                : `${WEEKDAYS_LONG[wd]}${w.part === 'evening' ? ' evening' : ''}`;
+              return (
+                <span key={wd}>
+                  {i > 0 && (i === windows.length - 1 ? ' or ' : ', ')}
+                  <strong>{label}</strong>
+                </span>
+              );
+            })}
+            . Search ClassPass for a barbell or lifting class then, and add it on
+            the Classes tab if it’s a regular.
+          </p>
+        </section>
       )}
 
       <p className={styles.footNote}>

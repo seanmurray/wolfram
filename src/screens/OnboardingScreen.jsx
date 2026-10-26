@@ -1,11 +1,26 @@
+import { useState } from 'react';
 import styles from './OnboardingScreen.module.css';
 import { useSettingsStore } from '../stores/settingsStore';
+import { AvailabilityEditor } from '../components/AvailabilityEditor';
 
-// First run: what Wolfram does, and the one thing to do before heavy lifting
-// and jumping. No equipment question: the home gym is preset (Settings can
-// change it), and everything else is classes and bodyweight.
+// First run: what Wolfram does, when classes are realistic, and the one thing
+// to do before heavy lifting and jumping. No equipment question: the home gym
+// is preset (Settings can change it), and everything else is classes and
+// bodyweight.
 export function OnboardingScreen() {
   const completeOnboarding = useSettingsStore((s) => s.completeOnboarding);
+  const saved = useSettingsStore((s) => s.availability);
+  const setAvailability = useSettingsStore((s) => s.setAvailability);
+  const [av, setAv] = useState(saved);
+
+  // An alternating schedule needs its anchor: without it every weekend is a
+  // guess, so this one question has to be answered.
+  const needsWeekend = av.weekends === 'alternate' && !av.freeWeekendOf;
+  const start = () => {
+    if (needsWeekend) return;
+    setAvailability(av);
+    completeOnboarding();
+  };
 
   return (
     <main className={`screen ${styles.wrap}`}>
@@ -36,6 +51,15 @@ export function OnboardingScreen() {
         </li>
       </ol>
 
+      <section className={styles.when}>
+        <div className={styles.whenTitle}>When can you usually get to a class?</div>
+        <p className={styles.whenSub}>
+          Wolfram only plans classes around these times. You can change them,
+          or any single week, whenever.
+        </p>
+        <AvailabilityEditor value={av} onChange={(patch) => setAv((a) => ({ ...a, ...patch }))} />
+      </section>
+
       <div className={styles.dexa}>
         <div className={styles.dexaTitle}>Before you start</div>
         Ask your doctor about a DEXA scan for a baseline bone density reading,
@@ -43,9 +67,10 @@ export function OnboardingScreen() {
         training plan, not medical advice.
       </div>
 
-      <button type="button" className={styles.cta} onClick={completeOnboarding}>
+      <button type="button" className={styles.cta} onClick={start} disabled={needsWeekend}>
         Let’s start
       </button>
+      {needsWeekend && <p className={styles.needs}>Answer the weekend question above to start.</p>}
     </main>
   );
 }
