@@ -20,6 +20,8 @@ sentence; history lives in Release log / Incidents, not here.
 
 | Date | Step | Where | Notes |
 |---|---|---|---|
+| 2026-10-26 | TestFlight Test Information saved: beta description, feedback email, Beta App Review contact, review notes (no sign-in), privacy policy URL `https://seanmurray.github.io/wolfram/privacy.html` | App Store Connect → Wolfram Strength → TestFlight → Test Information | Sean approved all values; contact details live only in ASC (public repo). Verified after reload |
+| 2026-10-26 | Privacy page published (`public/privacy.html`): nothing collected, data stays on device, local notifications, mic only for the recorded timer sound, GitHub Pages hosting | GitHub Pages | No personal details on the page |
 | 2026-10-26 | App Store Connect app record created: name **"Wolfram Strength"** ("Wolfram" is taken; the home screen still says Wolfram), Apple ID **6827281356**, SKU `wolfram-ios`, English (U.S.), Full Access | App Store Connect, team 6RWD7M34MY | Sean approved the values. Verified after reload on App Information (bundle select = com.seanmurray.wolfram). A "user access could not be saved" notice appeared; the result is all users, which matches the Full Access choice |
 | 2026-10-26 | App ID `com.seanmurray.wolfram` registered (explicit, description "Wolfram", no extra capabilities; In-App Purchase is Apple's default) | developer.apple.com, team 6RWD7M34MY | Verified after reload in Identifiers |
 | 2026-10-26 | Capacitor 7 iOS shell (SPM): bundle `com.seanmurray.wolfram`, team `6RWD7M34MY`, iPhone + portrait only, no-encryption flag, mic usage string, icon + launch screen, `ExportOptions.plist` (upload, Xcode-managed build numbers) | local → pushed | Native data file in Documents + restore (newest copy wins), share-sheet export, screen-off timer notifications, SW torn down on native. Web checked in a production preview: SW still registers, fonts bundled, zero third-party requests |
@@ -32,12 +34,11 @@ sentence; history lives in Release log / Incidents, not here.
 ## Backlog (top = next)
 
 1. Mac: simulator pass for spec criteria 2–5, then the first TestFlight upload (`HANDOFF.md`)
-2. TestFlight Test Information (beta description, feedback email, review contact, privacy policy URL); waiting on Sean's values
-3. TestFlight external group with the user's email (the External Testing section only appears once a build exists); first build through Beta App Review
-4. On-device pass on the user's iPhone: TestFlight install, log a class, force-quit, reopen, data intact
-5. Final brand artwork — `brand/mark.svg` is a placeholder (lit filament "W"); Sean may supply art, as he did for Perennial
-6. Upload a fresh TestFlight build at least every 90 days (builds expire)
-7. Resolve the npm `edgesOut` crash (Incidents) before vitest is needed
+2. TestFlight external group with the user's email (the External Testing section only appears once a build exists); first build through Beta App Review
+3. On-device pass on the user's iPhone: TestFlight install, log a class, force-quit, reopen, data intact
+4. Final brand artwork — `brand/mark.svg` is a placeholder (lit filament "W"); Sean may supply art, as he did for Perennial
+5. Upload a fresh TestFlight build at least every 90 days (builds expire)
+6. Resolve the npm `edgesOut` crash (Incidents) before vitest is needed
 
 ## Blockers
 
