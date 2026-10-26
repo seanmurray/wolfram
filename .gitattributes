@@ -1,0 +1,37 @@
+# LF in the repo AND the working tree. Every tool here (Vite, Metro, Jest,
+# Node scripts, Xcode, Gradle) is fine with LF on Windows, and this ends the
+# "LF will be replaced by CRLF" wall (63 warnings across six repos) and the
+# CRLF-in-gradlew.bat rebase noise between the PC and the Mac.
+* text=auto eol=lf
+
+# Windows-native scripts genuinely need CRLF
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
+
+# Never normalize binaries
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.ico binary
+*.icns binary
+*.jar binary
+*.aab binary
+*.apk binary
+*.ipa binary
+*.zip binary
+*.mp4 binary
+*.mov binary
+*.mp3 binary
+*.wav binary
+*.ttf binary
+*.otf binary
+*.woff binary
+*.woff2 binary
+*.pdf binary
+*.jks binary
+*.keystore binary
+*.p8 binary
+*.p12 binary

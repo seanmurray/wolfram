@@ -1,0 +1,121 @@
+/* Floating rest-timer card sitting just above the bottom nav. */
+
+.float {
+  position: fixed;
+  bottom: calc(var(--bottom-nav-h) + var(--sab) + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 24px);
+  max-width: calc(var(--app-max-w) - 24px);
+  background: var(--bg-card);
+  box-shadow: 0 6px 20px rgba(38, 56, 44, 0.14);
+  border-radius: var(--r4);
+  border: 0.5px solid var(--hairline);
+  padding: 14px 16px;
+  z-index: 200;
+  box-shadow: 0 8px 40px var(--scrim);
+  animation: timerSlide 0.25s var(--ease-sheet);
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+@keyframes timerSlide {
+  from { transform: translateX(-50%) translateY(24px); opacity: 0; }
+  to   { transform: translateX(-50%) translateY(0);    opacity: 1; }
+}
+
+.ringWrap { position: relative; width: 60px; height: 60px; flex-shrink: 0; }
+.ringWrap svg { transform: rotate(-90deg); }
+
+.track  { stroke: var(--hairline); }
+.value  { stroke-linecap: round; transition: stroke-dashoffset 1s linear, stroke 0.4s; }
+
+.center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.countdown {
+  font-family: var(--font-display); font-variant-numeric: lining-nums tabular-nums; font-weight: 600;
+  font-size: 20px;
+  color: var(--t1);
+  letter-spacing: -0.01em;
+}
+
+.main {
+  flex: 1;
+  min-width: 0;
+}
+
+.label {
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--t3);
+  margin-bottom: 2px;
+}
+
+.exname {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--t1);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* The reason the rest is this long. Its own row so a full sentence can
+   breathe; the hairline ties it to the timer above rather than letting it
+   read as a separate card. */
+.why {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--hairline);
+  font-size: 15px;
+  line-height: 1.45;
+  color: var(--t2);
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.adj {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--bg-pill);
+  color: var(--t2);
+  font-size: 18px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+}
+.adj:active { background: var(--bg-input); }
+
+.skip {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--green);
+  color: var(--on-accent);
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.15s;
+}
+.skip:active { opacity: 0.8; }

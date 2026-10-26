@@ -1,0 +1,96 @@
+/* Sticky form-cue note for an exercise. Shows in the expanded body of every
+   ExerciseBlock; persistent across sessions via Supabase. */
+
+.card {
+  background: var(--blue-bg);
+  border: 0.5px solid var(--blue-bg);
+  border-radius: var(--r2);
+  padding: 10px 12px;
+  margin-top: 10px;
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.label {
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--blue);
+}
+
+.editBtn {
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--blue);
+  background: transparent;
+  border: 0.5px solid var(--blue-line);
+  border-radius: 100px;
+  padding: 4px 10px;
+  min-height: 28px;
+}
+
+.text {
+  font-size: 17px;
+  color: var(--t2);
+  line-height: 1.5;
+  margin-top: 6px;
+  white-space: pre-wrap;
+}
+
+.empty {
+  font-size: 16px;
+  color: var(--t3);
+  font-style: italic;
+  margin-top: 6px;
+}
+
+.editor {
+  width: 100%;
+  margin-top: 8px;
+  background: var(--bg-input);
+  border: 1px solid var(--blue-line);
+  border-radius: var(--r1);
+  padding: 10px;
+  font-family: var(--font-body);
+  font-size: 17px;
+  color: var(--t1);
+  resize: vertical;
+  min-height: 60px;
+}
+.editor:focus { outline: none; border-color: var(--blue); }
+
+.actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+  justify-content: flex-end;
+}
+
+.save, .cancel {
+  height: 32px;
+  padding: 0 14px;
+  border-radius: 100px;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.save {
+  background: var(--blue);
+  color: var(--on-accent);
+  border: none;
+}
+.save:disabled { opacity: 0.4; }
+.cancel {
+  background: var(--bg-pill);
+  color: var(--t3);
+  border: 0.5px solid var(--hairline);
+}

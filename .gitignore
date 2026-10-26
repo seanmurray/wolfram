@@ -1,0 +1,56 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+dev-dist
+*.local
+
+# Environment — only .env.example is committed
+.env
+.env.local
+.env.*.local
+
+# Editor / tool directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+# .claude/settings.json is committed (project deny/allow rules); only the
+# local overrides below are ignored.
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# --- secrets & signing (append to .gitignore; the global guard also denies Claude reading these) ---
+.env
+.env.*
+!.env.example
+*.jks
+*.keystore
+keystore.properties
+android/version.properties.bak
+*.p8
+*.p12
+*.mobileprovision
+google-services.json
+GoogleService-Info.plist
+.appstoreconnect/
+
+# --- Claude Code local-only ---
+.claude/settings.local.json
+CLAUDE.local.md
+
+# --- OS / editor noise ---
+Thumbs.db
+.DS_Store
+* - Copy.*

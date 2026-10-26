@@ -1,0 +1,49 @@
+# Wolfram — project rules
+
+A strength-for-the-long-run training PWA: heavy lifting and impact work for
+bone density, fitted around the studio classes the user already loves.
+Vite + React 19, TanStack Query, Zustand, vite-plugin-pwa; local-first, no
+backend. Owner: personal. Repo: `https://github.com/seanmurray/wolfram`
+(public). Live: `https://seanmurray.github.io/wolfram/`.
+**`PROJECT.md` is the status source of truth — read it first, keep it current.**
+Global rules in `~/.claude/CLAUDE.md` apply; this file only adds what is
+specific to this app. Keep it under 200 lines; history goes in `PROJECT.md`.
+
+## Commands
+
+- Dev: `npm run dev` (launch config `wolfram-dev`) · Check: `npm run check` (lint)
+- Build: `npm run build` · Icons: `npm run gen-icons` (from `brand/mark.svg`)
+- Deploy: push to `main` → GitHub Actions → Pages. Then `npm run check-live`
+  (exit 0 = the pushed sha is what's being served). Pushes queue for anywhere
+  from ~45 s to several minutes — wait; never re-dispatch to "rescue" a run.
+
+## Hard constraints
+
+- **Public repo: no personal details in anything committed** — no name next
+  to health, gender, or body information. Describe goals, not the person.
+- **Every storage key, IDB database, and Cache Storage name starts `wolfram-`.**
+  All `seanmurray.github.io/*` apps share one origin (Perennial, soccer-coach).
+- Local-first: nothing leaves the device. Backups are user-initiated exports.
+- Not medical advice: the app prompts for a DEXA baseline / doctor
+  conversation rather than playing clinician.
+- Program content is evidence-led (high-load resistance + impact for bone);
+  cues are plain language — no Sanskrit, no yoga-flavoured pandering.
+
+## Architecture (pointers, not a tour — Claude can read the code)
+
+- Entry: `src/main.jsx` (boot-time storage recovery runs before render)
+- Data: `src/lib/localdb.js` (transactional localStorage + snapshot + IDB mirror)
+- Program: `src/data/program.js`, `src/data/exercises.js`; slot resolution in
+  `src/lib/resolveSlot.js` (equipment-aware variant chains)
+- Look: `src/styles/tokens.css` (palette + type), `brand/mark.svg` (placeholder)
+- Backend: none
+
+## Verification specifics
+
+- Web: `preview_start` name `wolfram-dev`, then the browser tool at 375×812.
+- iOS persistence only reproduces on a real iPhone Home Screen install —
+  can't be verified from Windows; say so rather than "should work".
+
+## Gotchas already hit (one line each; move detail to PROJECT.md → Incidents)
+
+- 2026-10-26 — Bebas Neue → Fraunces: caps strings and 0.04–0.08em tracking were tuned for an all-caps condensed face; titles are sentence case now.

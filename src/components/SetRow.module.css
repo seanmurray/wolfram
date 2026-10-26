@@ -1,0 +1,141 @@
+/* Set row — grid: # | reps | weight | rec | RPE | done. */
+
+.tableHeader {
+  display: grid;
+  grid-template-columns: 36px 1fr 1fr 70px 60px 44px;
+  gap: 6px;
+  align-items: center;
+  padding: 0 0 8px;
+}
+
+.colLabel {
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--t3);
+  text-align: center;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 36px 1fr 1fr 70px 60px 44px;
+  gap: 6px;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.num {
+  font-family: var(--font-mono);
+  font-size: 18px;
+  color: var(--t3);
+  text-align: left;
+}
+
+.input {
+  background: var(--bg-input);
+  border: none;
+  border-radius: var(--r1);
+  padding: 12px 6px;
+  font-family: var(--font-mono);
+  font-size: 17px;
+  color: var(--t1);
+  text-align: center;
+  width: 100%;
+  min-height: var(--tap-min);
+}
+.input:focus { outline: 2px solid var(--green); }
+
+.rpe {
+  background: var(--bg-input);
+  border: none;
+  border-radius: var(--r1);
+  padding: 10px 2px;
+  font-family: var(--font-mono);
+  font-size: 17px;
+  color: var(--t2);
+  width: 100%;
+  /* text-align applies to the options list; the displayed selected value
+     needs text-align-last to center on iOS Safari. */
+  text-align: center;
+  text-align-last: center;
+  -webkit-appearance: none;
+  appearance: none;
+  cursor: pointer;
+  min-height: var(--tap-min);
+}
+
+.recCell {
+  background: var(--green-bg);
+  border: 0.5px solid var(--green-line);
+  border-radius: var(--r1);
+  padding: 10px 4px;
+  font-family: var(--font-mono);
+  font-size: 16px;
+  color: var(--green);
+  text-align: center;
+  font-weight: 500;
+  min-height: var(--tap-min);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.recCell.warn   { background: var(--amber-bg);  border-color: var(--amber-line); color: var(--amber); }
+.recCell.danger { background: var(--red-bg);    border-color: rgba(255, 69, 58, 0.25); color: var(--red); }
+
+/* Done button — circle with iOS spring scale animation. */
+.done {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 2px solid var(--t4);
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s var(--ease-spring);
+  position: relative;
+  justify-self: center;
+}
+
+.done::after {
+  content: '';
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--t4);
+  transition: all 0.2s;
+}
+
+.done.completed {
+  background: var(--green);
+  border-color: var(--green);
+  transform: scale(1.1);
+}
+.done.completed::after {
+  width: 0;
+  height: 0;
+}
+.done.completed::before {
+  content: '✓';
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--on-accent);
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  line-height: 1;
+}
+
+.adaptNote {
+  font-size: 17px;
+  color: var(--amber);
+  padding: 10px 12px;
+  background: var(--amber-bg);
+  border-radius: var(--r1);
+  border: 0.5px solid var(--amber-line);
+  margin-top: 8px;
+}

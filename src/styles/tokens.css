@@ -1,0 +1,89 @@
+/* ─── DESIGN TOKENS — Wolfram ─────────────────────────────── */
+/* Studio-warm, built from the name. Wolfram is tungsten, so:
+     bone        — the canvas, a warm limestone/ivory (the thing we're building)
+     filament    — the primary accent, the ember of a lit tungsten wire
+     graphite    — the ink, tungsten's own warm grey
+   Every text colour clears WCAG AA (4.5:1) on both --bg and --bg-card;
+   --t4 is for hints and dividers only (3.2:1).
+
+   Variable NAMES are inherited from the codebase this was forked from
+   (--green is still "primary accent", --sage/--blue are secondary accents) so
+   components need no forking — only the values moved. */
+
+:root {
+  /* Canvas & surfaces — page is a touch deeper than the cards so they lift */
+  --bg:        #f5efe6;  /* bone */
+  --bg-card:   #fcf9f4;
+  --bg-raised: #e9e0d3;  /* sand */
+  --bg-input:  #f1eadf;
+  --bg-pill:   #e9e0d3;
+  --bg-blur:   rgba(245, 239, 230, 0.92);
+
+  /* Ink — tungsten graphite, warm not blue */
+  --t1: #2a2723;
+  --t2: #514b44;
+  --t3: #6b645b;
+  --t4: #8c847a;
+
+  --hairline:        rgba(42, 39, 35, 0.10);
+  --hairline-strong: rgba(42, 39, 35, 0.18);
+  --scrim:           rgba(32, 28, 24, 0.45);
+
+  /* Primary accent — filament ember. Cream ink sits on top of it (5.6:1). */
+  --green:       #a14d1c;
+  --green-bg:    rgba(161, 77, 28, 0.09);
+  --green-line:  rgba(161, 77, 28, 0.26);
+  --on-accent:   #fcf9f4;
+
+  /* Glow — the warm halo around the filament. Records, highlights. */
+  --amber:       #8a5d19;
+  --amber-bg:    rgba(214, 160, 82, 0.20);
+  --amber-line:  rgba(138, 93, 25, 0.30);
+
+  /* Olive — the studio's plants and linen. Mobility, balance, the mat.
+     --purple is a legacy alias. */
+  --sage:        #5f6a49;
+  --sage-bg:     rgba(95, 106, 73, 0.13);
+  --purple:      #5f6a49;
+  --purple-bg:   rgba(95, 106, 73, 0.13);
+  --purple-line: rgba(95, 106, 73, 0.30);
+
+  /* Slate — tungsten's cool sheen. The quiet secondary accent. */
+  --blue:      #4b6170;
+  --blue-bg:   rgba(75, 97, 112, 0.10);
+  --blue-line: rgba(75, 97, 112, 0.26);
+
+  --red:         #a3392f;
+  --red-bg:      rgba(163, 57, 47, 0.10);
+  --orange:      #a8692a;
+  --orange-bg:   rgba(168, 105, 42, 0.10);
+  --orange-line: rgba(168, 105, 42, 0.25);
+
+  /* Radii — a little softer than a gym app; this is the studio */
+  --r1: 12px;
+  --r2: 18px;
+  --r3: 22px;
+  --r4: 28px;
+
+  /* Safe-area insets */
+  --sat: env(safe-area-inset-top, 0px);
+  --sab: env(safe-area-inset-bottom, 0px);
+
+  /* Touch targets */
+  --tap: 52px;
+  --tap-min: 44px;
+
+  /* Layout */
+  --app-max-w: 480px;
+  --bottom-nav-h: 68px;
+
+  /* Type families — Fraunces is a soft, warm serif with real weight at the
+     top end: studio calm without looking fragile next to a barbell. */
+  --font-display: 'Fraunces', Georgia, serif;
+  --font-body:    'DM Sans', -apple-system, sans-serif;
+  --font-mono:    'DM Mono', ui-monospace, monospace;
+
+  /* Motion */
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-sheet:  cubic-bezier(0.16, 1, 0.3, 1);
+}

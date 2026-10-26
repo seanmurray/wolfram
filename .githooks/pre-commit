@@ -1,0 +1,27 @@
+#!/bin/sh
+# Pre-commit gate: typecheck + lint + unit tests. Wired by the package.json
+# "prepare" script (git config core.hooksPath .githooks). The Claude Code guard
+# hook blocks `--no-verify`, so a red gate has to be fixed, not skipped.
+#
+# ~250 ad-hoc test runs and zero pre-commit hooks across the old repos meant a
+# red test could still ship. This is the cheapest fix for that.
+set -e
+
+# Refuse secrets even if .gitignore is wrong.
+if git diff --cached --name-only | grep -Ei '(^|/)\.env(\.|$)|\.jks$|\.keystore$|keystore\.properties$|\.p8$|\.p12$|google-services\.json$|GoogleService-Info\.plist$' >/dev/null; then
+  echo "[pre-commit] BLOCKED: a secret/signing file is staged." >&2
+  git diff --cached --name-only | grep -Ei '(^|/)\.env(\.|$)|\.jks$|\.keystore$|keystore\.properties$|\.p8$|\.p12$|google-services\.json$|GoogleService-Info\.plist$' >&2
+  exit 1
+fi
+
+# Refuse files with a UTF-8 BOM or NUL bytes (PowerShell Set-Content damage).
+for f in $(git diff --cached --name-only --diff-filter=AM | grep -Ei '\.(ts|tsx|js|jsx|mjs|cjs|json|md|toml|yml|yaml|css|html|npmrc)$'); do
+  if [ -f "$f" ]; then
+    if head -c3 "$f" | grep -q $'\xEF\xBB\xBF'; then echo "[pre-commit] BLOCKED: UTF-8 BOM in $f" >&2; exit 1; fi
+    if grep -qP '\x00' "$f" 2>/dev/null; then echo "[pre-commit] BLOCKED: NUL byte in $f" >&2; exit 1; fi
+  fi
+done
+
+echo "[pre-commit] npm run check (typecheck + lint + tests)…"
+npm run --silent check
+echo "[pre-commit] gates passed"

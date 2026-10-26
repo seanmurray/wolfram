@@ -1,0 +1,73 @@
+.blurb {
+  font-size: 16px;
+  color: var(--t2);
+  line-height: 1.5;
+  margin: 8px 0 18px;
+}
+
+/* ── Bracing primer (strength days) ── */
+.bracingCard {
+  background: var(--bg-card);
+  border: 1px solid var(--green-line);
+  border-left: 4px solid var(--green);
+  border-radius: var(--r2);
+  padding: 14px 16px;
+  margin-bottom: 16px;
+}
+.bracingTitle {
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  color: var(--green);
+  margin-bottom: 6px;
+}
+.bracingBody {
+  font-size: 15px;
+  color: var(--t2);
+  line-height: 1.55;
+}
+/* These cards can run to two paragraphs; without this they read as one
+   unbroken wall of text. */
+.bracingBody + .bracingBody { margin-top: 10px; }
+
+.empty {
+  font-size: 17px;
+  color: var(--t2);
+  line-height: 1.6;
+  margin-top: 14px;
+}
+
+/* ── Move-day cardio card ── */
+.moveCard {
+  background: var(--bg-card);
+  border: 1px solid var(--green-line);
+  border-radius: var(--r2);
+  padding: 16px;
+  margin-bottom: 14px;
+}
+.moveName { font-size: 19px; font-weight: 700; color: var(--t1); }
+.moveTarget { font-size: 15px; font-weight: 600; color: var(--green); margin-top: 3px; }
+.moveCue { font-size: 15px; color: var(--t2); line-height: 1.5; margin-top: 10px; }
+
+.moveRow { display: flex; gap: 10px; margin-top: 14px; }
+.moveInput {
+  flex: 1;
+  background: var(--bg-input);
+  border: 1px solid var(--bg-raised);
+  border-radius: var(--r1);
+  color: var(--t1);
+  font-size: 20px;
+  font-weight: 700;
+  text-align: center;
+  padding: 12px;
+}
+.moveLog {
+  flex: 1;
+  background: var(--green);
+  color: var(--on-accent);
+  font-size: 16px;
+  font-weight: 800;
+  border-radius: var(--r1);
+}
+.moveLog:disabled { opacity: 0.55; }
+.moveLogged { background: var(--bg-raised); color: var(--green); }

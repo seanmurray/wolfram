@@ -1,0 +1,42 @@
+/* Day-type pills + module pills used on the Today screen. */
+
+.dayPill {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12px 18px;
+  background: var(--bg-card);
+  border-radius: var(--r3);
+  border: 0.5px solid var(--hairline);
+  min-width: 80px;
+  cursor: pointer;
+  transition: all 0.2s var(--ease-spring);
+}
+
+.dayN    { font-size: 17px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--t3); margin-bottom: 4px; }
+.dayName { font-family: var(--font-display); font-variant-numeric: lining-nums tabular-nums; font-weight: 600; font-size: 18px; letter-spacing: -0.01em; color: var(--t1); }
+
+.dayPill.active { background: var(--green); border-color: var(--green); transform: scale(1.04); }
+.dayPill.active .dayN, .dayPill.active .dayName { color: var(--on-accent); }
+
+/* Module pill — round-cap chip with icon + label. */
+.modulePill {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 14px;
+  background: var(--bg-card);
+  border-radius: 100px;
+  border: 0.5px solid var(--hairline);
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--t2);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.18s;
+  min-height: var(--tap-min);
+}
+.modulePill:active { transform: scale(0.96); background: var(--bg-raised); }
+.moduleIcon { font-size: 22px; }

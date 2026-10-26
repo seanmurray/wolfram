@@ -1,0 +1,48 @@
+.card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--bg-card);
+  border: 1px solid var(--bg-raised);
+  border-radius: var(--r2);
+  padding: 14px 16px;
+  margin-top: 12px;
+}
+
+.emoji { font-size: 26px; flex-shrink: 0; }
+.mid { flex: 1; min-width: 0; }
+.title { font-size: 17px; font-weight: 700; color: var(--t1); }
+.meta { font-size: 14px; color: var(--t3); margin-top: 2px; }
+
+.deleteBtn {
+  flex-shrink: 0;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--bg-raised);
+  color: var(--t3);
+  font-size: 20px;
+  line-height: 1;
+}
+
+.confirmRow { display: flex; gap: 6px; flex-shrink: 0; }
+.confirmDelete {
+  background: var(--red);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  padding: 8px 12px;
+  border-radius: var(--r1);
+}
+.cancelDelete {
+  background: var(--bg-raised);
+  color: var(--t2);
+  font-size: 14px;
+  font-weight: 700;
+  padding: 8px 12px;
+  border-radius: var(--r1);
+}
+
+.empty { text-align: center; padding: 46px 20px; }
+.emptyEmoji { font-size: 52px; }
+.emptyText { font-size: 17px; color: var(--t3); line-height: 1.55; margin-top: 12px; }

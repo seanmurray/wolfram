@@ -1,0 +1,68 @@
+.wrap {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--bg-raised, #1c1c1e);
+}
+.label {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--t3);
+  margin-bottom: 8px;
+}
+
+/* Scope segmented control */
+.scopeRow { display: flex; gap: 6px; margin-bottom: 10px; }
+.scopeBtn {
+  flex: 1;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: var(--bg-input);
+  color: var(--t2);
+  font-size: 14px;
+  font-weight: 600;
+  border: 1px solid transparent;
+}
+.scopeBtn.on { background: var(--blue-bg, rgba(10,132,255,.14)); color: var(--blue); border-color: var(--blue); }
+
+.pills { display: flex; flex-wrap: wrap; gap: 6px; }
+.pill {
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: var(--bg-pill);
+  color: var(--t2);
+  font-size: 14px;
+  font-weight: 600;
+  border: 1px solid transparent;
+}
+.pill.active { background: var(--blue-bg, rgba(10,132,255,.14)); color: var(--blue); border-color: var(--blue); }
+.pill.home { font-weight: 700; }
+.pill.customPill { background: var(--amber-bg); color: var(--amber); }
+
+.customRow { display: flex; gap: 8px; margin-top: 8px; }
+.customInput {
+  flex: 1;
+  background: var(--bg-input);
+  border: 1px solid var(--bg-raised);
+  border-radius: 8px;
+  color: var(--t1);
+  font-size: 15px;
+  padding: 10px 12px;
+}
+.customSet {
+  background: var(--amber);
+  color: var(--on-accent);
+  font-weight: 800;
+  font-size: 14px;
+  padding: 10px 16px;
+  border-radius: 8px;
+}
+.reset {
+  margin-top: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--t3);
+  text-decoration: underline;
+  background: none;
+}

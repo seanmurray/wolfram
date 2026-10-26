@@ -1,0 +1,28 @@
+/* Slim brand bar above every screen. Sits in normal flow (not fixed) so it
+   scrolls away and never competes with the screen title beneath it. */
+.header {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: calc(var(--sat) + 12px) 18px 4px;
+  max-width: var(--app-max-w);
+  margin: 0 auto;
+}
+
+.mark {
+  width: 26px;
+  height: 26px;
+  border-radius: 7px;
+  flex-shrink: 0;
+}
+
+/* Live text, not an image: Fraunces at the titles' weight, sized so it sits
+   level with the mark. */
+.wordmark {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 21px;
+  letter-spacing: -0.01em;
+  line-height: 1;
+  color: var(--t1);
+}

@@ -1,0 +1,8 @@
+#!/bin/sh
+# Pre-push gate: the production build must succeed before anything leaves the
+# machine. A missing-dependency import that only breaks `build` (not tests)
+# once removed the Android back button for three weeks.
+set -e
+echo "[pre-push] npm run build…"
+npm run --silent build
+echo "[pre-push] build passed"

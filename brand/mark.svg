@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <!-- Wolfram placeholder mark: a lit tungsten filament bent into a W
+       (tungsten's chemical symbol), glowing in a dim warm room. Full-bleed
+       square — iOS rounds the corners itself — and the W sits well inside
+       Android's maskable safe zone (corner reach 305 of an allowed 410). -->
+  <defs>
+    <radialGradient id="room" cx="50%" cy="52%" r="72%">
+      <stop offset="0%"   stop-color="#4a321f"/>
+      <stop offset="40%"  stop-color="#2f2620"/>
+      <stop offset="100%" stop-color="#1d1a17"/>
+    </radialGradient>
+    <!-- userSpaceOnUse so the blur is never clipped to the stroke's bbox -->
+    <filter id="bloom" filterUnits="userSpaceOnUse" x="0" y="0" width="1024" height="1024">
+      <feGaussianBlur stdDeviation="80"/>
+    </filter>
+    <filter id="glow" filterUnits="userSpaceOnUse" x="0" y="0" width="1024" height="1024">
+      <feGaussianBlur stdDeviation="20"/>
+    </filter>
+  </defs>
+  <rect width="1024" height="1024" fill="url(#room)"/>
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <polyline points="247,362 377,676 512,436 647,676 777,362" stroke="#ff7417" stroke-width="150" opacity="0.38" filter="url(#bloom)"/>
+    <polyline points="247,362 377,676 512,436 647,676 777,362" stroke="#ff9a3d" stroke-width="56"  opacity="0.80" filter="url(#glow)"/>
+    <polyline points="247,362 377,676 512,436 647,676 777,362" stroke="#ffbf6e" stroke-width="30"/>
+    <polyline points="247,362 377,676 512,436 647,676 777,362" stroke="#fff4dc" stroke-width="12"/>
+  </g>
+</svg>
