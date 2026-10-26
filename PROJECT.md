@@ -1,6 +1,6 @@
 # Wolfram — project status
 
-**Last updated:** 2026-10-26 — First TestFlight build 1.0 (1) uploaded from the Mac; external testing group is next.
+**Last updated:** 2026-10-26 — TestFlight 1.0 (1) submitted to Beta App Review for the external group; waiting on Apple.
 
 Section headers stay fixed so both machines and every session find things.
 Newest entries go at the TOP of each list. Keep the Last-updated line to one
@@ -12,15 +12,16 @@ sentence; history lives in Release log / Incidents, not here.
   with `npm run check-live` (compares the served build id to local HEAD).
   Feature-complete for v1 per `docs/specs/program-and-classes.md`.
 - Android: n/a (personal PWA)
-- iOS: **TestFlight build 1.0 (1) uploaded 2026-10-26** (Xcode 26.3).
-  Simulator pass for criteria 2–5 done. Next: External Testing group with
-  the user's email + Beta App Review (PC/browser, `HANDOFF.md` → After the
-  upload), then criterion 6 on the iPhone. Spec: `docs/specs/native-ios.md`.
+- iOS: **TestFlight 1.0 (1) Waiting for Review** (Beta App Review, submitted
+  2026-10-26) in external group "Family/Friends" with the user as the one
+  tester. On approval TestFlight emails the invite automatically. Then
+  criterion 6 on the iPhone. Spec: `docs/specs/native-ios.md`.
 
 ## Done ledger (dated — never redo these)
 
 | Date | Step | Where | Notes |
 |---|---|---|---|
+| 2026-10-26 | TestFlight groups: internal "Murray Movement Labs" (created first: the External Testing section only appeared after an internal group existed), external "Family/Friends" with the user invited by email; build 1.0 (1) added and **submitted for Beta App Review** (sign-in required: unchecked; What to Test filled; auto-notify on) | App Store Connect | Verified after reload: group shows 1 tester, 1 build, status Waiting for Review |
 | 2026-10-26 | First TestFlight upload: 1.0 (1), archive + `-exportArchive` with `ExportOptions.plist` (Xcode 26.3 via DEVELOPER_DIR) | Mac → App Store Connect | App record confirmed first in the console ("Wolfram Strength", bundle select = com.seanmurray.wolfram). Upload took ~2 s, no CDUploads stall. Build processed to Ready to Submit in TestFlight → iOS Builds. Apple warning: deployment target iOS 14.0; from April 2027 uploads need 15.0+ (backlog) |
 | 2026-10-26 | Simulator pass, spec criteria 2–5 (Xcode 26.3, **iPhone 16 Pro / iOS 26.3**: the only runtime installed; the iOS 18.0 runtime in `HANDOFF.md` is unavailable under 26.3) | Mac simulator | (2) indirect: no ServiceWorkers store in the app's WebKit data, CacheStorage holds only its salt (no Web Inspector session). (3) onboarding + class "Barbell Strength" logged heavy → `Documents/wolfram-data.json` held the session + `wolfram-settings`/`wolfram-classes`; app terminated, LocalStorage + IndexedDB dirs deleted, relaunch showed Heavy 1/2 and the class. (4) share sheet showed `wolfram-backup-2026-10-26` (JSON, 2 KB). (5) **failed first** (see Incidents), passed after the fix: bridge logged checkPermissions → requestPermissions → granted → schedule id 4207; app backgrounded; SpringBoard logged the notification added with shouldPresentAlert 1 at end of the 30 s. Side note: iOS logged `Failed to find sound "default"` (the plugin treats `sound` as a file name) |
 | 2026-10-26 | TestFlight Test Information saved: beta description, feedback email, Beta App Review contact, review notes (no sign-in), privacy policy URL `https://seanmurray.github.io/wolfram/privacy.html` | App Store Connect → Wolfram Strength → TestFlight → Test Information | Sean approved all values; contact details live only in ASC (public repo). Verified after reload |
@@ -36,7 +37,7 @@ sentence; history lives in Release log / Incidents, not here.
 
 ## Backlog (top = next)
 
-1. TestFlight external group with the user's email (the External Testing section only appears once a build exists); first build through Beta App Review
+1. Beta App Review outcome for 1.0 (1); if rejected, read the reason in the console before changing anything
 2. On-device pass on the user's iPhone: TestFlight install, log a class, force-quit, reopen, data intact
 3. Final brand artwork — `brand/mark.svg` is a placeholder (lit filament "W"); Sean may supply art, as he did for Perennial
 4. Upload a fresh TestFlight build at least every 90 days (builds expire; 1.0 (1) uploaded 2026-10-26 → by 2027-01-24)
@@ -73,8 +74,8 @@ sentence; history lives in Release log / Incidents, not here.
 
 | Date | Version | Build | Target | Status |
 |---|---|---|---|---|
-| 2026-10-26 | 1.0 | 1 | TestFlight (iOS) | Processed: Ready to Submit (no Missing Compliance); expires in 90 days. ITMS-90068 warning email (deployment target 14.0) |
+| 2026-10-26 | 1.0 | 1 | TestFlight (iOS) | Processed (no Missing Compliance); submitted to Beta App Review → Waiting for Review; expires in 90 days. ITMS-90068 warning email (deployment target 14.0) |
 
 ## Needs the other machine
 
-- Mac → PC/browser: create the TestFlight External Testing group, add the user's email, submit 1.0 (1) for Beta App Review (`HANDOFF.md` → After the upload).
+- None. (iPhone: install from the TestFlight invite once Beta App Review approves 1.0 (1).)
