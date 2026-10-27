@@ -5,6 +5,7 @@ import { TARGET_LIMITS } from '../lib/plan.js';
 import { AvailabilityEditor } from '../components/AvailabilityEditor';
 import { useSettingsStore } from '../stores/settingsStore';
 import { TimerSoundRecorder } from '../components/TimerSoundRecorder';
+import { BoneGuide } from '../components/BoneGuide';
 import { exportAll, importAll, markExported, unbackedUpCount, storageInfo } from '../lib/localdb';
 import { queryClient } from '../lib/queryClient';
 import { isNative, shareBackup } from '../lib/nativeFile.js';
@@ -181,7 +182,7 @@ export function SettingsScreen() {
           label="Heavy sessions a week"
           value={targets.heavy}
           format={(v) => (v === 0 ? 'No goal' : String(v))}
-          sub="The lifting that builds bone. Two is what the research used."
+          sub="The lifting that builds bone. Two a week is what the LIFTMOR and STOP-EM trials used."
           onChange={setTarget}
         />
         <TargetSlider
@@ -194,10 +195,10 @@ export function SettingsScreen() {
         />
         <TargetSlider
           id="impact"
-          label="Impact sets a week"
+          label="Impact sessions a week"
           value={targets.impact}
           format={(v) => (v === 0 ? 'No goal' : String(v))}
-          sub="The study this is based on used one set twice a day, which is 14 a week. Three is an easy start; raise it once jumping feels routine. Impact classes count too."
+          sub="Australian and UK bone-health guidance: about 50 jumps on 4 to 7 days a week. Four is the low end. Impact classes and the gym’s drop landings count too."
           onChange={setTarget}
         />
         <TargetSlider
@@ -237,15 +238,15 @@ export function SettingsScreen() {
       </div>
 
       <div className={styles.sectionLabel}>Bone health</div>
-      <div className={styles.dexa}>
-        Wolfram isn’t medical advice. A DEXA scan gives you a baseline bone
-        density reading; ask your doctor about one, and whether heavy lifting
-        and jumping are right for you.
+      <div className={styles.hint}>
+        Wolfram is a training plan, not medical advice. Here’s what it’s built
+        on, and what to ask your doctor about.
       </div>
+      <BoneGuide />
       <div className={styles.group}>
         <ToggleRow
           label="Keep impact gentle"
-          sub="I’ve been told I have low bone density, or I’ve broken a bone in a minor fall. Impact sets stay at the first level until a doctor or physio clears more."
+          sub="I’ve been told I have low bone density, or I’ve broken a bone in a minor fall. Impact stays at small jumps, the gym’s drop landings become small jumps, and the Classes tab shows which moves to modify. Ask a doctor or physio before changing this."
           checked={lowBoneDensity}
           onChange={setLowBoneDensity}
         />

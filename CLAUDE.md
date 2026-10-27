@@ -36,7 +36,10 @@ specific to this app. Keep it under 200 lines; history goes in `PROJECT.md`.
 - Entry: `src/main.jsx` (boot-time storage recovery runs before render)
 - Data: `src/lib/localdb.js` (transactional localStorage + snapshot + IDB mirror)
 - Program: `src/data/program.js`, `src/data/exercises.js`; slot resolution in
-  `src/lib/resolveSlot.js` (equipment-aware variant chains)
+  `src/lib/resolveSlot.js` (equipment-aware variant chains). Phases (gym
+  weeks), A/B days and starting loads: `src/lib/progression.js`. Every claim
+  in the app's copy traces to a source in `docs/specs/program-v2.md`; don't
+  add a number or standard without one
 - Look: `src/styles/tokens.css` (palette + type), `brand/mark.svg` (placeholder)
 - Backend: none
 
@@ -52,4 +55,5 @@ specific to this app. Keep it under 200 lines; history goes in `PROJECT.md`.
 - 2026-10-26 — Never put text containing backticks inside a double-quoted bash string (`node -e "…"`): bash runs each backticked span as a command (it emptied PROJECT.md's inline code and tried to execute a spec file). Edit files with the Edit/Write tools.
 - 2026-10-26 — `cap sync` on Windows writes backslash paths into `ios/App/CapApp-SPM/Package.swift`; `build:native` runs `scripts/fix-spm-paths.mjs` after every sync.
 - 2026-10-26 — Zustand stores hydrate from localStorage at import time, before boot recovery. After a restore, `main.jsx` must `persist.rehydrate()` them, or they keep defaults and overwrite the restore.
+- 2026-10-27 — Set 1's REC was always blank: the Perennial scaffold seeded it from a calculated max (`calcLoad()` returned 0) and bailed on 0. Starting loads now come from `lib/progression.js` and anchor on what was actually lifted.
 - 2026-10-26 — Git Bash `grep` strips carriage returns, so it reports CRLF files as clean (and multi-line perl/sed edits silently miss). Check line endings with `git ls-files --eol`, never grep.

@@ -111,3 +111,16 @@
 }
 .guide p { font-size: 15px; line-height: 1.55; color: var(--t2); margin-bottom: 10px; }
 .guide strong { color: var(--t1); }
+
+/* Shown when the low-bone-density setting is on. */
+.spineNote {
+  background: var(--bg-card);
+  border-left: 3px solid var(--amber);
+  border-radius: var(--r1);
+  padding: 12px 14px;
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--t2);
+  margin-bottom: 16px;
+}
+.spineTitle { font-weight: 700; color: var(--t1); margin-bottom: 4px; }

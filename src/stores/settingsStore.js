@@ -5,6 +5,7 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { HOME_GYM_PRESET } from '../data/program';
 import { DEFAULT_TARGETS, TARGET_LIMITS, DEFAULT_AVAILABILITY } from '../lib/plan.js';
+import { migrateSettings } from '../lib/migrate.js';
 
 const initialTimerPrefs = {
   autoStart: true,
@@ -44,7 +45,8 @@ export const useSettingsStore = create(
       setAvailability: (patch) => set((s) => ({ availability: { ...s.availability, ...patch } })),
 
       // "I've been told I have low bone density, or had a fracture from a
-      // minor fall": impact sets stay at the first level.
+      // minor fall": impact stays at small jumps, and the gym's drop landings
+      // become small jumps (no landing from a height).
       lowBoneDensity: false,
       setLowBoneDensity: (v) => set({ lowBoneDensity: !!v }),
 
@@ -55,14 +57,13 @@ export const useSettingsStore = create(
     {
       name: 'wolfram-settings',
       storage: createJSONStorage(() => localStorage),
-      // v1: Wolfram's own shape. Anything older came from the Perennial
-      // scaffold (a generic equipment list, a days-per-week goal), so it
-      // resets to the home-gym preset and default targets.
-      version: 1,
+      // v2: program v2 (bench in the preset, impact 4/week, max 7). Steps
+      // are in lib/migrate.js.
+      version: 2,
       migrate: (state, from) =>
-        from < 1
-          ? { ...state, equipment: HOME_GYM_PRESET, targets: DEFAULT_TARGETS, weeklyGoal: undefined }
-          : state,
+        migrateSettings(state, from, {
+          preset: HOME_GYM_PRESET, targets: DEFAULT_TARGETS, impactMax: TARGET_LIMITS.impact.max,
+        }),
     }
   )
 );

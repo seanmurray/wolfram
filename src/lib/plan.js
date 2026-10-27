@@ -8,20 +8,18 @@
 import { weekStart, weekEnd, weekdayIndex, dateInWeek, parseWeekKey, weeksBetween } from './week.js';
 import { FORMATS } from './classify.js';
 
-export const DEFAULT_TARGETS = { heavy: 2, impact: 3, studio: 0, spacingHours: 48 };
+// Impact: 4 a week, the low end of the Australian recommendation (impact on
+// 4–7 days a week, ~50 jumps each), which the UK consensus echoes as "most
+// days". One session a day at most, so the slider stops at 7.
+export const DEFAULT_TARGETS = { heavy: 2, impact: 4, studio: 0, spacingHours: 48 };
 
-// Slider ranges (Settings). Impact tops out at 14: Tucker 2015's dose was one
-// set twice a day.
+// Slider ranges (Settings).
 export const TARGET_LIMITS = {
   heavy: { min: 0, max: 4, step: 1 },
-  impact: { min: 0, max: 14, step: 1 },
+  impact: { min: 0, max: 7, step: 1 },
   studio: { min: 0, max: 7, step: 1 },
   spacingHours: { min: 24, max: 72, step: 12 },
 };
-
-// Home-gym sessions spent learning the lifts (3×8) before heavy work (5×5).
-// Counted in sessions, not weeks: the home gym is about once a week.
-export const LEARN_SESSIONS = 6;
 
 const HOUR = 3600 * 1000;
 
@@ -194,19 +192,19 @@ export function suggestToday(args) {
   return { type: anyGap ? 'onTrack' : 'covered', plan };
 }
 
-// Where the home-gym heavy session is in its progression.
-export function heavyPhase(sessions) {
-  const done = (sessions ?? []).filter((s) => s.kind === 'gym').length;
-  const next = done + 1;
-  return next <= LEARN_SESSIONS
-    ? { phase: 'learn', next, of: LEARN_SESSIONS }
-    : { phase: 'heavy', next };
+// Impact progression: a new level every `every` completed impact sessions
+// (only ones that earned credit), capped at the last level, or pinned to the
+// first when the low-bone-density setting is on. The home-gym phase lives in
+// lib/progression.js.
+export function impactLevel(sessions, { levels, every = 8, capLow = false }) {
+  if (capLow) return 0;
+  const done = (sessions ?? []).filter((s) => s.kind === 'impact' && (s.buckets ?? []).includes('impact')).length;
+  return Math.min(levels - 1, Math.floor(done / every));
 }
 
-// Impact progression: a new level every `every` completed sets, capped at the
-// last level, or pinned to the first when the low-bone-density setting is on.
-export function impactLevel(sessions, { levels, every = 6, capLow = false }) {
-  if (capLow) return 0;
-  const done = (sessions ?? []).filter((s) => s.kind === 'impact').length;
+// Drop-landing height on the gym day: one level every `every` home-gym
+// sessions, capped at the last.
+export function dropLevel(sessions, { levels, every = 6 }) {
+  const done = (sessions ?? []).filter((s) => s.kind === 'gym').length;
   return Math.min(levels - 1, Math.floor(done / every));
 }

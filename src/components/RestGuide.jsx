@@ -9,7 +9,8 @@ import { restFor, formatRest, RPE_MEANING, TARGET_RPE } from '../lib/rest';
 //
 // `lastRpe` is the effort from the most recently ticked set. Before anything
 // is logged it's null and we show the plain suggestion for the movement.
-export function RestGuide({ exerciseName, role, context = 'strength', lastRpe = null }) {
+// `targetRpe` is the phase's target, so the explainer matches the table.
+export function RestGuide({ exerciseName, role, context = 'strength', lastRpe = null, targetRpe = TARGET_RPE }) {
   const start = useRestTimer((t) => t.start);
   const timerVisible = useRestTimer((t) => t.visible);
 
@@ -23,7 +24,7 @@ export function RestGuide({ exerciseName, role, context = 'strength', lastRpe = 
   const meaning = lastRpe != null ? RPE_MEANING[lastRpe] : null;
   let sub;
   if (lastRpe == null) {
-    sub = `Tick a set off and the timer starts here. Rate how hard it felt and this adjusts — RPE ${TARGET_RPE} means ${RPE_MEANING[TARGET_RPE]}.`;
+    sub = `Tick a set off and the timer starts here. Rate how hard it felt and this adjusts — RPE ${targetRpe} means ${RPE_MEANING[targetRpe]}.`;
   } else if (!adjusted) {
     sub = `You logged RPE ${lastRpe}${meaning ? ` — ${meaning}` : ''}. Right where this is meant to sit.`;
   } else {

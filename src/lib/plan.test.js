@@ -1,8 +1,8 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  weekTally, planWeek, suggestToday, heavyPhase, impactLevel, availabilityOf,
-  DEFAULT_TARGETS, LEARN_SESSIONS,
+  weekTally, planWeek, suggestToday, impactLevel, dropLevel, availabilityOf,
+  DEFAULT_TARGETS, TARGET_LIMITS,
 } from './plan.js';
 import { weekdayIndex } from './week.js';
 
@@ -95,14 +95,14 @@ describe('suggestToday (criterion 6: one suggestion, in priority order)', () => 
 
   it('3 · then impact, 4 · then studio when a studio target is set', () => {
     const done = [row(at(2026, 10, 26, 7), ['heavy']), row(at(2026, 10, 28, 7), ['heavy']),
-      ...[1, 2, 3].map(() => row(at(2026, 10, 26, 7, 30), ['impact']))];
+      ...Array.from({ length: DEFAULT_TARGETS.impact }, () => row(at(2026, 10, 26, 7, 30), ['impact']))];
     const now = at(2026, 10, 29, 8);
     assert.equal(suggestToday({ sessions: done, now, targets: { ...DEFAULT_TARGETS, studio: 1 } }).type, 'studio');
     assert.equal(suggestToday({ sessions: done, now }).type, 'covered');
   });
 
   it('says on-track when gaps remain but booked classes cover them', () => {
-    const done = [row(at(2026, 10, 26, 7), ['heavy']), ...[1, 2, 3].map(() => row(at(2026, 10, 26, 7, 30), ['impact']))];
+    const done = [row(at(2026, 10, 26, 7), ['heavy']), ...Array.from({ length: DEFAULT_TARGETS.impact }, () => row(at(2026, 10, 26, 7, 30), ['impact']))];
     const s = suggestToday({ sessions: done, library: [cls('fri', 4, '18:00', 'lifting')], now: at(2026, 10, 28, 8) });
     assert.equal(s.type, 'onTrack');
   });
@@ -119,23 +119,27 @@ describe('suggestToday (criterion 6: one suggestion, in priority order)', () => 
 describe('progressions', () => {
   const gym = (n) => Array.from({ length: n }, (_, i) => row(at(2026, 9, 1 + i), ['heavy'], 'gym'));
 
-  it('learns the lifts for six home-gym sessions, then goes heavy on the 7th (criterion 10)', () => {
-    assert.deepEqual(heavyPhase(gym(0)), { phase: 'learn', next: 1, of: LEARN_SESSIONS });
-    assert.deepEqual(heavyPhase(gym(5)), { phase: 'learn', next: 6, of: LEARN_SESSIONS });
-    assert.deepEqual(heavyPhase(gym(6)), { phase: 'heavy', next: 7 });
+  it('defaults impact to 4 a week, at most one a day (v2 criterion 2)', () => {
+    assert.equal(DEFAULT_TARGETS.impact, 4);
+    assert.equal(TARGET_LIMITS.impact.max, 7);
   });
 
-  it('only counts home-gym sessions toward the phase, not heavy classes', () => {
-    const classes = Array.from({ length: 10 }, () => row(MON, ['heavy'], 'class'));
-    assert.equal(heavyPhase(classes).phase, 'learn');
-  });
-
-  it('levels impact up every six sets, caps at the top, pins low when asked', () => {
-    const sets = (n) => Array.from({ length: n }, () => row(MON, ['impact'], 'impact'));
-    assert.equal(impactLevel(sets(5), { levels: 4 }), 0);
-    assert.equal(impactLevel(sets(6), { levels: 4 }), 1);
+  it('levels impact up every eight credited sessions, caps at the top, pins low when asked', () => {
+    const sets = (n, buckets = ['impact']) => Array.from({ length: n }, () => row(MON, buckets, 'impact'));
+    assert.equal(impactLevel(sets(7), { levels: 4 }), 0);
+    assert.equal(impactLevel(sets(8), { levels: 4 }), 1);
     assert.equal(impactLevel(sets(100), { levels: 4 }), 3);
     assert.equal(impactLevel(sets(100), { levels: 4, capLow: true }), 0);
+    // Sessions stopped short (no credit) don't move the level
+    assert.equal(impactLevel([...sets(7), ...sets(5, [])], { levels: 4 }), 0);
+  });
+
+  it('raises the drop-landing height every six gym sessions, not classes', () => {
+    assert.equal(dropLevel(gym(5), { levels: 3 }), 0);
+    assert.equal(dropLevel(gym(6), { levels: 3 }), 1);
+    assert.equal(dropLevel(gym(40), { levels: 3 }), 2);
+    const classes = Array.from({ length: 10 }, () => row(MON, ['heavy'], 'class'));
+    assert.equal(dropLevel(classes, { levels: 3 }), 0);
   });
 });
 

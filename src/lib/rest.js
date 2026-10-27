@@ -12,21 +12,26 @@
 //   rpe  — how hard the set actually felt. Effort is the honest signal, so the
 //          prescription bends to it rather than the other way round.
 
-// Seconds, by slot role (see DAYS in data/program.js). These are the
-// learning-phase bases (3×8 with three reps in the tank); the heavy phase
-// scales them (HEAVY_FACTOR below).
+// Seconds, by slot role (see DAYS in data/program.js). The lift bases are for
+// the foundation phase (3×8 with reps to spare); 5×5 phases scale them
+// (HEAVY_FACTOR below). The finisher roles never scale.
 const BASE_BY_ROLE = {
   squat: 120,
   hinge: 120,        // the two that load the whole body
   press: 90,
-  pull: 90,          // jumping chin-ups: the landing is the point, not fatigue
-  jump: 30,          // impact sets: 30 s between single jumps (Tucker 2015).
-                     // Bone cells respond best to loads with rest between them.
+  pull: 90,
+  jump: 60,          // impact sessions: a minute between sets of ten. The
+                     // Australian guidance is 1–2 min; bone responds better to
+                     // loads with rest between them than to one long bout.
+  landing: 60,       // drop landings, 3×10
+  carry: 60,
+  core: 45,
 };
+const NO_SCALE = new Set(['jump', 'landing', 'carry', 'core']);
 
-// Heavy phase (5×5 at about two reps in the tank): strength needs longer to
-// come back between sets, so every base stretches by half. Squat and deadlift
-// land on 3:00, the press and pull on 2:15.
+// 5×5 phases (building and strength): strength needs longer to come back
+// between sets, so the lift bases stretch by half. Squat and deadlift land on
+// 3:00, the press and pull on 2:15.
 const HEAVY_FACTOR = 1.5;
 
 // Fallback when a block has no role (core work, the easy day).
@@ -67,7 +72,7 @@ const clamp = (n, lo, hi) => Math.min(hi, Math.max(lo, n));
 
 export function baseRest({ role, context = 'strength' } = {}) {
   const base = BASE_BY_ROLE[role] ?? BASE_BY_CONTEXT[context] ?? 120;
-  if (context === 'heavy' && BASE_BY_ROLE[role] != null) {
+  if (context === 'heavy' && BASE_BY_ROLE[role] != null && !NO_SCALE.has(role)) {
     return Math.round((base * HEAVY_FACTOR) / 15) * 15;
   }
   return base;

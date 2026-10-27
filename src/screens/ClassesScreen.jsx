@@ -2,6 +2,7 @@ import { useState } from 'react';
 import styles from './ClassesScreen.module.css';
 import chips from '../components/Buckets.module.css';
 import { useClassStore } from '../stores/classStore';
+import { useSettingsStore } from '../stores/settingsStore';
 import { FORMATS, FORMAT_ORDER, classifyClass } from '../lib/classify.js';
 import { WEEKDAYS, WEEKDAYS_LONG, formatTime } from '../lib/week.js';
 
@@ -14,6 +15,7 @@ export function ClassesScreen() {
   const addClass = useClassStore((s) => s.addClass);
   const updateClass = useClassStore((s) => s.updateClass);
   const removeClass = useClassStore((s) => s.removeClass);
+  const lowBoneDensity = useSettingsStore((s) => s.lowBoneDensity);
 
   const [editing, setEditing] = useState(null); // null | 'new' | class id
   const [draft, setDraft] = useState(BLANK);
@@ -48,6 +50,16 @@ export function ClassesScreen() {
         list to tell you which ones to book so they cover your heavy and
         impact days.
       </p>
+      {lowBoneDensity && (
+        <div className={styles.spineNote}>
+          <div className={styles.spineTitle}>In class: keep your spine long</div>
+          UK osteoporosis guidance advises modifying moves that round the spine
+          hard, repeatedly, or under load, and links some to spine fractures:
+          roll-ups, crunches and sit-ups, the plough, and deep seated forward
+          folds. Ask the teacher for a flat-back version. Twisting is fine if
+          it’s smooth and comfortable.
+        </div>
+      )}
 
       {editing ? (
         <ClassForm

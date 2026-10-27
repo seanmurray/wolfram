@@ -1,6 +1,6 @@
 # Spec: program, class guide & gap-filler
 
-**Status:** BUILT 2026-10-26 and live; criteria 1–13 verified in the dev build. Confirmed by Sean 2026-10-26 (see
+**Status:** BUILT 2026-10-26 and live; criteria 1–13 verified in the dev build. **Program content, the impact target, and the safety copy are superseded by `program-v2.md` (2026-10-27).** Confirmed by Sean 2026-10-26 (see
 "Decisions from Sean").
 
 Wolfram is for someone heading into their 40s and 50s who loves studio classes

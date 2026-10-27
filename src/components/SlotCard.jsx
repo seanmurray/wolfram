@@ -10,8 +10,11 @@ import { PHASES } from '../data/program';
 
 // One workout slot: resolves the exercise (today swap > standing preference >
 // equipment), renders the card with set logging, recent history, and the
-// swap picker. On the home-gym day the phase sets the prescription (learn
-// 3×8 @ 7, heavy 5×5 @ 8) whichever variant is running.
+// swap picker. On a home-gym day the phase sets the prescription (see PHASES
+// in data/program.js) whichever variant is running.
+//
+// Swaps are saved under "gym:<slot id>", shared by days A and B, so a
+// standing swap for the squat applies to both.
 
 const DEFAULT_RX = { sets: 2, reps: 8 };
 
@@ -21,8 +24,8 @@ function parseTarget(target) {
   return m ? { sets: Number(m[1]), reps: Number(m[2]) } : null;
 }
 
-export function SlotCard({ slot, dayId, phase = null }) {
-  const slotId = `${dayId}:${slot.role}`;
+export function SlotCard({ slot, scope, phase = null }) {
+  const slotId = `${scope}:${slot.id ?? slot.role}`;
   const todayChoice = useSlotStore((s) => s.today[slotId]);
   const alwaysChoice = useSlotStore((s) => s.always[slotId]);
   const equipment = useSettingsStore((s) => s.equipment);
@@ -37,8 +40,8 @@ export function SlotCard({ slot, dayId, phase = null }) {
     ? `${phaseRx.sets}×${phaseRx.reps}`
     : activeEx?.target ?? `${DEFAULT_RX.sets}×${DEFAULT_RX.reps}`;
   const prescription = phaseRx ?? parseTarget(target) ?? DEFAULT_RX;
-  // Heavy work gets longer rest (lib/rest.js HEAVY_FACTOR).
-  const context = phase === 'heavy' ? 'heavy' : 'strength';
+  // 5×5 phases get longer rest (lib/rest.js HEAVY_FACTOR).
+  const context = phase ? PHASES[phase].context : 'strength';
   const showWeight = res.isCustom ? true : !activeEx?.bodyweight;
 
   return (
@@ -55,6 +58,7 @@ export function SlotCard({ slot, dayId, phase = null }) {
         exerciseKey={res.activeKey}
         exerciseName={savedName}
         prescription={prescription}
+        phase={phase}
         role={slot.role}
         context={context}
         showWeight={showWeight}

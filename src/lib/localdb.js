@@ -384,11 +384,17 @@ export function getSetHistory(exerciseKey, limit = 3) {
       bucket = { sessionId: row.session_id, performedAt: row.performed_at, sets: [] };
       grouped.set(row.session_id, bucket);
     }
+    // Prescription + phase (program v2) let lib/progression compare a session
+    // with what it asked for. Absent on older rows; progression assumes today's.
     bucket.sets.push({
       set_num: row.set_num,
       actual_reps: row.actual_reps,
       actual_weight: row.actual_weight,
       rpe: row.rpe,
+      target_sets: row.target_sets ?? null,
+      target_reps: row.target_reps ?? null,
+      target_rpe: row.target_rpe ?? null,
+      phase: row.phase ?? null,
     });
   }
   const out = Array.from(grouped.values());

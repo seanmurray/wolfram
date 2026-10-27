@@ -133,3 +133,22 @@
 
 .impactDone { margin-top: 18px; font-size: 17px; font-weight: 600; color: var(--amber); }
 .impactWhy { margin-top: 14px; font-size: 14px; line-height: 1.5; color: var(--t3); text-align: left; }
+
+/* ── Gym: day switch + finisher heading ─────────────────────── */
+.switchDay {
+  margin: -8px 0 16px;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--green);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  min-height: 44px;
+}
+.finisherLabel {
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--t2);
+  margin: 22px 0 10px;
+}

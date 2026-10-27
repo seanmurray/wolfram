@@ -42,12 +42,19 @@ export function OnboardingScreen() {
         </li>
         <li>
           <span className={styles.stepTitle}>It fills the gap.</span>
-          Heavy lifting at the home gym and five-minute jump sets, sized to what
-          your week still needs.
+          Heavy lifting at the home gym and seven-minute jump sessions, sized to
+          what your week still needs.
         </li>
         <li>
           <span className={styles.stepTitle}>One suggestion a day.</span>
           Log a class in a couple of taps and the week adds itself up.
+        </li>
+        <li>
+          <span className={styles.stepTitle}>Why now.</span>
+          Bone loss speeds up from about a year before the final period, at
+          around 2.5% a year at the spine for three years. Building strength
+          before and through that window is what this plan is for. The sources
+          are in Settings.
         </li>
       </ol>
 
@@ -62,9 +69,10 @@ export function OnboardingScreen() {
 
       <div className={styles.dexa}>
         <div className={styles.dexaTitle}>Before you start</div>
-        Ask your doctor about a DEXA scan for a baseline bone density reading,
-        and check that heavy lifting and jumping are right for you. Wolfram is a
-        training plan, not medical advice.
+        Check with your doctor that heavy lifting and jumping are right for you.
+        Routine bone scans start at 65, or after menopause if you’re at higher
+        risk; if you’ve broken a bone in a minor fall, ask about one now.
+        Wolfram is a training plan, not medical advice.
       </div>
 
       <button type="button" className={styles.cta} onClick={start} disabled={needsWeekend}>

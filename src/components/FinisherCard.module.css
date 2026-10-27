@@ -1,0 +1,43 @@
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.dots { display: flex; gap: 6px; }
+.dot, .dotOn {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 14px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  background: var(--bg-raised);
+  color: var(--t2);
+}
+.dotOn { background: var(--green); color: var(--on-accent); }
+
+.tick {
+  min-height: 48px;
+  padding: 0 18px;
+  border-radius: var(--r2);
+  background: var(--green);
+  color: var(--on-accent);
+  font-size: 16px;
+  font-weight: 700;
+}
+.tick:active { transform: scale(0.98); }
+
+.complete { font-size: 16px; font-weight: 700; color: var(--green); }
+
+.level {
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--t2);
+  margin-bottom: 4px;
+}
+.level strong { color: var(--t1); }

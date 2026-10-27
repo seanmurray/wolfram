@@ -18,9 +18,10 @@ import { useSlotStore } from './stores/slotStore';
 import { useRestTimer } from './stores/restTimerStore';
 import { saveSession, getSessions } from './lib/localdb';
 import { impactLevel } from './lib/plan.js';
+import { nextGymDay } from './lib/progression.js';
 import { EX } from './data/exercises';
 import {
-  DAYS, WARMUP, IMPACT_LEVELS, IMPACT_LEVEL_EVERY, MIN_JUMPS_TO_COUNT,
+  DAYS, WARMUP, IMPACT_LEVELS, IMPACT_LEVEL_EVERY, MIN_SETS_TO_COUNT, JUMPS_PER_SET,
 } from './data/program';
 
 // Persist the active bottom-nav tab so a reload restores it.
@@ -36,7 +37,8 @@ function readPersistedTab() {
 }
 
 // What a finished home-gym session counts as: Heavy if any lift was logged,
-// plus Impact if any set came from an exercise with a landing in it.
+// plus Impact if any set came from an exercise with landings in it (the drop
+// landings in the finisher, or jumping chin-ups).
 function gymBuckets(setsBuffer) {
   if (!setsBuffer.length) return [];
   const impact = setsBuffer.some((s) => EX[s.exercise_key]?.impact);
@@ -73,31 +75,32 @@ export default function App() {
     setTab(nextTab);
   };
 
+  // 'gym' means "the next home-gym day": A and B alternate.
   const handleStart = (dayId) => {
-    startSession(dayId);
+    startSession(dayId === 'gym' ? nextGymDay(getSessions()) : dayId);
     clearTodaySlots();
     setTab('workout');
   };
 
-  // Impact sets save on the spot: a five-minute set doesn't need an effort
-  // survey. Fewer than MIN_JUMPS_TO_COUNT is logged but earns no credit; zero
-  // jumps is a cancel.
+  // Impact sessions save on the spot: seven minutes of jumps doesn't need an
+  // effort survey. Fewer than MIN_SETS_TO_COUNT sets is logged but earns no
+  // credit; zero sets is a cancel.
   const finishImpact = () => {
     const s = useSessionStore.getState();
-    if (s.jumps === 0) { afterSave('today'); return; }
+    if (s.impactSets === 0) { afterSave('today'); return; }
     const level = IMPACT_LEVELS[impactLevel(getSessions(), {
       levels: IMPACT_LEVELS.length, every: IMPACT_LEVEL_EVERY, capLow: lowBoneDensity,
     })];
     const now = new Date().toISOString();
     const result = saveSession({
       kind: 'impact',
-      buckets: s.jumps >= MIN_JUMPS_TO_COUNT ? ['impact'] : [],
+      buckets: s.impactSets >= MIN_SETS_TO_COUNT ? ['impact'] : [],
       dayId: 'impact',
       dayLabel: `${DAYS.impact.name} · ${level.name.toLowerCase()}`,
       perfBuffer: [{
         exercise_key: 'impact_set',
         exercise_name: level.name,
-        notes: `${s.jumps} jumps`,
+        notes: `${s.impactSets * JUMPS_PER_SET} jumps (${s.impactSets} × ${JUMPS_PER_SET})`,
         effort_rpe: null,
         performed_at: now,
       }],
@@ -113,7 +116,7 @@ export default function App() {
     const { dayId, setsBuffer } = useSessionStore.getState();
     if (dayId === 'impact') { finishImpact(); return; }
     // Nothing logged = started by mistake: discard rather than save an empty
-    // row (same rule as an impact set with zero jumps).
+    // row (same rule as an impact session with no sets).
     if (setsBuffer.length === 0) { afterSave('today'); return; }
     markSessionEnd();
     setFinishSheetOpen(true);

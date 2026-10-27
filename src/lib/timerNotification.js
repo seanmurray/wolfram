@@ -1,7 +1,8 @@
-// Native-only: schedule a local notification for the end of a rest (or the
-// 30 s between jumps), so it alerts even when the app is backgrounded or the
-// screen is locked. The WebView's JS, and with it the in-app sound, is
-// suspended there. Adapted from soccer-coach's timerNotification.
+// Native-only: schedule a local notification for the end of a rest (or of
+// the minute between sets of jumps), so it alerts even when the app is
+// backgrounded or the screen is locked. The WebView's JS, and with it the
+// in-app sound, is suspended there. Adapted from soccer-coach's
+// timerNotification.
 //
 // On the web this is a complete no-op: the plugin is imported only on native,
 // so the PWA bundle and behaviour are unchanged.
@@ -49,8 +50,8 @@ export async function scheduleTimerEndNotification({ endsAt, exerciseName, role,
     await ln.schedule({
       notifications: [{
         id: NOTIF_ID,
-        title: jump ? 'Next jump' : 'Rest over',
-        body: jump ? 'Thirty seconds are up. Time for the next jump.' : exerciseName ? `Next set: ${exerciseName}` : 'Time for the next set',
+        title: jump ? 'Next set of jumps' : 'Rest over',
+        body: jump ? 'The minute is up. Time for the next ten.' : exerciseName ? `Next set: ${exerciseName}` : 'Time for the next set',
         schedule: { at: new Date(endsAt) },
         sound: sound ? 'default' : undefined,
         silent: true,

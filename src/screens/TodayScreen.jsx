@@ -3,11 +3,12 @@ import chips from '../components/Buckets.module.css';
 import { useSessions } from '../hooks/useSessions';
 import { useSettingsStore } from '../stores/settingsStore';
 import { useClassStore, overridesFor } from '../stores/classStore';
-import { suggestToday, heavyPhase, impactLevel } from '../lib/plan.js';
+import { suggestToday, impactLevel } from '../lib/plan.js';
+import { programPhase, nextGymDay } from '../lib/progression.js';
 import { FORMATS } from '../lib/classify.js';
 import { WEEKDAYS, WEEKDAYS_LONG, weekdayIndex, formatTime } from '../lib/week.js';
-import { BUCKET_LABEL, fillsText } from '../lib/labels.js';
-import { PHASES, IMPACT_LEVELS, IMPACT_LEVEL_EVERY } from '../data/program';
+import { BUCKET_LABEL, fillsText, phaseLine } from '../lib/labels.js';
+import { DAYS, IMPACT_LEVELS, IMPACT_LEVEL_EVERY } from '../data/program';
 
 // Today: what this week has delivered, the one thing to do next, and which of
 // the user's classes are worth booking. Everything derives from lib/plan.js.
@@ -25,7 +26,8 @@ export function TodayScreen({ onStart, onLogClass, onOpenClasses }) {
   const overrides = overridesFor({ overrides: overrideState }, now);
   const suggestion = suggestToday({ library, sessions, targets, now, overrides, availability });
   const { tally, occurrences, windows, uncovered } = suggestion.plan;
-  const phase = heavyPhase(sessions);
+  const phase = programPhase(sessions, now);
+  const gymDay = DAYS[nextGymDay(sessions)];
   const level = IMPACT_LEVELS[impactLevel(sessions, {
     levels: IMPACT_LEVELS.length, every: IMPACT_LEVEL_EVERY, capLow: lowBoneDensity,
   })];
@@ -59,6 +61,7 @@ export function TodayScreen({ onStart, onLogClass, onOpenClasses }) {
       <Suggestion
         s={suggestion}
         phase={phase}
+        gymDay={gymDay}
         level={level}
         onStart={onStart}
         onLogClass={onLogClass}
@@ -66,7 +69,7 @@ export function TodayScreen({ onStart, onLogClass, onOpenClasses }) {
 
       <div className={styles.quick}>
         <button type="button" className={styles.quickBtn} onClick={() => onLogClass(null)}>Log a class</button>
-        <button type="button" className={styles.quickBtn} onClick={() => onStart('impact')}>Impact set</button>
+        <button type="button" className={styles.quickBtn} onClick={() => onStart('impact')}>Impact</button>
         <button type="button" className={styles.quickBtn} onClick={() => onStart('gym')}>Home gym</button>
       </div>
 
@@ -165,11 +168,7 @@ export function TodayScreen({ onStart, onLogClass, onOpenClasses }) {
   );
 }
 
-function Suggestion({ s, phase, level, onStart, onLogClass }) {
-  const phaseLine = phase.phase === 'learn'
-    ? `${PHASES.learn.label} · session ${phase.next} of ${phase.of}`
-    : `${PHASES.heavy.label} · session ${phase.next}`;
-
+function Suggestion({ s, phase, gymDay, level, onStart, onLogClass }) {
   let title, body, action = null;
   switch (s.type) {
     case 'class': {
@@ -180,14 +179,15 @@ function Suggestion({ s, phase, level, onStart, onLogClass }) {
       break;
     }
     case 'gym':
-      title = 'Heavy session at the home gym';
-      body = `If you’re at the home gym today, this is the one. ${phaseLine}.`;
-      action = { label: 'Start heavy session', run: () => onStart('gym') };
+      title = `Home gym · day ${gymDay.letter}`;
+      body = `If you’re at the home gym today, this is the one. ${phaseLine(phase)}.`
+        + (phase.phase === 'lighter' ? ' It’s a lighter week, so keep any barbell class easy too.' : '');
+      action = { label: 'Start gym session', run: () => onStart('gym') };
       break;
     case 'impact':
-      title = 'An impact set';
-      body = `Ten jumps, thirty seconds apart: five minutes, anywhere. Today’s level: ${level.name.toLowerCase()}.`;
-      action = { label: 'Start impact set', run: () => onStart('impact') };
+      title = 'An impact session';
+      body = `Fifty jumps: five sets of ten, a minute between. About seven minutes, anywhere. Today’s level: ${level.name.toLowerCase()}.`;
+      action = { label: 'Start impact session', run: () => onStart('impact') };
       break;
     case 'studio':
       title = 'A studio class you love';

@@ -6,7 +6,7 @@ import { formatDate } from '../lib/dateFormat.js';
 import { BUCKET_LABEL } from '../lib/labels.js';
 
 // Where a session came from, as a short kicker above its name.
-const KIND_LABEL = { gym: 'Home gym', impact: 'Impact set', class: 'Class' };
+const KIND_LABEL = { gym: 'Home gym', impact: 'Impact', class: 'Class' };
 
 export function HistoryScreen() {
   const { data: sessions, isLoading } = useSessions();

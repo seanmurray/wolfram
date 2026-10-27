@@ -1,6 +1,6 @@
 # Wolfram — project status
 
-**Last updated:** 2026-10-26 — TestFlight 1.0 (1) submitted to Beta App Review for the external group; waiting on Apple.
+**Last updated:** 2026-10-27 — Program v2 (evidence-led, perimenopause-informed) live on the web; TestFlight build 2 needed to reach the iPhone.
 
 Section headers stay fixed so both machines and every session find things.
 Newest entries go at the TOP of each list. Keep the Last-updated line to one
@@ -10,17 +10,20 @@ sentence; history lives in Release log / Incidents, not here.
 
 - Web: **live** at https://seanmurray.github.io/wolfram/. Verify any deploy
   with `npm run check-live` (compares the served build id to local HEAD).
-  Feature-complete for v1 per `docs/specs/program-and-classes.md`.
+  Program v2 per `docs/specs/program-v2.md` (supersedes v1's program
+  content in `program-and-classes.md`).
 - Android: n/a (personal PWA)
 - iOS: **TestFlight 1.0 (1) Waiting for Review** (Beta App Review, submitted
   2026-10-26) in external group "Family/Friends" with the user as the one
-  tester. On approval TestFlight emails the invite automatically. Then
-  criterion 6 on the iPhone. Spec: `docs/specs/native-ios.md`.
+  tester. On approval TestFlight emails the invite automatically. Build 1
+  is the **v1 program**; program v2 needs build 2 from the Mac (HANDOFF.md).
+  Spec: `docs/specs/native-ios.md`.
 
 ## Done ledger (dated — never redo these)
 
 | Date | Step | Where | Notes |
 |---|---|---|---|
+| 2026-10-27 | Program v2 built: STOP-EM phases in gym weeks (foundation → building → lighter → 8-week strength blocks), +5% load rule, alternating day A/B with drop landings + carry + core, impact as 5×10 with 60 s rests and a 4/week default (max 7), low-bone-density spine and landing rules, bone guide with linked sources (SWAN, USPSTF 2025, STOP-EM, Menopause Society 2022, UK consensus, LIFTMOR, creatine RCT); settings store v2 migration (bench, impact 3 → 4) | local → pushed | Sean approved items 1–9. Sources re-read 2026-10-27. 79 unit tests. Dev build at 375×812: migration, REC 62.5 lb after a 60 lb session, A → B → A, finisher logs Impact, 3 of 5 impact sets counts, low-bone-density swaps landings and shows the class note, bone guide renders; no console errors |
 | 2026-10-26 | TestFlight groups: internal "Murray Movement Labs" (created first: the External Testing section only appeared after an internal group existed), external "Family/Friends" with the user invited by email; build 1.0 (1) added and **submitted for Beta App Review** (sign-in required: unchecked; What to Test filled; auto-notify on) | App Store Connect | Verified after reload: group shows 1 tester, 1 build, status Waiting for Review |
 | 2026-10-26 | First TestFlight upload: 1.0 (1), archive + `-exportArchive` with `ExportOptions.plist` (Xcode 26.3 via DEVELOPER_DIR) | Mac → App Store Connect | App record confirmed first in the console ("Wolfram Strength", bundle select = com.seanmurray.wolfram). Upload took ~2 s, no CDUploads stall. Build processed to Ready to Submit in TestFlight → iOS Builds. Apple warning: deployment target iOS 14.0; from April 2027 uploads need 15.0+ (backlog) |
 | 2026-10-26 | Simulator pass, spec criteria 2–5 (Xcode 26.3, **iPhone 16 Pro / iOS 26.3**: the only runtime installed; the iOS 18.0 runtime in `HANDOFF.md` is unavailable under 26.3) | Mac simulator | (2) indirect: no ServiceWorkers store in the app's WebKit data, CacheStorage holds only its salt (no Web Inspector session). (3) onboarding + class "Barbell Strength" logged heavy → `Documents/wolfram-data.json` held the session + `wolfram-settings`/`wolfram-classes`; app terminated, LocalStorage + IndexedDB dirs deleted, relaunch showed Heavy 1/2 and the class. (4) share sheet showed `wolfram-backup-2026-10-26` (JSON, 2 KB). (5) **failed first** (see Incidents), passed after the fix: bridge logged checkPermissions → requestPermissions → granted → schedule id 4207; app backgrounded; SpringBoard logged the notification added with shouldPresentAlert 1 at end of the 30 s. Side note: iOS logged `Failed to find sound "default"` (the plugin treats `sound` as a file name) |
@@ -37,13 +40,14 @@ sentence; history lives in Release log / Incidents, not here.
 
 ## Backlog (top = next)
 
-1. Beta App Review outcome for 1.0 (1); if rejected, read the reason in the console before changing anything
-2. On-device pass on the user's iPhone: TestFlight install, log a class, force-quit, reopen, data intact
-3. Final brand artwork — `brand/mark.svg` is a placeholder (lit filament "W"); Sean may supply art, as he did for Perennial
-4. Upload a fresh TestFlight build at least every 90 days (builds expire; 1.0 (1) uploaded 2026-10-26 → by 2027-01-24)
-5. Raise the iOS deployment target 14.0 → 15.0 before April 2027 (ITMS-90068 on build 1; uploads below 15.0 are refused from then)
-6. Notification sound: plugin treats `sound: 'default'` as a file name (iOS logs "Failed to find sound"); check on the device whether the alert sounds
-7. Resolve the npm `edgesOut` crash (Incidents) before vitest is needed
+1. TestFlight build 2 from the Mac with program v2 (HANDOFF.md); add it to "Family/Friends" once processed
+2. Beta App Review outcome for 1.0 (1); if rejected, read the reason in the console before changing anything
+3. On-device pass on the user's iPhone: TestFlight install, log a class, force-quit, reopen, data intact
+4. Final brand artwork — `brand/mark.svg` is a placeholder (lit filament "W"); Sean may supply art, as he did for Perennial
+5. Upload a fresh TestFlight build at least every 90 days (builds expire; 1.0 (1) uploaded 2026-10-26 → by 2027-01-24)
+6. Raise the iOS deployment target 14.0 → 15.0 before April 2027 (ITMS-90068 on build 1; uploads below 15.0 are refused from then)
+7. Notification sound: plugin treats `sound: 'default'` as a file name (iOS logs "Failed to find sound"); check on the device whether the alert sounds
+8. Resolve the npm `edgesOut` crash (Incidents) before vitest is needed
 
 ## Blockers
 
@@ -53,6 +57,8 @@ sentence; history lives in Release log / Incidents, not here.
 
 | Date | Decision | Why | Do NOT reopen unless |
 |---|---|---|---|
+| 2026-10-27 | Program phases count **gym weeks** (weeks with a home-gym session), not calendar weeks or sessions | STOP-EM's phases are calendar months at 2 sessions/week; the user is at the gym ~once a week. Calendar weeks would advance the ramp without practice; sessions would treat two in a week as two weeks | The user trains at the gym 2+ times a week regularly |
+| 2026-10-27 | No 1RM testing, no maxes on file; loads anchor on logged sets | Unsupervised home gym; STOP-EM's test week dropped | Never |
 | 2026-10-26 | No ClassPass integration; class schedule comes from the user's own free windows + a class-type guide | ClassPass's only API is the partner-only Inventory API for venues — nothing reads a member's schedule or bookings (checked developers.classpass.com 2026-10-26) | ClassPass publishes a member-facing API |
 | 2026-10-26 | iPhone PWA (Home Screen install), not a native shell | Safari 17+ supports the Storage API and WebKit grants `persist()` heuristically, favouring Home Screen web apps; same quota as the browser (webkit.org/blog/14403, read 2026-10-26). Local-first hardening (IDB mirror, snapshot, export) carried over from Perennial | Data loss observed on the device despite Home Screen install |
 | 2026-10-26 | Every storage key, IDB name, and Cache Storage name is `wolfram-`-prefixed | All `seanmurray.github.io/*` project pages share one origin — and with it localStorage, IndexedDB and Cache Storage — with Perennial and soccer-coach | Never |
@@ -65,6 +71,7 @@ sentence; history lives in Release log / Incidents, not here.
 
 | Date | What broke | Root cause | Fix / rule added |
 |---|---|---|---|
+| 2026-10-27 | The REC column never showed a weight, even with history | Perennial scaffold: `SetTable` passed `calcRec: 0` (no %1RM math here) and `seedBaseRec` returns early when `calcRec <= 0`, so last session's top set was never used. **Same bug in Perennial** | `lib/progression.js` `startingLoad` anchors on the last non-lighter session's top set (STOP-EM rule, scheme conversion, layoff); sets now store their prescription. Dead `rx.js` removed. Perennial fixed separately |
 | 2026-10-26 | Native timer notifications never scheduled: no permission prompt, no bridge calls | `getPlugin()` resolved a promise with the Capacitor plugin proxy. The proxy answers every property, `then` included, so the promise called `LocalNotifications.then()`, which rejected as unimplemented; `.catch(() => null)` swallowed it, so everything was a silent no-op | `timerNotification.js` caches the module and reads `.LocalNotifications` after the await. Rule: never return or resolve a Capacitor plugin proxy from a promise or async function |
 | 2026-10-26 | History showed "Invalid Date" on every session | `lib/dateFormat.js` came from the soccer app, where `performed_at` was a Postgres DATE ("2026-10-26"); localdb writes ISO timestamps, so the day parsed as NaN. **Also live in Perennial** (same file, same storage) | Formatter handles both shapes, shows timestamps in local time; 4 tests incl. a 10 pm-local/next-day-UTC case |
 | 2026-10-26 | `npm install -D vitest@<any>` crashes: `Cannot read properties of null (reading 'edgesOut')` in arborist `#loadPeerSet` (npm 10.9.2). Lockfile and node_modules left untouched | **Open.** Crash is inside npm's peer-set resolution while walking vitest's optional peers (`@vitest/browser-playwright`, `@vitejs/devtools-vitest`). Same with 4.1.12 and 5.0.4, so not version mixing. `npm ci` works, and so do other installs: the Capacitor 7 packages installed cleanly the same day (74 added, 0 changed), so the crash is specific to vitest's peer chain. Two attempts made; stopped per the two-attempt rule. Untried: deleting node_modules only (keep lockfile), `--legacy-peer-deps` (may prune peers), newer npm | Tests use Node's built-in `node:test` instead (no install, works on CI Node 20). **Gotcha found along the way:** a failed `npm i` then `npx vitest` silently fetched vitest@latest into the npx cache. Run tests via `npm test` only |
