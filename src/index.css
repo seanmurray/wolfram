@@ -41,6 +41,23 @@ a { color: var(--green); text-decoration: none; }
   position: relative;
 }
 
+/* The page runs under the status bar and camera (viewport-fit=cover), so a
+   strip of page colour stays fixed over that inset on every screen,
+   onboarding included, and content scrolls behind it, not beneath the
+   clock. Zero height on the web and on phones without an inset. Under the
+   timer (200) and sheets (300+). */
+#root::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--sat);
+  background: var(--bg);
+  z-index: 150;
+  pointer-events: none;
+}
+
 .screen {
   /* The safe-area inset lives on AppHeader above; screens just need their own
      breathing room under it. min-height accounts for the header so a short

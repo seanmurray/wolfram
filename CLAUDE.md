@@ -52,7 +52,7 @@ specific to this app. Keep it under 200 lines; history goes in `PROJECT.md`.
 ## Gotchas already hit (one line each; move detail to PROJECT.md → Incidents)
 
 - 2026-10-26 — Bebas Neue → Fraunces: caps strings and 0.04–0.08em tracking were tuned for an all-caps condensed face; titles are sentence case now.
-- 2026-10-28 — The page scrolls under the iOS status bar (viewport-fit=cover); `AppHeader`'s fixed `--sat` strip covers it. Anything new fixed to the top must sit below `--sat`.
+- 2026-10-28 — The page scrolls under the iOS status bar (viewport-fit=cover). `#root::before` (index.css) covers the inset on every screen; a screen without `AppHeader` (onboarding) must pad its own top by `--sat`. Check onboarding too: it's the first thing a tester sees.
 - 2026-10-26 — Never put text containing backticks inside a double-quoted bash string (`node -e "…"`): bash runs each backticked span as a command (it emptied PROJECT.md's inline code and tried to execute a spec file). Edit files with the Edit/Write tools.
 - 2026-10-26 — `cap sync` on Windows writes backslash paths into `ios/App/CapApp-SPM/Package.swift`; `build:native` runs `scripts/fix-spm-paths.mjs` after every sync.
 - 2026-10-26 — Zustand stores hydrate from localStorage at import time, before boot recovery. After a restore, `main.jsx` must `persist.rehydrate()` them, or they keep defaults and overwrite the restore.

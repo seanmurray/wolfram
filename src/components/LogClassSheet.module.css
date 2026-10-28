@@ -21,7 +21,7 @@
   transform: translateX(-50%) translateY(100%);
   width: 100%;
   max-width: var(--app-max-w);
-  max-height: 88svh;
+  max-height: min(88svh, calc(100svh - var(--sat) - 12px));
   background: var(--bg-card);
   border-radius: var(--r4) var(--r4) 0 0;
   border-top: 0.5px solid var(--hairline);

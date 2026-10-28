@@ -29,6 +29,8 @@
   flex-direction: column;
   transition: transform 0.32s var(--ease-sheet);
   padding-bottom: var(--sab);
+  max-height: calc(100svh - var(--sat) - 12px);
+  overflow-y: auto;
 }
 .sheet.open { transform: translateX(-50%) translateY(0); }
 

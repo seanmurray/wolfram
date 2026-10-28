@@ -6,6 +6,8 @@
   flex-direction: column;
   min-height: 100svh;
   padding-bottom: 40px !important; /* no bottom nav on this screen */
+  /* No AppHeader here, so this screen clears the status bar itself. */
+  padding-top: calc(var(--sat) + 20px) !important;
 }
 .wrap > :first-child { margin-top: auto; }
 .wrap > :last-child  { margin-bottom: auto; }

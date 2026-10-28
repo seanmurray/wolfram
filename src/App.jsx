@@ -66,6 +66,10 @@ export default function App() {
   const clearTodaySlots = useSlotStore((s) => s.clearToday);
   const skipTimer = useRestTimer((t) => t.skip);
 
+  // Finishing onboarding swaps screens without a tab change, so the app
+  // would otherwise open at the welcome screen's scroll position.
+  useEffect(() => { window.scrollTo(0, 0); }, [onboarded]);
+
   if (!onboarded) {
     return <OnboardingScreen />;
   }
