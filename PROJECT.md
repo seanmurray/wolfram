@@ -1,6 +1,6 @@
 # Wolfram — project status
 
-**Last updated:** 2026-10-27 — Program v2 (evidence-led, perimenopause-informed) live on the web; TestFlight build 2 needed to reach the iPhone.
+**Last updated:** 2026-10-28 — TestFlight 1.0 (2) with program v2 uploaded and processed; build 1 approved and testing; build 2 not yet submitted to the external group.
 
 Section headers stay fixed so both machines and every session find things.
 Newest entries go at the TOP of each list. Keep the Last-updated line to one
@@ -13,16 +13,19 @@ sentence; history lives in Release log / Incidents, not here.
   Program v2 per `docs/specs/program-v2.md` (supersedes v1's program
   content in `program-and-classes.md`).
 - Android: n/a (personal PWA)
-- iOS: **TestFlight 1.0 (1) Waiting for Review** (Beta App Review, submitted
-  2026-10-26) in external group "Family/Friends" with the user as the one
-  tester. On approval TestFlight emails the invite automatically. Build 1
-  is the **v1 program**; program v2 needs build 2 from the Mac (HANDOFF.md).
-  Spec: `docs/specs/native-ios.md`.
+- iOS: **1.0 (1) approved by Beta App Review → Testing** in external group
+  "Family/Friends" (the user is the one tester; invite sent). It is the
+  **v1 program**. **1.0 (2) (program v2) uploaded 2026-10-28, processed,
+  Ready to Submit**; adding it to Family/Friends needs Beta App Review again
+  and has not been submitted yet. Spec: `docs/specs/native-ios.md`.
 
 ## Done ledger (dated — never redo these)
 
 | Date | Step | Where | Notes |
 |---|---|---|---|
+| 2026-10-28 | TestFlight 1.0 (2) uploaded (program v2; Xcode 26.3; Xcode bumped the build number to 2) | Mac → App Store Connect | `npm run check` clean, 80 tests. Processed to Ready to Submit (internal group gets it automatically). Same ITMS-90068 deployment-target warning |
+| 2026-10-28 | Simulator spot-check for build 2 (iPhone 16 Pro / iOS 26.3) | Mac simulator | Impact: set 1 ticked → bridge checkPermissions granted → schedule id 4207; app backgrounded; SpringBoard added/saved the notification with shouldPresentAlert YES ~60 s later. Home gym day A shows the finisher: drop landings 3×10, farmer's carry 3×20 s, dead bug 1×10/side |
+| 2026-10-28 | Beta App Review approved 1.0 (1): status Testing in Family/Friends | App Store Connect | Seen on the TestFlight builds page |
 | 2026-10-27 | Program v2 built: STOP-EM phases in gym weeks (foundation → building → lighter → 8-week strength blocks), +5% load rule, alternating day A/B with drop landings + carry + core, impact as 5×10 with 60 s rests and a 4/week default (max 7), low-bone-density spine and landing rules, bone guide with linked sources (SWAN, USPSTF 2025, STOP-EM, Menopause Society 2022, UK consensus, LIFTMOR, creatine RCT); settings store v2 migration (bench, impact 3 → 4) | local → pushed | Sean approved items 1–9. Sources re-read 2026-10-27. 79 unit tests. Dev build at 375×812: migration, REC 62.5 lb after a 60 lb session, A → B → A, finisher logs Impact, 3 of 5 impact sets counts, low-bone-density swaps landings and shows the class note, bone guide renders; no console errors |
 | 2026-10-26 | TestFlight groups: internal "Murray Movement Labs" (created first: the External Testing section only appeared after an internal group existed), external "Family/Friends" with the user invited by email; build 1.0 (1) added and **submitted for Beta App Review** (sign-in required: unchecked; What to Test filled; auto-notify on) | App Store Connect | Verified after reload: group shows 1 tester, 1 build, status Waiting for Review |
 | 2026-10-26 | First TestFlight upload: 1.0 (1), archive + `-exportArchive` with `ExportOptions.plist` (Xcode 26.3 via DEVELOPER_DIR) | Mac → App Store Connect | App record confirmed first in the console ("Wolfram Strength", bundle select = com.seanmurray.wolfram). Upload took ~2 s, no CDUploads stall. Build processed to Ready to Submit in TestFlight → iOS Builds. Apple warning: deployment target iOS 14.0; from April 2027 uploads need 15.0+ (backlog) |
@@ -40,14 +43,13 @@ sentence; history lives in Release log / Incidents, not here.
 
 ## Backlog (top = next)
 
-1. TestFlight build 2 from the Mac with program v2 (HANDOFF.md); add it to "Family/Friends" once processed
-2. Beta App Review outcome for 1.0 (1); if rejected, read the reason in the console before changing anything
-3. On-device pass on the user's iPhone: TestFlight install, log a class, force-quit, reopen, data intact
-4. Final brand artwork — `brand/mark.svg` is a placeholder (lit filament "W"); Sean may supply art, as he did for Perennial
-5. Upload a fresh TestFlight build at least every 90 days (builds expire; 1.0 (1) uploaded 2026-10-26 → by 2027-01-24)
-6. Raise the iOS deployment target 14.0 → 15.0 before April 2027 (ITMS-90068 on build 1; uploads below 15.0 are refused from then)
-7. Notification sound: plugin treats `sound: 'default'` as a file name (iOS logs "Failed to find sound"); check on the device whether the alert sounds
-8. Resolve the npm `edgesOut` crash (Incidents) before vitest is needed
+1. Add 1.0 (2) to "Family/Friends" and submit it for Beta App Review (What to Test: program update notes)
+2. On-device pass on the user's iPhone: TestFlight install, log a class, force-quit, reopen, data intact
+3. Final brand artwork — `brand/mark.svg` is a placeholder (lit filament "W"); Sean may supply art, as he did for Perennial
+4. Upload a fresh TestFlight build at least every 90 days (builds expire; 1.0 (2) uploaded 2026-10-28 → by 2027-01-26)
+5. Raise the iOS deployment target 14.0 → 15.0 before April 2027 (ITMS-90068 on build 1; uploads below 15.0 are refused from then)
+6. Notification sound: plugin treats `sound: 'default'` as a file name (iOS logs "Failed to find sound"); check on the device whether the alert sounds
+7. Resolve the npm `edgesOut` crash (Incidents) before vitest is needed
 
 ## Blockers
 
@@ -81,8 +83,9 @@ sentence; history lives in Release log / Incidents, not here.
 
 | Date | Version | Build | Target | Status |
 |---|---|---|---|---|
-| 2026-10-26 | 1.0 | 1 | TestFlight (iOS) | Processed (no Missing Compliance); submitted to Beta App Review → Waiting for Review; expires in 90 days. ITMS-90068 warning email (deployment target 14.0) |
+| 2026-10-28 | 1.0 | 2 | TestFlight (iOS) | Program v2. Processed (Ready to Submit); not yet in Family/Friends (needs Beta App Review submission) |
+| 2026-10-26 | 1.0 | 1 | TestFlight (iOS) | Processed (no Missing Compliance); Beta App Review approved 2026-10-28 → Testing; expires in 90 days. ITMS-90068 warning email (deployment target 14.0) |
 
 ## Needs the other machine
 
-- None. (iPhone: install from the TestFlight invite once Beta App Review approves 1.0 (1).)
+- None. (iPhone: install 1.0 (1) from the TestFlight invite now; 1.0 (2) follows once approved.)
