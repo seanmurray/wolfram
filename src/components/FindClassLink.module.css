@@ -1,0 +1,31 @@
+.wrap { display: flex; flex-direction: column; gap: 6px; align-items: flex-start; }
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap-min);
+  padding: 0 16px;
+  border-radius: var(--r2);
+  background: var(--green-bg);
+  border: 1px solid var(--green-line);
+  color: var(--green);
+  font-size: 15px;
+  font-weight: 700;
+  text-decoration: none;
+}
+.button:active { background: var(--bg-raised); }
+
+.small {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--green);
+  padding: 6px 8px;
+  border-radius: var(--r1);
+  min-height: 34px;
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+}
+.small:active { background: var(--bg-raised); }
+
+.copied { font-size: 13px; color: var(--t3); line-height: 1.4; }

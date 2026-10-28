@@ -14,6 +14,10 @@
   display: flex;
   padding-bottom: var(--sab);
   z-index: 100;
+  /* A quick double tap on a tab selected its label on iOS. */
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
 }
 
 .item {

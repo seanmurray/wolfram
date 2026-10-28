@@ -5,6 +5,8 @@ import { useClassStore } from '../stores/classStore';
 import { useSettingsStore } from '../stores/settingsStore';
 import { FORMATS, FORMAT_ORDER, classifyClass } from '../lib/classify.js';
 import { WEEKDAYS, WEEKDAYS_LONG, formatTime } from '../lib/week.js';
+import { studioLabel } from '../lib/classpass.js';
+import { MyStudios } from '../components/MyStudios';
 
 const BLANK = { name: '', studio: '', weekday: 0, time: '18:00', format: null };
 
@@ -15,6 +17,7 @@ export function ClassesScreen() {
   const addClass = useClassStore((s) => s.addClass);
   const updateClass = useClassStore((s) => s.updateClass);
   const removeClass = useClassStore((s) => s.removeClass);
+  const studios = useClassStore((s) => s.studios);
   const lowBoneDensity = useSettingsStore((s) => s.lowBoneDensity);
 
   const [editing, setEditing] = useState(null); // null | 'new' | class id
@@ -65,6 +68,7 @@ export function ClassesScreen() {
         <ClassForm
           draft={draft}
           setDraft={setDraft}
+          studios={studios}
           format={format}
           isNew={editing === 'new'}
           canSave={!!canSave}
@@ -107,6 +111,8 @@ export function ClassesScreen() {
         </div>
       )}
 
+      <MyStudios />
+
       <section className={styles.guide}>
         <div className={styles.guideTitle}>Finding the right classes on ClassPass</div>
         <p>
@@ -130,7 +136,7 @@ export function ClassesScreen() {
   );
 }
 
-function ClassForm({ draft, setDraft, format, isNew, canSave, onSave, onCancel }) {
+function ClassForm({ draft, setDraft, studios, format, isNew, canSave, onSave, onCancel }) {
   const set = (patch) => setDraft((d) => ({ ...d, ...patch }));
   return (
     <div className={styles.form}>
@@ -152,6 +158,23 @@ function ClassForm({ draft, setDraft, format, isNew, canSave, onSave, onCancel }
           placeholder="e.g. the studio on Main St"
         />
       </label>
+      {studios.length > 0 && (
+        <div className={chips.row}>
+          {studios.map((st) => {
+            const label = studioLabel(st);
+            return (
+              <button
+                key={st.id}
+                type="button"
+                className={`${chips.pick} ${draft.studio === label ? chips.on : ''}`}
+                onClick={() => set({ studio: label })}
+              >
+                {label}
+              </button>
+            );
+          })}
+        </div>
+      )}
 
       <div className={styles.fieldLabel}>Day</div>
       <div className={chips.row}>

@@ -205,3 +205,4 @@
 }
 .windowsBody { font-size: 15px; line-height: 1.55; color: var(--t2); margin-top: 6px; }
 .windowsBody strong { color: var(--t1); font-weight: 700; }
+.windowsAction { margin-top: 12px; }

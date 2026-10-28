@@ -1,6 +1,8 @@
 # Spec: My studios and "Find a class"
 
-Status: approved for build 3 (2026-10-28), after the on-device pass on build 2.
+Status: built for 1.0 (3) (2026-10-28). Where this differs from the first draft, the
+build wins: studios live on the Classes tab (next to the class list, where
+they're used), in `wolfram-classes`, with an optional ClassPass link.
 
 ## Problem
 
@@ -13,8 +15,8 @@ location off the device.
 
 ## Goals
 
-1. **My studios** (Settings): the user lists the studios they like, each with
-   a name and an optional town ("Studio name · Town"). Stored on the device,
+1. **Your studios** (Classes tab): the user lists the studios they like, each
+   with a name, an optional town and an optional ClassPass link. Stored on the device,
    exported with backups, never committed or sent anywhere.
 2. Adding or logging a class offers My studios first, so a favourite is one
    tap, not retyped. A class's `studio` field keeps holding free text, so
@@ -39,20 +41,25 @@ location off the device.
 
 ## Design notes
 
-- The handoff is an ordinary external link. Capacitor hands navigation to
-  outside URLs to iOS (check this on the simulator first). If the ClassPass
-  app is installed, iOS opens it through ClassPass's universal links; otherwise
-  Safari opens classpass.com. **Before building, confirm ClassPass's current
-  search URL format on classpass.com and whether it accepts a query
-  parameter.** If it doesn't, fall back to opening the search page and
-  copying the query to the clipboard, with a one-line "Paste to search" note.
-- Data: `wolfram-studios`: `[{ id, name, town }]`, in the settings store so
-  it rides along with prefs in export/restore (same path as skip days).
+- Checked 2026-10-28: ClassPass's search box puts nothing in the URL
+  (`/search?q=` is ignored), so a link can't open a filled-in search. Studio
+  pages have stable links (`/studios/<slug>`), but the slugs are irregular,
+  so the app never guesses one: the user pastes it from ClassPass's Share
+  button. With a link, "Find a class" opens the studio page; without one, it
+  opens `classpass.com/search` and copies "name town" with a "Paste it into
+  ClassPass search" note. The heavy-gap button copies "barbell".
+- The handoff is an ordinary `target="_blank"` link; Capacitor hands it to
+  iOS (verified on the simulator: Safari opened classpass.com/search). With
+  the ClassPass app installed, iOS should open it there via universal links;
+  check on the device.
+- Data: `studios: [{ id, name, town, link }]` in the class store
+  (`wolfram-classes`), so it rides along with the class library in backups.
+  Links are parsed by `lib/classpass.js` (ClassPass hosts only, https).
 - Remove a studio: classes that name it keep their free-text studio.
 
 ## Acceptance criteria
 
-1. Add a studio in Settings; it appears first in the Add a class studio
+1. Add a studio on the Classes tab; it appears as a quick pick in the Add a class studio
    picker; picking it fills the studio field.
 2. Export → wipe → restore brings My studios back.
 3. A My studios row's "Find a class" opens ClassPass (app or site) with a

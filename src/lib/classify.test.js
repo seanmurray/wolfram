@@ -13,6 +13,7 @@ describe('classifyClass', () => {
     ['Strength Pilates', 'studio'],
     ['Sculpt & Strength', 'studio'],
     ['Power Yoga', 'studio'],
+    ['Hot Yoga 60', 'studio'],
     ['Body Pump', 'studio'],
     // Impact beats lifting, so the jumps get credit
     ['HIIT Strength', 'impact'],

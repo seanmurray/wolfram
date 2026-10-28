@@ -21,6 +21,15 @@ export const useClassStore = create(
         set((s) => ({ library: s.library.map((c) => (c.id === id ? { ...c, ...patch } : c)) })),
       removeClass: (id) => set((s) => ({ library: s.library.filter((c) => c.id !== id) })),
 
+      // The user's favourite studios: [{ id, name, town, link }]. link is a
+      // ClassPass studio page or null (lib/classpass.js). Lives here so it
+      // rides along with the class library in backups.
+      studios: [],
+      addStudio: (st) => set((s) => ({ studios: [...s.studios, { ...st, id: uid() }] })),
+      updateStudio: (id, patch) =>
+        set((s) => ({ studios: s.studios.map((st) => (st.id === id ? { ...st, ...patch } : st)) })),
+      removeStudio: (id) => set((s) => ({ studios: s.studios.filter((st) => st.id !== id) })),
+
       // { week: 'YYYY-MM-DD' (that Monday), byDay: { [weekday]: 'skip' | 'go' } }
       overrides: { week: null, byDay: {} },
 

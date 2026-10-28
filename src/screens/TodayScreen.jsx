@@ -9,6 +9,8 @@ import { FORMATS } from '../lib/classify.js';
 import { WEEKDAYS, WEEKDAYS_LONG, weekdayIndex, formatTime } from '../lib/week.js';
 import { BUCKET_LABEL, fillsText, phaseLine } from '../lib/labels.js';
 import { DAYS, IMPACT_LEVELS, IMPACT_LEVEL_EVERY } from '../data/program';
+import { FindClassLink } from '../components/FindClassLink';
+import { CLASSPASS_SEARCH } from '../lib/classpass.js';
 
 // Today: what this week has delivered, the one thing to do next, and which of
 // the user's classes are worth booking. Everything derives from lib/plan.js.
@@ -157,6 +159,9 @@ export function TodayScreen({ onStart, onLogClass, onOpenClasses }) {
             . Search ClassPass for a barbell or lifting class then, and add it on
             the Classes tab if it’s a regular.
           </p>
+          <div className={styles.windowsAction}>
+            <FindClassLink href={CLASSPASS_SEARCH} copy="barbell">Find a barbell class</FindClassLink>
+          </div>
         </section>
       )}
 
