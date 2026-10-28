@@ -13,9 +13,9 @@ sentence; history lives in Release log / Incidents, not here.
   Program v2 per `docs/specs/program-v2.md` (supersedes v1's program
   content in `program-and-classes.md`).
 - Android: n/a (personal PWA)
-- iOS: **TestFlight 1.0 (3) Testing** in external group "Family/Friends"
+- iOS: **TestFlight 1.0 (4) Testing** in external group "Family/Friends"
   (the user is the one tester; invite not yet accepted as of 2026-10-28),
-  alongside 1.0 (2) and 1.0 (1). Next: the on-device pass on the user's
+  alongside 1.0 (3), 1.0 (2) and 1.0 (1). Next: the on-device pass on the user's
   iPhone. Spec:
   `docs/specs/native-ios.md`.
 
@@ -23,6 +23,7 @@ sentence; history lives in Release log / Incidents, not here.
 
 | Date | Step | Where | Notes |
 |---|---|---|---|
+| 2026-10-28 | TestFlight 1.0 (4): status-bar fix for every screen (onboarding included); uploaded, added to "Family/Friends" → Testing | Mac → App Store Connect | Fresh install on the simulator (iPhone 16 Pro / iOS 26.3): welcome screen starts below the camera, scrolled text stops at the strip, Today opens at the top after setup. 1.0 (3) failed this on the user's iPhone (Incidents) |
 | 2026-10-28 | 1.0 (3) added to "Family/Friends" and submitted (What to Test: Your studios, Find a class, header fix; auto-notify on) | App Store Connect | Approved at once: status Testing after reload. The group's one tester still shows **Invited** (invite not yet accepted in TestFlight) |
 | 2026-10-28 | TestFlight 1.0 (3) uploaded: Your studios + "Find a class" ClassPass handoff, status-bar strip, scroll-to-top on tab change, tab labels unselectable | Mac → App Store Connect | `npm run check` clean. Simulator (iPhone 16 Pro / iOS 26.3): studio added, "Find a class" with no link copied the name (pbpaste) and iOS opened classpass.com/search in Safari; the studio is a quick pick in Add a class; Today's heavy-gap card shows "Find a barbell class". Universal-link handoff to the ClassPass app needs the device. Same ITMS-90068 warning |
 | 2026-10-28 | Status-bar fix (shipped in 1.0 (3)): fixed bone-coloured strip over the top safe-area inset, and every tab change scrolls to the top | local → pushed | Simulator (iPhone 16 Pro): scrolled Classes content clips under the clock/Dynamic Island; Classes (scrolled) → Today opens at the top with the header showing. |
@@ -47,10 +48,10 @@ sentence; history lives in Release log / Incidents, not here.
 
 ## Backlog (top = next)
 
-1. On-device pass on the user's iPhone with 1.0 (3): TestFlight install, log a class, force-quit, reopen, data intact; header clear of the camera; a studio's ClassPass link opens the ClassPass app
+1. On-device pass on the user's iPhone with 1.0 (4): TestFlight install, log a class, force-quit, reopen, data intact; header clear of the camera; a studio's ClassPass link opens the ClassPass app
 2. Status-bar strip doesn't cover while the keyboard is up (iOS shifts the page; seen on the simulator while typing in Your studios). Cosmetic
 3. Final brand artwork — `brand/mark.svg` is a placeholder (lit filament "W"); Sean may supply art, as he did for Perennial
-4. Upload a fresh TestFlight build at least every 90 days (builds expire; 1.0 (3) uploaded 2026-10-28 → by 2027-01-26)
+4. Upload a fresh TestFlight build at least every 90 days (builds expire; 1.0 (4) uploaded 2026-10-28 → by 2027-01-26)
 5. Raise the iOS deployment target 14.0 → 15.0 before April 2027 (ITMS-90068 on build 1; uploads below 15.0 are refused from then)
 6. Notification sound: plugin treats `sound: 'default'` as a file name (iOS logs "Failed to find sound"); check on the device whether the alert sounds
 7. Resolve the npm `edgesOut` crash (Incidents) before vitest is needed
@@ -89,6 +90,7 @@ sentence; history lives in Release log / Incidents, not here.
 
 | Date | Version | Build | Target | Status |
 |---|---|---|---|---|
+| 2026-10-28 | 1.0 | 4 | TestFlight (iOS) | Status-bar fix on every screen, onboarding included. Family/Friends → Testing the same day |
 | 2026-10-28 | 1.0 | 3 | TestFlight (iOS) | Your studios, ClassPass handoff, status-bar fix. Processed in ~3 min; added to Family/Friends → Testing the same day |
 | 2026-10-28 | 1.0 | 2 | TestFlight (iOS) | Program v2. Processed; submitted to Family/Friends → Testing the same day |
 | 2026-10-26 | 1.0 | 1 | TestFlight (iOS) | Processed (no Missing Compliance); Beta App Review approved 2026-10-28 → Testing; expires in 90 days. ITMS-90068 warning email (deployment target 14.0) |
