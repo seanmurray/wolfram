@@ -22,6 +22,7 @@ sentence; history lives in Release log / Incidents, not here.
 
 | Date | Step | Where | Notes |
 |---|---|---|---|
+| 2026-10-28 | Status-bar fix (not yet shipped): fixed bone-coloured strip over the top safe-area inset, and every tab change scrolls to the top | local → pushed | Simulator (iPhone 16 Pro): scrolled Classes content clips under the clock/Dynamic Island; Classes (scrolled) → Today opens at the top with the header showing. Ships in build 3 |
 | 2026-10-28 | 1.0 (2) added to "Family/Friends" and submitted for Beta App Review (What to Test: program-update notes; auto-notify on) | App Store Connect | Approved at once: status Testing after reload (no full review for a later build) |
 | 2026-10-28 | TestFlight 1.0 (2) uploaded (program v2; Xcode 26.3; Xcode bumped the build number to 2) | Mac → App Store Connect | `npm run check` clean, 80 tests. Processed to Ready to Submit (internal group gets it automatically). Same ITMS-90068 deployment-target warning |
 | 2026-10-28 | Simulator spot-check for build 2 (iPhone 16 Pro / iOS 26.3) | Mac simulator | Impact: set 1 ticked → bridge checkPermissions granted → schedule id 4207; app backgrounded; SpringBoard added/saved the notification with shouldPresentAlert YES ~60 s later. Home gym day A shows the finisher: drop landings 3×10, farmer's carry 3×20 s, dead bug 1×10/side |
@@ -44,11 +45,12 @@ sentence; history lives in Release log / Incidents, not here.
 ## Backlog (top = next)
 
 1. On-device pass on the user's iPhone: TestFlight install, log a class, force-quit, reopen, data intact
-2. Final brand artwork — `brand/mark.svg` is a placeholder (lit filament "W"); Sean may supply art, as he did for Perennial
-3. Upload a fresh TestFlight build at least every 90 days (builds expire; 1.0 (2) uploaded 2026-10-28 → by 2027-01-26)
-4. Raise the iOS deployment target 14.0 → 15.0 before April 2027 (ITMS-90068 on build 1; uploads below 15.0 are refused from then)
-5. Notification sound: plugin treats `sound: 'default'` as a file name (iOS logs "Failed to find sound"); check on the device whether the alert sounds
-6. Resolve the npm `edgesOut` crash (Incidents) before vitest is needed
+2. Build 3: My studios + "Find a class" ClassPass handoff (`docs/specs/my-studios.md`, approved 2026-10-28), shipping with the status-bar fix (Done ledger, 2026-10-28)
+3. Final brand artwork — `brand/mark.svg` is a placeholder (lit filament "W"); Sean may supply art, as he did for Perennial
+4. Upload a fresh TestFlight build at least every 90 days (builds expire; 1.0 (2) uploaded 2026-10-28 → by 2027-01-26)
+5. Raise the iOS deployment target 14.0 → 15.0 before April 2027 (ITMS-90068 on build 1; uploads below 15.0 are refused from then)
+6. Notification sound: plugin treats `sound: 'default'` as a file name (iOS logs "Failed to find sound"); check on the device whether the alert sounds
+7. Resolve the npm `edgesOut` crash (Incidents) before vitest is needed
 
 ## Blockers
 
@@ -72,6 +74,7 @@ sentence; history lives in Release log / Incidents, not here.
 
 | Date | What broke | Root cause | Fix / rule added |
 |---|---|---|---|
+| 2026-10-28 | On the phone, the logo and screen titles sat under the camera and status-bar icons | `viewport-fit=cover` + `contentInset: never` let the page scroll under the status bar with nothing behind it, and all tabs share the window's scroll, so switching from a scrolled tab opened the next one with its header already scrolled away | `AppHeader` renders a fixed `--bg` strip of height `--sat` (z 150, under timer and sheets); `App.jsx` scrolls to the top on every tab change |
 | 2026-10-27 | The REC column never showed a weight, even with history | Perennial scaffold: `SetTable` passed `calcRec: 0` (no %1RM math here) and `seedBaseRec` returns early when `calcRec <= 0`, so last session's top set was never used. **Same bug in Perennial** | `lib/progression.js` `startingLoad` anchors on the last non-lighter session's top set (STOP-EM rule, scheme conversion, layoff); sets now store their prescription. Dead `rx.js` removed. Perennial fixed separately |
 | 2026-10-26 | Native timer notifications never scheduled: no permission prompt, no bridge calls | `getPlugin()` resolved a promise with the Capacitor plugin proxy. The proxy answers every property, `then` included, so the promise called `LocalNotifications.then()`, which rejected as unimplemented; `.catch(() => null)` swallowed it, so everything was a silent no-op | `timerNotification.js` caches the module and reads `.LocalNotifications` after the await. Rule: never return or resolve a Capacitor plugin proxy from a promise or async function |
 | 2026-10-26 | History showed "Invalid Date" on every session | `lib/dateFormat.js` came from the soccer app, where `performed_at` was a Postgres DATE ("2026-10-26"); localdb writes ISO timestamps, so the day parsed as NaN. **Also live in Perennial** (same file, same storage) | Formatter handles both shapes, shows timestamps in local time; 4 tests incl. a 10 pm-local/next-day-UTC case |

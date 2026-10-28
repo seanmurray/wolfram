@@ -6,9 +6,12 @@ import styles from './AppHeader.module.css';
 export function AppHeader() {
   const base = import.meta.env.BASE_URL;
   return (
-    <header className={styles.header}>
-      <img src={`${base}icon-192.png`} alt="" className={styles.mark} />
-      <span className={styles.wordmark}>Wolfram</span>
-    </header>
+    <>
+      <div className={styles.statusScrim} aria-hidden="true" />
+      <header className={styles.header}>
+        <img src={`${base}icon-192.png`} alt="" className={styles.mark} />
+        <span className={styles.wordmark}>Wolfram</span>
+      </header>
+    </>
   );
 }

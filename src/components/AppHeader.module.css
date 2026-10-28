@@ -26,3 +26,18 @@
   line-height: 1;
   color: var(--t1);
 }
+
+/* The page scrolls under the status bar and camera (viewport-fit=cover), so
+   a strip of page colour stays fixed over that inset and content scrolls
+   behind it, not beneath the clock. Zero height on the web and on phones
+   without an inset. Under the timer (200) and sheets (300). */
+.statusScrim {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--sat);
+  background: var(--bg);
+  z-index: 150;
+  pointer-events: none;
+}

@@ -49,6 +49,9 @@ export default function App() {
   const [tab, setTab] = useState(readPersistedTab);
   useEffect(() => {
     try { localStorage.setItem(TAB_KEY, tab); } catch { /* ignore */ }
+    // Tabs share the window's scroll, so a new tab would otherwise open
+    // part-way down with its header already scrolled away.
+    window.scrollTo(0, 0);
   }, [tab]);
 
   const [saving, setSaving] = useState(false);
