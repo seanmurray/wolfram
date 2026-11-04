@@ -144,9 +144,9 @@ export function ClassesScreen() {
     setForm({ id: 'new', draft: { ...BLANK, ...fromReading(c), source: found.source, link: found.link } });
   };
   const addFound = () => {
-    const picked = found.classes.filter((c) => c.on && c.name);
+    const picked = found.classes.filter((c) => c.on && foundReady(c));
     for (const c of picked) {
-      addClass({ name: c.name, studio: c.studio, weekday: c.weekday ?? 0, time: c.time ?? '18:00', format: classifyClass(c.name) });
+      addClass({ name: c.name, studio: c.studio, weekday: c.weekday, time: c.time, format: classifyClass(c.name) });
     }
     const first = picked.find((c) => c.studio);
     if (first) keepLink(linkSavePlan(studios, first, found.link), found.link);
@@ -417,8 +417,17 @@ function ClassForm({
 // Several classes from one reading (a schedule, or a few screenshots shared
 // at once). Nothing is ticked to start; a class with no name has to be
 // opened and named first.
+// A found class can be ticked once it has a name, day and time; otherwise
+// it's opened in the form to fill in what wasn't read.
+const foundReady = (c) => Boolean(c.name) && c.weekday != null && Boolean(c.time);
+
+function unread(c) {
+  const gaps = [!c.name && 'name', c.weekday == null && 'day', !c.time && 'time'].filter(Boolean);
+  return gaps.length ? `Open it to add the ${gaps.join(' and ')}.` : null;
+}
+
 function FoundClasses({ found, onToggle, onEdit, onAdd, onCancel }) {
-  const n = found.classes.filter((c) => c.on && c.name).length;
+  const n = found.classes.filter((c) => c.on && foundReady(c)).length;
   return (
     <section className={styles.found} aria-label="Classes found">
       <div className={styles.foundTitle}>Found {found.classes.length} classes</div>
@@ -428,10 +437,10 @@ function FoundClasses({ found, onToggle, onEdit, onAdd, onCancel }) {
           <input
             type="checkbox"
             className={styles.tick}
-            checked={c.on}
-            disabled={!c.name}
+            checked={c.on && foundReady(c)}
+            disabled={!foundReady(c)}
             onChange={() => onToggle(i)}
-            aria-label={c.name ? `Add ${c.name}` : 'No name read'}
+            aria-label={foundReady(c) ? `Add ${c.name}` : `${c.name || 'This class'}: ${unread(c)}`}
           />
           <div className={styles.time}>{c.time ? formatTime(c.time) : '—'}</div>
           <div className={styles.main}>
@@ -439,6 +448,7 @@ function FoundClasses({ found, onToggle, onEdit, onAdd, onCancel }) {
             <div className={styles.studio}>
               {[c.weekday != null ? WEEKDAYS_LONG[c.weekday] : null, c.studio].filter(Boolean).join(' · ')}
             </div>
+            {unread(c) && <div className={styles.hint}>{unread(c)}</div>}
           </div>
           <div className={styles.rowBtns}>
             <button type="button" className={styles.rowBtn} onClick={() => onEdit(i)}>Open</button>

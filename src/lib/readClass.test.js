@@ -102,6 +102,109 @@ describe('readClasses: a class page', () => {
   });
 });
 
+// A studio's schedule, laid out like the real one on a phone set to 24-hour:
+// header, day tabs, then a heading per day and a row per class. The name sits
+// level with the time and starts a hair higher; length, teacher and credits
+// are on the line below.
+const cell = (text, y, x, h = 0.012) => ({ text, x, y, w: 0.2, h });
+const row = (y, time, name, teacher) => [
+  cell(name, y - 0.002, 0.25, 0.013), cell(time, y, 0.051),
+  cell('60 min', y + 0.028, 0.051), cell(teacher, y + 0.028, 0.252), cell('6', y + 0.028, 0.914),
+];
+const SCHEDULE_TOP = [
+  cell('15:26', 0.031, 0.09, 0.014), cell('60', 0.032, 0.852, 0.01),
+  cell('Example Strength Co', 0.075, 0.345, 0.017), cell('View details >', 0.104, 0.381, 0.013),
+  ...['Today', 'Thu 5', 'Fri 6', 'Sat 7', 'Sun 8', 'Mon 9'].map((t, i) => cell(t, 0.156, 0.04 + i * 0.16)),
+];
+const SCHEDULE_ROWS = [
+  cell('Today', 0.212, 0.051, 0.017),
+  ...row(0.273, '16:30', 'Hot Flow', 'Alex R'),
+  ...row(0.366, '18:00', 'Barbell Basics', 'Sam T'),
+  ...row(0.46, '19:30', 'Sunset', 'Alex R'),
+  cell('Thu 5', 0.748, 0.051, 0.013),
+  ...row(0.809, '06:00', 'Power Pilates', 'Jo K'),
+  ...row(0.902, '09:00', 'Barbell Basics', 'Sam T'),
+];
+const SCHEDULE = [...SCHEDULE_TOP, ...SCHEDULE_ROWS];
+const SAT = new Date(2026, 10, 7, 9, 0);
+const brief = (classes) => classes.map((c) => [c.weekday, c.time, c.name]);
+
+describe('readClasses: a studio’s schedule', () => {
+  it('reads every class with its day and time, and the studio from the header', () => {
+    const { classes } = readClasses(SCHEDULE, { now: NOW });
+    assert.deepEqual(brief(classes), [
+      [2, '16:30', 'Hot Flow'], [2, '18:00', 'Barbell Basics'], [2, '19:30', 'Sunset'],
+      [3, '06:00', 'Power Pilates'], [3, '09:00', 'Barbell Basics'],
+    ]);
+    for (const c of classes) {
+      assert.equal(c.studio, 'Example Strength Co');
+      assert.deepEqual(c.missing, []);
+    }
+  });
+
+  it('takes Today from the tabs, not from the day it’s read', () => {
+    assert.deepEqual(readClasses(SCHEDULE, { now: SAT }).classes.map((c) => c.weekday), [2, 2, 2, 3, 3]);
+    // With no tabs to go by, Today is the day it's read.
+    const noTabs = SCHEDULE.filter((l) => l.y !== 0.156);
+    assert.equal(readClasses(noTabs, { now: NOW }).classes[0].weekday, 2);
+    assert.equal(readClasses(noTabs, { now: SAT }).classes[0].weekday, 5);
+  });
+
+  it('matches a saved studio', () => {
+    const { classes } = readClasses(SCHEDULE, { now: NOW, studios: [STUDIO] });
+    assert.equal(classes[0].studio, 'Example Strength Co, Springfield');
+    assert.equal(classes[0].town, 'Springfield');
+  });
+
+  it('gives no day to rows above the first heading', () => {
+    // Scrolled past "Today": its rows are on screen, its heading isn't.
+    const scrolled = [...SCHEDULE_TOP, ...SCHEDULE_ROWS.filter((l) => l.y !== 0.212)];
+    const { classes } = readClasses(scrolled, { now: NOW });
+    assert.equal(classes[0].weekday, null);
+    assert.deepEqual(classes[0].missing, ['weekday']);
+    assert.equal(classes[3].weekday, 3);
+  });
+
+  it('reads 12-hour times, and leaves a bare one blank rather than guess', () => {
+    const twelve = [
+      ...SCHEDULE_TOP,
+      cell('Today', 0.212, 0.051, 0.017),
+      ...row(0.273, '4:30 PM', 'Hot Flow', 'Alex R'),
+      ...row(0.366, '11:30 AM', 'Barbell Basics', 'Sam T'),
+      ...row(0.46, '6:30', 'Power Pilates', 'Jo K'), // its PM not read
+      cell('6 PM Kettlebell Flow', 0.55, 0.051), // time and name read as one line
+    ];
+    const { classes } = readClasses(twelve, { now: NOW });
+    assert.deepEqual(brief(classes), [
+      [2, '16:30', 'Hot Flow'], [2, '11:30', 'Barbell Basics'], [2, null, 'Power Pilates'], [2, '18:00', 'Kettlebell Flow'],
+    ]);
+    assert.deepEqual(classes[2].missing, ['time']);
+  });
+
+  it('reads 24-hour times before noon when nothing says AM or PM', () => {
+    const morning = [...SCHEDULE_TOP, cell('Today', 0.212, 0.051, 0.017), ...row(0.273, '11:30', 'Hot Flow', 'Alex R')];
+    assert.equal(readClasses(morning, { now: NOW }).classes[0].time, '11:30');
+  });
+
+  it('ignores the status-bar clock, lengths, teachers and credits', () => {
+    const { classes } = readClasses(SCHEDULE, { now: NOW });
+    assert.equal(classes.some((c) => c.time === '15:26'), false);
+    assert.equal(classes.some((c) => /^(60 min|6|Alex R|Sam T)$/.test(c.name)), false);
+  });
+
+  it('reads pasted schedule text', () => {
+    const text = [
+      'Example Strength Co', 'View details >', 'Today', 'Thu 5', 'Fri 6', 'Today',
+      '16:30', 'Hot Flow', '60 min', 'Alex R', '6',
+      '18:00 Barbell Basics', '60 min', 'Sam T',
+      'Thu 5', '06:00', '60 min', 'Power Pilates', 'Jo K',
+    ].join('\n');
+    const { classes } = readClasses(textToLines(text), { now: SAT });
+    assert.deepEqual(brief(classes), [[2, '16:30', 'Hot Flow'], [2, '18:00', 'Barbell Basics'], [3, '06:00', 'Power Pilates']]);
+    assert.equal(classes[0].studio, 'Example Strength Co');
+  });
+});
+
 describe('readClasses: pasted text', () => {
   it('reads text copied out of a screenshot', () => {
     const text = [

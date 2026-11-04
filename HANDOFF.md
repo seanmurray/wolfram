@@ -29,8 +29,11 @@ Plugin `jsName` **`ClassReader`**, both methods returning promises:
   - Otherwise, resolves `{ lines: [{ text, x, y, w, h }] }`.
 - `takeShared()`:
   - Reads every item in the App Group share queue, oldest first.
-  - Resolves `{ items: [ { lines: [...] } | { text: "…" } ] }`: `lines` for an
-    image, `text` for a shared URL and/or text (join them with a newline).
+  - Resolves `{ items: [ { lines: [...], at } | { text: "…", at } ] }`: `lines`
+    for an image, `text` for a shared URL and/or text (join them with a newline).
+    `at` is when the extension queued it, in ms since 1970 (the timestamp you
+    store with the item). The JS uses it so "Today" on a schedule means the day
+    it was shared, not the day Wolfram was opened.
   - Then **deletes** the queue, images included. Resolves `{ items: [] }` when
     the queue is empty.
 
@@ -100,6 +103,8 @@ How to fill `lines`:
      class filled in.
    - Three shares, then one open, gives one "Found N classes" list. Opening
      again shows nothing.
+   - A studio-schedule screenshot gives "Found N classes" with one row per class
+     on it, each with its day and time.
    - **From a screenshot** opens the picker with no permission prompt, and
      cancelling changes nothing.
    - A screenshot with no class gives "Couldn't find a class…".

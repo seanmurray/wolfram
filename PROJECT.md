@@ -1,6 +1,6 @@
 # Wolfram — project status
 
-**Last updated:** 2026-11-04 — Screenshot import: JS half live on the web; native plugin + share extension handed to the Mac (`HANDOFF.md`).
+**Last updated:** 2026-11-04 — Screenshot import: JS half live on the web, schedule layout included; native plugin + share extension handed to the Mac (`HANDOFF.md`).
 
 Section headers stay fixed so both machines and every session find things.
 Newest entries go at the TOP of each list. Keep the Last-updated line to one
@@ -24,6 +24,7 @@ sentence; history lives in Release log / Incidents, not here.
 
 | Date | Step | Where | Notes |
 |---|---|---|---|
+| 2026-11-04 | Screenshot import, schedule layout: `readClasses` reads a studio's schedule (studio from the header, day from each heading, "Today" from the day tabs, 24-hour times when nothing says AM/PM); found-list rows missing a name, day or time can't be ticked; shared items' `at` time passed to the reader (contract in `HANDOFF.md`) | local → pushed | 8 new unit tests (invented fixtures; 144 total), lint clean. Real samples (outside the repo): schedule → all 7 classes with the right day, time and name, "Today" still the screenshot's Wednesday when read as if on a Saturday; class page shot from the top → name, studio + town, day, time all right. Dev build at 375×812: pasted schedule text → "Found 3 classes", the row above any heading shown "Open it to add the day." and unpickable, two ticked → saved as Thursday 06:00 / 09:00 with the studio; zero non-localhost requests; no console errors |
 | 2026-11-04 | Screenshot import, JS half (`docs/specs/class-from-screenshot.md`, approved by Sean): `lib/readClass.js` for class pages, Paste from ClassPass, found-classes list, ClassPass link saved with the studio (`linkSavePlan`), share-queue pickup on open/foreground, `lib/classReader.js` bridge (no-op until the native plugin exists), privacy-page line | local → pushed | 23 new unit tests (invented fixtures; 135 total), lint clean. Reader run on the two real samples (kept outside the repo): day + time right on both, studio right once saved. Dev build at 375×812: paste filled name/studio/Thu/18:30 with "from what you pasted" marks, Add saved the class and added the studio with its link; three simulated shared classes → "Found 3 classes", the nameless one unpickable, two ticked → added; no-class text → notice, form unchanged; link for a studio that has one → kept; no "From a screenshot" button on the web; zero non-localhost requests; no console errors |
 | 2026-10-28 | TestFlight 1.0 (4): status-bar fix for every screen (onboarding included); uploaded, added to "Family/Friends" → Testing | Mac → App Store Connect | Fresh install on the simulator (iPhone 16 Pro / iOS 26.3): welcome screen starts below the camera, scrolled text stops at the strip, Today opens at the top after setup. 1.0 (3) failed this on the user's iPhone (Incidents) |
 | 2026-10-28 | 1.0 (3) added to "Family/Friends" and submitted (What to Test: Your studios, Find a class, header fix; auto-notify on) | App Store Connect | Approved at once: status Testing after reload. The group's one tester still shows **Invited** (invite not yet accepted in TestFlight) |
@@ -56,7 +57,7 @@ sentence; history lives in Release log / Incidents, not here.
    - the WolframShare extension;
    - App Group `group.com.seanmurray.wolfram`, which needs Sean's OK before each developer-account change.
 
-   Still needed from the user: a studio-schedule screenshot (the schedule layout isn't built), and a class page shot from the top.
+   Both layouts are built against real samples (2026-11-04). Still open: what a class page's own Share button sends (spec Open question 2), and a schedule from a phone set to 12-hour time.
 3. Status-bar strip doesn't cover while the keyboard is up (iOS shifts the page; seen on the simulator while typing in Your studios). Cosmetic
 4. Final brand artwork — `brand/mark.svg` is a placeholder (lit filament "W"); Sean may supply art, as he did for Perennial
 5. Upload a fresh TestFlight build at least every 90 days (builds expire; 1.0 (4) uploaded 2026-10-28 → by 2027-01-26)

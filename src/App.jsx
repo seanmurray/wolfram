@@ -88,7 +88,10 @@ export default function App() {
         const items = await takeShared();
         if (!items.length) return;
         const { studios } = useClassStore.getState();
-        const readings = items.map((it) => readClasses(it.lines ?? textToLines(it.text), { studios }));
+        // `at` is when it was shared, so "Today" on it means that day.
+        const readings = items.map((it) => readClasses(it.lines ?? textToLines(it.text), {
+          studios, now: Number.isFinite(it.at) ? new Date(it.at) : undefined,
+        }));
         useImportStore.getState().setPending({
           classes: readings.flatMap((r) => r.classes),
           link: readings.find((r) => r.link)?.link ?? null,

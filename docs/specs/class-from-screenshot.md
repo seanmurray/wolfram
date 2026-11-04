@@ -9,12 +9,11 @@ feedback on 1.0 (4) (2026-10-28): the tester wanted to skip the Add a class form
 - the paste box, the found-classes list, and link saving;
 - the share-queue pickup (`App.jsx` → `importStore`);
 - `lib/classReader.js`, a no-op until the plugin exists;
-- the privacy page line.
+- the privacy page line;
+- the schedule layout (later the same day, from a real schedule screenshot).
 
-**Not built:**
-- the native half (ClassReader plugin, share extension, App Group), which is the
-  Mac's job: see `HANDOFF.md`;
-- the schedule layout, which waits for a schedule screenshot (Open question 1).
+**Not built:** the native half (ClassReader plugin, share extension, App Group),
+which is the Mac's job: see `HANDOFF.md`.
 
 ## Goal
 
@@ -84,7 +83,9 @@ it and taps Add. A pasted or shared ClassPass link is saved with the studio, so
    - **A studio's schedule, or several shared screenshots:** a list shows "Found N
      classes" with each class's day, time and name, all unticked. The user ticks
      the ones they take and taps **Add N classes**. Any row can be opened in the
-     normal form to fix it first.
+     normal form to fix it first. A row missing its name, day or time can't be
+     ticked. It says what's missing ("Open it to add the day."), so nothing is
+     added with a made-up day.
    - **Nothing recognisable:** "Couldn't find a class in that screenshot. Fill it
      in below." The form stays as it was.
 4. **Paste from ClassPass** takes any text and runs it through the same reader:
@@ -122,8 +123,14 @@ draft for a class page, several for a schedule.
 - **Times:** "6:00 PM", "6 PM", "18:00", and ranges ("6:00 – 7:00 PM", where the
   AM/PM is carried back from the end). Noon and midnight are handled. The start
   time is kept.
-- **Day:** weekday words (Mon … Sunday). "Today" and "Tomorrow" are worked out
-  from `now`.
+- **Day:** weekday words (Mon … Sunday). "Today" and "Tomorrow" mean the day the
+  screenshot was taken, which can be days before it's read. So on a schedule
+  they're worked out from the day tabs next to them ("Today", "Thu 5", … run one
+  day apart). Without tabs they're worked out from `now`: the time it was shared
+  for a shared item (`at`), else the time it's read.
+- **24-hour schedules:** a phone set to 24-hour shows "16:30" and "09:00". On a
+  schedule where nothing says AM or PM, every time is read as 24-hour. Where some
+  do, a bare "6:30" is left blank for the user rather than guessed.
 - **Studio:** a line matching one of Your studios wins. Otherwise the layout rule
   from the sample screenshots applies, and failing that the field is left blank.
 - **Name:** the line that goes with each time. Times, dates, durations, credits,
@@ -143,8 +150,8 @@ Uses Capacitor 7's
   image. It resolves `{ lines }` or `{ cancelled: true }`.
 - `takeShared()` reads and clears the share queue in the App Group container. It
   runs the same Vision read on each image and resolves
-  `{ items: [{ lines } | { text }] }`. Each image file is deleted once it has been
-  read.
+  `{ items: [{ lines, at } | { text, at }] }`, where `at` is when the item was
+  shared (ms since 1970). Each image file is deleted once it has been read.
 - No third-party package. `@capacitor-community/image-to-text@7.0.0` ships only a
   CocoaPods podspec (no `Package.swift`, checked 2026-11-04), and this shell uses
   SPM. Its 8.x needs Capacitor 8, which is ruled out (Capacitor 7 ceiling).
@@ -294,22 +301,40 @@ from your screenshot" marking.
   - Reviews below the Share/Add row name other classes, so nothing below that
     row is read.
 
-  On both samples the reader got the day and time right, and the studio too
-  once it was saved in Your studios.
+  On the two scrolled samples the reader got the day and time right, and the
+  studio too once it was saved in Your studios. On the third, shot from the top
+  before scrolling, it read all four: name, studio and town, day, time.
+- **What the schedule sample showed** (same stand-in reader):
+  - At the top, the studio's name over "View details >", then day tabs "Today",
+    "Thu 5", "Fri 6" …, one day apart.
+  - Then a heading per day, and one row per class: the time on the left, the
+    class name level with it, and below them the length ("60 min"), the teacher
+    and the credits. The text reader returns the time and the name separately,
+    and the bigger name starts a little higher, so rows are matched by their
+    middles.
+  - The phone was set to 24-hour, so the times read "16:30" and "06:00", with no
+    AM/PM anywhere on the screen.
+  - The status-bar clock reads like a class time and is dropped.
+
+  The reader found all seven classes on the sample, each with the right day, time
+  and name. "Today" still came out as the screenshot's Wednesday when the reading
+  was done as if on a Saturday.
 - **The share sheet can't open the app.** See Non-goals. The queue-and-pick-up
   design means one extra step for the user: opening Wolfram. Picking up on
   `visibilitychange` means switching back to an open Wolfram is enough.
 
 ## Open questions
 
-1. **Sample screenshots.** Two class pages arrived on 2026-11-04; they're kept on
-   the PC in `C:\dev\personal\wolfram-samples\`, outside the repo. Still needed:
-   - **a studio's schedule**, so the schedule layout can be built;
-   - **a class page shot from the top**, before scrolling, to check the name is
-     read.
+1. ~~**Sample screenshots.**~~ Answered 2026-11-04: three class pages (one shot
+   from the top) and a studio's schedule. They're kept on the PC in
+   `C:\dev\personal\wolfram-samples\`, outside the repo. Still open: a schedule
+   from a phone set to 12-hour time. Until one is seen, 12-hour schedules are read
+   by the usual "6:30 PM" rules.
 2. **What does ClassPass's Share button send** for a class: a link, text, or both?
    This is a device check. If it includes the class name and time as text, sharing
-   from ClassPass fills the form with no screenshot at all.
+   from ClassPass fills the form with no screenshot at all. A second link came with
+   the schedule sample. It was the same `/invite/<code>?placement=VenueDetails`
+   link as the first, so it doesn't settle what a class page's Share gives.
 3. **Does an `/invite/…` link open the studio for a member** in the ClassPass app,
    or only the "Join your friends" page? Device check. If it only reaches the
    invite page, `/invite/…` links aren't saved and the form says so. Studio-page

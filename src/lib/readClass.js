@@ -19,6 +19,19 @@
 //     bar, leaving just the clock. Then the name is left blank, not guessed.
 //   - From the Saved / Share / Add row down it's the description and reviews,
 //     and reviews name other classes, so none of that is read.
+//
+// And a real studio-schedule screenshot:
+//   - At the top, the studio's name over "View details >", then a row of day
+//     tabs: "Today", "Thu 5", "Fri 6" …, one day apart.
+//   - Then the list: a day heading on its own ("Today", "Thu 5"), and under it
+//     one row per class. The time is on the left ("16:30", 24-hour on a phone
+//     set that way) with the class name level with it on the right. The length
+//     ("60 min") and teacher sit below those, and the credits on the far right.
+//   - The text reader returns the time and the name as separate lines, and the
+//     bigger name can start a hair higher, so rows are matched by their
+//     middles, not by sort order.
+//   - "Today" is the day the screenshot was taken, which can be days before
+//     it's read, so it's worked out from the tabs next to it when they show.
 
 import { parseClassPassLink, studioLabel } from './classpass.js';
 
@@ -139,12 +152,31 @@ function splitStudioLine(text) {
 
 const isDateLine = (text) => readTime(text) != null && readWeekday(text) != null;
 
+// The studio's own fields for a line that names it: a saved studio first,
+// then "<studio> • <town>", then the line as it is (`asIs`).
+function studioFrom(text, studios, asIs = false) {
+  const saved = matchStudio(text, studios);
+  if (saved) return { studio: studioLabel(saved), studioName: saved.name, town: saved.town ?? '' };
+  const split = splitStudioLine(text);
+  if (split) return { studio: studioLabel(split), studioName: split.name, town: split.town };
+  const name = text.replace(/[\s>›»]+$/, '').trim();
+  if (asIs && name) return { studio: name, studioName: name, town: '' };
+  return { studio: '', studioName: '', town: '' };
+}
+
 // { classes: [{ name, studio, studioName, town, weekday, time, missing }], link }
 export function readClasses(lines, { now = new Date(), studios = [] } = {}) {
   const all = [...(lines ?? [])]
     .filter((l) => l && String(l.text ?? '').trim())
     .sort((a, b) => (a.y ?? 0) - (b.y ?? 0) || (a.x ?? 0) - (b.x ?? 0));
   const link = parseClassPassLink(all.map((l) => l.text).join('\n'));
+  const page = readClassPage(all, { now, studios });
+  if (page) return { classes: [page], link };
+  return { classes: readSchedule(all, { now, studios }), link };
+}
+
+// One class's page, or null if there's no date line.
+function readClassPage(all, { now, studios }) {
   const positioned = all.some((l) => l.h != null);
 
   // Lines before the action row, minus the clock, credits and bookings.
@@ -152,29 +184,16 @@ export function readClasses(lines, { now = new Date(), studios = [] } = {}) {
   const header = (cut === -1 ? all : all.slice(0, cut)).map((l) => ({ ...l, text: l.text.trim() }));
 
   const dateAt = header.findIndex((l) => isDateLine(l.text));
-  if (dateAt === -1) return { classes: [], link };
+  if (dateAt === -1) return null;
   const dateLine = header[dateAt].text;
 
   // Name and studio sit above the date line.
   const above = header.slice(0, dateAt).filter((l) => !JUNK.test(l.text) && /[a-z]{3}/i.test(l.text));
   const studioAt = above.findIndex((l) => matchStudio(l.text, studios) || splitStudioLine(l.text));
-  let studio = '';
-  let studioName = '';
-  let town = '';
+  let studio = { studio: '', studioName: '', town: '' };
   let name = '';
   if (studioAt !== -1) {
-    const line = above[studioAt].text;
-    const saved = matchStudio(line, studios);
-    const split = splitStudioLine(line);
-    if (saved) {
-      studio = studioLabel(saved);
-      studioName = saved.name;
-      town = saved.town ?? '';
-    } else if (split) {
-      studioName = split.name;
-      town = split.town;
-      studio = studioLabel({ name: studioName, town });
-    }
+    studio = studioFrom(above[studioAt].text, studios);
     // The name is above the studio: the tallest line there, else the nearest.
     const names = above.slice(0, studioAt);
     if (names.length) {
@@ -188,14 +207,130 @@ export function readClasses(lines, { now = new Date(), studios = [] } = {}) {
     name = above[0].text;
   }
 
-  const c = {
-    name,
-    studio,
-    studioName,
-    town,
-    weekday: readWeekday(dateLine, now),
-    time: readTime(dateLine),
+  return draft({ name, ...studio, weekday: readWeekday(dateLine, now), time: readTime(dateLine) });
+}
+
+function draft(c) {
+  return { ...c, missing: ['name', 'studio', 'weekday', 'time'].filter((k) => c[k] == null || c[k] === '') };
+}
+
+// "Today", "Tomorrow", "Thu 5", "Thursday", "Thu, Nov 5": the tabs and the
+// day headings of a schedule.
+// Whole words only, so "Sunset" or "Thunder" isn't a day.
+const DAY_WORD = 'mon(?:day)?|tue(?:s(?:day)?)?|wed(?:nesday)?|thu(?:r(?:s(?:day)?)?)?|fri(?:day)?|sat(?:urday)?|sun(?:day)?';
+const MONTH_WORD = 'jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|june?|july?|aug(?:ust)?|sep(?:t(?:ember)?)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?';
+const DAY_LABEL = new RegExp(
+  `\\b(?:today|tomorrow|(?:${DAY_WORD})\\b\\.?(?:,?\\s*(?:${MONTH_WORD})\\b\\.?)?(?:\\s*\\d{1,2}\\b)?)`, 'gi');
+
+// The day labels a line is made of, or null if it's anything else.
+function dayLabels(text) {
+  const t = text.trim();
+  const found = t.match(DAY_LABEL) ?? [];
+  return found.length && !t.replace(DAY_LABEL, '').trim() ? found : null;
+}
+
+// Offset from today for a relative label, or the weekday for a named one.
+function labelDay(label, todayWd) {
+  const s = label.toLowerCase();
+  if (s.startsWith('today')) return todayWd;
+  if (s.startsWith('tomorrow')) return (todayWd + 1) % 7;
+  return DAYS.indexOf(s.slice(0, 3));
+}
+
+// A time at the start of a schedule row ("16:30", "6:30 PM", "6 PM"), and
+// whatever follows it on the same line.
+function leadingTime(text) {
+  const m = fixDigits(text.trim()).match(/^(\d{1,2})(?::(\d{2}))?\s*(?:([ap])\.?\s*m\b\.?)?\s*(.*)$/i);
+  if (!m || (m[2] == null && !m[3])) return null;
+  const h = +m[1];
+  const mm = +(m[2] ?? 0);
+  if (mm > 59) return null;
+  return { h, mm, mer: m[3]?.toLowerCase() ?? null, twoDigit: m[1].length === 2, rest: m[4].trim() };
+}
+
+// Lines on a schedule row that can't be the class name.
+const NOT_NAME = /^\W*\d+\W*$|^\d+\s*(?:min|mins|minutes|hr|hrs|hours?|h)\b|\bcredits?\b|\bspots? left\b|\bwaitlist\b|^view details\b|^[ap]\.?m\.?$/i;
+const isName = (text) => /[a-z]{3}/i.test(text) && !NOT_NAME.test(text.trim()) && !dayLabels(text) && !leadingTime(text);
+
+// Every class on a studio's schedule. Studio from the header, day from the
+// heading above each row; a row before any heading gets no day.
+function readSchedule(all, { now, studios }) {
+  const positioned = all.some((l) => l.h != null);
+  const mid = (l) => (l.y ?? 0) + (l.h ?? 0) / 2;
+  // Below the status bar (its clock reads like a class time).
+  const lines = positioned ? all.filter((l) => mid(l) >= 0.06) : all;
+  const sameRow = (a, b) => positioned && Math.abs(mid(a) - mid(b)) < 0.5 * Math.max(a.h ?? 0, b.h ?? 0);
+
+  // The tabs: three or more day labels side by side, or in a run when pasted.
+  let tabs = null;
+  let tabsEnd = -1;
+  for (let i = 0; i < lines.length && !tabs; i++) {
+    const own = dayLabels(lines[i].text);
+    if (!own) continue;
+    let j = i;
+    const labels = [...own];
+    // Pasted, the first heading comes straight after the tabs and repeats one.
+    const fresh = (next) => next.every((n) => !labels.some((x) => x.toLowerCase() === n.toLowerCase()));
+    while (j + 1 < lines.length && dayLabels(lines[j + 1].text) && fresh(dayLabels(lines[j + 1].text))
+      && (positioned ? sameRow(lines[i], lines[j + 1]) : true)) {
+      j += 1;
+      labels.push(...dayLabels(lines[j].text));
+    }
+    if (labels.length >= 3) { tabs = labels; tabsEnd = j; }
+  }
+
+  // Today's weekday: from a named tab's place after "Today", else from now.
+  let todayWd = (now.getDay() + 6) % 7;
+  if (tabs) {
+    const t0 = tabs.findIndex((l) => /^today/i.test(l));
+    const named = tabs.findIndex((l, i) => i > t0 && labelDay(l, 0) >= 0 && !/^(today|tomorrow)/i.test(l));
+    if (t0 !== -1 && named !== -1) todayWd = (((labelDay(tabs[named], 0) - (named - t0)) % 7) + 7) % 7;
+  }
+
+  // The header ends at the tabs or "View details"; the studio is the line
+  // over "View details", else the first one in the header.
+  const details = lines.findIndex((l) => /^view details\b/i.test(l.text.trim()));
+  const headerEnd = Math.max(tabsEnd, details);
+  let studio = { studio: '', studioName: '', town: '' };
+  const header = lines.slice(0, details !== -1 ? details : tabsEnd + 1)
+    .filter((l) => isName(l.text) && !JUNK.test(l.text));
+  if (header.length) studio = studioFrom(header[details !== -1 ? header.length - 1 : 0].text, studios, true);
+
+  const body = lines.slice(headerEnd + 1);
+  const rows = [];
+  let day = null;
+  body.forEach((l, i) => {
+    const labels = dayLabels(l.text);
+    if (labels?.length === 1) { day = labelDay(labels[0], todayWd); return; }
+    const t = leadingTime(l.text);
+    if (!t) return;
+    let name = isName(t.rest) ? t.rest : '';
+    if (!name && positioned) {
+      // Level with the time, to its right; the nearest one.
+      const right = body.filter((o) => o !== l && sameRow(o, l) && (o.x ?? 0) > (l.x ?? 0) && isName(o.text));
+      right.sort((a, b) => (a.x ?? 0) - (b.x ?? 0));
+      name = right[0]?.text.trim() ?? '';
+    } else if (!name) {
+      // Pasted: the next line that reads as a name, past a length or credits.
+      for (const o of body.slice(i + 1, i + 3)) {
+        if (dayLabels(o.text) || leadingTime(o.text)) break;
+        if (isName(o.text)) { name = o.text.trim(); break; }
+      }
+    }
+    // A schedule row always has a name; a time without one isn't a class.
+    if (name) rows.push({ name, day, t });
+  });
+
+  // No AM/PM anywhere means the phone shows 24-hour times. With some, a bare
+  // time counts only when it can't be anything but 24-hour.
+  const h24 = !rows.some((r) => r.t.mer) && !body.some((l) => /^[ap]\.?m\.?$/i.test(l.text.trim()));
+  const clock = ({ h, mm, mer, twoDigit }) => {
+    if (mer) {
+      if (h < 1 || h > 12) return null;
+      return `${pad(mer === 'p' && h !== 12 ? h + 12 : mer === 'a' && h === 12 ? 0 : h)}:${pad(mm)}`;
+    }
+    if (h > 23) return null;
+    return h24 || h >= 13 || (twoDigit && h < 10) ? `${pad(h)}:${pad(mm)}` : null;
   };
-  c.missing = ['name', 'studio'].filter((k) => !c[k]);
-  return { classes: [c], link };
+  return rows.map((r) => draft({ name: r.name, ...studio, weekday: r.day, time: clock(r.t) }));
 }
