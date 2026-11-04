@@ -8,7 +8,7 @@
 import { create } from 'zustand';
 
 export const useImportStore = create((set) => ({
-  // { classes, link, source: 'share' } | null
+  // { classes, link, studio, source: 'share' } | null
   pending: null,
   setPending: (pending) => set({ pending }),
   take: () => {

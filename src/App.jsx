@@ -94,7 +94,9 @@ export default function App() {
         }));
         useImportStore.getState().setPending({
           classes: readings.flatMap((r) => r.classes),
+          // The studio its share message named goes with the link it came with.
           link: readings.find((r) => r.link)?.link ?? null,
+          studio: readings.find((r) => r.link)?.studio ?? null,
           source: 'share',
         });
         setTab('classes');

@@ -32,6 +32,14 @@
 //     middles, not by sort order.
 //   - "Today" is the day the screenshot was taken, which can be days before
 //     it's read, so it's worked out from the tabs next to it when they show.
+//   - On a phone set to 12-hour the times read "6:00 pm", each teacher can
+//     have a trial note under it, and the first two tabs can read as one line.
+//
+// ClassPass's own Share button, even on a class page, sends an invite
+// message that names only the studio: "… check out spots like <studio> 😊
+// https://classpass.com/invite/<code>?placement=VenueDetails". The code
+// differs from studio to studio. So a share gives the studio and its link,
+// never the class.
 
 import { parseClassPassLink, studioLabel } from './classpass.js';
 
@@ -164,15 +172,27 @@ function studioFrom(text, studios, asIs = false) {
   return { studio: '', studioName: '', town: '' };
 }
 
-// { classes: [{ name, studio, studioName, town, weekday, time, missing }], link }
+// The studio in ClassPass's share message, up to the emoji or the link.
+const SHARED_STUDIO = /\bspots like\s+([^\n]+?)\s*(?:\p{Extended_Pictographic}|https?:\/\/|\n|$)/u;
+
+function sharedStudio(text, studios) {
+  const name = SHARED_STUDIO.exec(text)?.[1].replace(/[.!,]+$/, '').trim();
+  return name ? studioFrom(name, studios, true) : null;
+}
+
+// { classes: [{ name, studio, studioName, town, weekday, time, missing }],
+//   link, studio }. `studio` ({ studio, studioName, town }) is only for a
+// link with no class, from the share message around it; otherwise null.
 export function readClasses(lines, { now = new Date(), studios = [] } = {}) {
   const all = [...(lines ?? [])]
     .filter((l) => l && String(l.text ?? '').trim())
     .sort((a, b) => (a.y ?? 0) - (b.y ?? 0) || (a.x ?? 0) - (b.x ?? 0));
-  const link = parseClassPassLink(all.map((l) => l.text).join('\n'));
+  const text = all.map((l) => l.text).join('\n');
+  const link = parseClassPassLink(text);
   const page = readClassPage(all, { now, studios });
-  if (page) return { classes: [page], link };
-  return { classes: readSchedule(all, { now, studios }), link };
+  if (page) return { classes: [page], link, studio: null };
+  const classes = readSchedule(all, { now, studios });
+  return { classes, link, studio: link && !classes.length ? sharedStudio(text, studios) : null };
 }
 
 // One class's page, or null if there's no date line.

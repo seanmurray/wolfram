@@ -36,8 +36,9 @@ function fromReading(c) {
 }
 
 // One class fills the form; several go to a list to tick; none says so and
-// leaves the form as it was.
-function applyReading({ classes, link }, source, { setForm, setFound, setNotice }) {
+// leaves the form as it was. A link with no class fills in the studio its
+// share message named, if any.
+function applyReading({ classes, link, studio }, source, { setForm, setFound, setNotice }) {
   if (classes.length > 1) {
     setForm(null);
     setNotice(null);
@@ -54,7 +55,7 @@ function applyReading({ classes, link }, source, { setForm, setFound, setNotice 
   setFound(null);
   setForm((f) => {
     const base = f?.id === 'new' ? f.draft : BLANK;
-    return { id: 'new', draft: { ...base, ...fromReading(c), source, link: link ?? base.link } };
+    return { id: 'new', draft: { ...base, ...fromReading(c ?? studio), source, link: link ?? base.link } };
   });
 }
 
@@ -325,7 +326,8 @@ function ClassForm({
           placeholder="e.g. Barbell Strength"
         />
       </label>
-      {draft.source && !draft.read.includes('name') && (
+      {/* A notice (a link with no class) already says the name is missing. */}
+      {draft.source && !draft.read.includes('name') && !notice && (
         <div className={styles.hint}>
           {draft.source === 'paste'
             ? 'No class name in what you pasted. Type it in.'

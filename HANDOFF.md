@@ -105,6 +105,12 @@ How to fill `lines`:
      again shows nothing.
    - A studio-schedule screenshot gives "Found N classes" with one row per class
      on it, each with its day and time.
+   - Share → Wolfram from a ClassPass class page (sign in to ClassPass on the
+     simulator if it lets you; otherwise note it for the device). Wolfram should
+     open the form with the studio filled in and "Adds <studio> to Your studios,
+     with the ClassPass link." If the studio is blank, the extension passed only
+     the URL: send the share's text too (`NSExtensionItem.attributedContentText`
+     and any plain-text attachment), joined with the URL by a newline.
    - **From a screenshot** opens the picker with no permission prompt, and
      cancelling changes nothing.
    - A screenshot with no class gives "Couldn't find a class…".

@@ -97,7 +97,7 @@ describe('readClasses: a class page', () => {
 
   it('finds nothing in a screenshot with no date line', () => {
     const photo = [line('Happy birthday!', 0.4), line('11:34', 0.03)];
-    assert.deepEqual(readClasses(photo, { now: NOW }), { classes: [], link: null });
+    assert.deepEqual(readClasses(photo, { now: NOW }), { classes: [], link: null, studio: null });
     assert.deepEqual(readClasses([], { now: NOW }).classes, []);
   });
 });
@@ -181,6 +181,25 @@ describe('readClasses: a studio’s schedule', () => {
     assert.deepEqual(classes[2].missing, ['time']);
   });
 
+  it('reads a phone set to 12-hour, laid out as the real one read back', () => {
+    // Lowercase "pm", the first two tabs as one line, a banner under the tabs,
+    // and a trial note under each teacher.
+    const trial = (y) => cell('First class included in your trial', y + 0.056, 0.23, 0.014);
+    const real = [
+      cell('Example Strength Co', 0.068, 0.336, 0.018), cell('View details >', 0.095, 0.377, 0.013),
+      cell('Today Thu 5', 0.142, 0.036, 0.016), cell('Fri 6', 0.142, 0.372), cell('Sat 7', 0.142, 0.511),
+      cell('Members get the best deal on credits', 0.196, 0.112, 0.016),
+      cell('Today', 0.255, 0.046, 0.017),
+      ...row(0.312, '6:00 pm', 'Level 1 80-85', 'Alex R'), trial(0.312),
+      ...row(0.526, '7:30 pm', 'Hot Flow', 'Sam T'), trial(0.526),
+      cell('Thu 5', 0.746, 0.046, 0.014),
+      ...row(0.803, '6:00 am', 'Power Pilates', 'Jo K'), trial(0.803),
+    ];
+    const { classes } = readClasses(real, { now: SAT });
+    assert.deepEqual(brief(classes), [[2, '18:00', 'Level 1 80-85'], [2, '19:30', 'Hot Flow'], [3, '06:00', 'Power Pilates']]);
+    assert.equal(classes[0].studio, 'Example Strength Co');
+  });
+
   it('reads 24-hour times before noon when nothing says AM or PM', () => {
     const morning = [...SCHEDULE_TOP, cell('Today', 0.212, 0.051, 0.017), ...row(0.273, '11:30', 'Hot Flow', 'Alex R')];
     assert.equal(readClasses(morning, { now: NOW }).classes[0].time, '11:30');
@@ -225,11 +244,49 @@ describe('readClasses: pasted text', () => {
 
   it('pulls out a ClassPass link, with or without a class', () => {
     const invite = 'https://classpass.com/invite/ABC123?placement=VenueDetails';
-    assert.deepEqual(readClasses(textToLines(invite), { now: NOW }), { classes: [], link: invite });
+    assert.deepEqual(readClasses(textToLines(invite), { now: NOW }), { classes: [], link: invite, studio: null });
     const both = `Barbell Basics\nExample Strength Co • Springfield\nWed, Nov 4 · 6 PM\n${invite}`;
     const r = readClasses(textToLines(both), { now: NOW });
     assert.equal(r.link, invite);
     assert.equal(r.classes[0].time, '18:00');
+  });
+});
+
+// What ClassPass's Share button sends, word for word but for the studio and
+// the code.
+const LINK = 'https://classpass.com/invite/ABC123?placement=VenueDetails';
+const SHARED = `Here's 14 workouts on me! I've been using ClassPass to check out spots like Example Strength Co 😊 ${LINK}`;
+
+describe('readClasses: ClassPass’s share message', () => {
+  it('takes the studio and the link, since that’s all it names', () => {
+    assert.deepEqual(readClasses(textToLines(SHARED), { now: NOW }), {
+      classes: [],
+      link: LINK,
+      studio: { studio: 'Example Strength Co', studioName: 'Example Strength Co', town: '' },
+    });
+  });
+
+  it('matches a saved studio', () => {
+    const { studio } = readClasses(textToLines(SHARED), { now: NOW, studios: [STUDIO] });
+    assert.deepEqual(studio, { studio: 'Example Strength Co, Springfield', studioName: 'Example Strength Co', town: 'Springfield' });
+  });
+
+  it('finds the name with the link on its own line, or with no emoji', () => {
+    for (const text of [
+      `check out spots like Example Strength Co\n${LINK}`,
+      `check out spots like Example Strength Co ${LINK}`,
+      `check out spots like Example Strength Co!\n${LINK}`,
+    ]) {
+      assert.equal(readClasses(textToLines(text), { now: NOW }).studio?.studio, 'Example Strength Co', text);
+    }
+  });
+
+  it('reads no studio without a ClassPass link, or when a class was read', () => {
+    assert.equal(readClasses(textToLines('I want to check out spots like Example Strength Co'), { now: NOW }).studio, null);
+    const both = `${SHARED}\nBarbell Basics\nExample Strength Co • Springfield\nWed, Nov 4 · 6 PM`;
+    const r = readClasses(textToLines(both), { now: NOW });
+    assert.equal(r.studio, null);
+    assert.equal(r.classes[0].name, 'Barbell Basics');
   });
 });
 
