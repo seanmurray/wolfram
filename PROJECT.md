@@ -1,6 +1,6 @@
 # Wolfram — project status
 
-**Last updated:** 2026-10-28 — TestFlight 1.0 (2) with program v2 is live to the external tester (Testing).
+**Last updated:** 2026-11-04 — Tester feedback on 1.0 (4) turned into a draft spec: add a class from a screenshot or pasted link.
 
 Section headers stay fixed so both machines and every session find things.
 Newest entries go at the TOP of each list. Keep the Last-updated line to one
@@ -14,9 +14,10 @@ sentence; history lives in Release log / Incidents, not here.
   content in `program-and-classes.md`).
 - Android: n/a (personal PWA)
 - iOS: **TestFlight 1.0 (4) Testing** in external group "Family/Friends"
-  (the user is the one tester; invite not yet accepted as of 2026-10-28),
-  alongside 1.0 (3), 1.0 (2) and 1.0 (1). Next: the on-device pass on the user's
-  iPhone. Spec:
+  (the user is the one tester), alongside 1.0 (3), 1.0 (2) and 1.0 (1). As of
+  2026-11-03, App Store Connect showed installs of 1.0 (4) (2), 1.0 (3) (1) and
+  1.0 (2) (1), one screenshot feedback (2026-10-28, see Backlog 2) and no crash
+  feedback. Next: the on-device pass on the user's iPhone. Spec:
   `docs/specs/native-ios.md`.
 
 ## Done ledger (dated — never redo these)
@@ -49,12 +50,13 @@ sentence; history lives in Release log / Incidents, not here.
 ## Backlog (top = next)
 
 1. On-device pass on the user's iPhone with 1.0 (4): TestFlight install, log a class, force-quit, reopen, data intact; header clear of the camera; a studio's ClassPass link opens the ClassPass app
-2. Status-bar strip doesn't cover while the keyboard is up (iOS shifts the page; seen on the simulator while typing in Your studios). Cosmetic
-3. Final brand artwork — `brand/mark.svg` is a placeholder (lit filament "W"); Sean may supply art, as he did for Perennial
-4. Upload a fresh TestFlight build at least every 90 days (builds expire; 1.0 (4) uploaded 2026-10-28 → by 2027-01-26)
-5. Raise the iOS deployment target 14.0 → 15.0 before April 2027 (ITMS-90068 on build 1; uploads below 15.0 are refused from then)
-6. Notification sound: plugin treats `sound: 'default'` as a file name (iOS logs "Failed to find sound"); check on the device whether the alert sounds
-7. Resolve the npm `edgesOut` crash (Incidents) before vitest is needed
+2. **Add a class from a screenshot or a pasted ClassPass link.** The tester's TestFlight feedback on 1.0 (4), 2026-10-28, said they didn't want to fill in the form. Spec: `docs/specs/class-from-screenshot.md`, a draft waiting for Sean's OK. It needs 3–5 real ClassPass screenshots, kept outside the repo, before the reader is built. The work is an iOS Vision plugin built on the Mac, then TestFlight 1.0 (5)
+3. Status-bar strip doesn't cover while the keyboard is up (iOS shifts the page; seen on the simulator while typing in Your studios). Cosmetic
+4. Final brand artwork — `brand/mark.svg` is a placeholder (lit filament "W"); Sean may supply art, as he did for Perennial
+5. Upload a fresh TestFlight build at least every 90 days (builds expire; 1.0 (4) uploaded 2026-10-28 → by 2027-01-26)
+6. Raise the iOS deployment target 14.0 → 15.0 before April 2027 (ITMS-90068 on build 1; uploads below 15.0 are refused from then)
+7. Notification sound: plugin treats `sound: 'default'` as a file name (iOS logs "Failed to find sound"); check on the device whether the alert sounds
+8. Resolve the npm `edgesOut` crash (Incidents) before vitest is needed
 
 ## Blockers
 
