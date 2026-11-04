@@ -1,6 +1,6 @@
 # Wolfram — project status
 
-**Last updated:** 2026-11-04 — Tester feedback on 1.0 (4) turned into a draft spec: add a class from a screenshot or pasted link.
+**Last updated:** 2026-11-04 — Screenshot import: JS half live on the web; native plugin + share extension handed to the Mac (`HANDOFF.md`).
 
 Section headers stay fixed so both machines and every session find things.
 Newest entries go at the TOP of each list. Keep the Last-updated line to one
@@ -24,6 +24,7 @@ sentence; history lives in Release log / Incidents, not here.
 
 | Date | Step | Where | Notes |
 |---|---|---|---|
+| 2026-11-04 | Screenshot import, JS half (`docs/specs/class-from-screenshot.md`, approved by Sean): `lib/readClass.js` for class pages, Paste from ClassPass, found-classes list, ClassPass link saved with the studio (`linkSavePlan`), share-queue pickup on open/foreground, `lib/classReader.js` bridge (no-op until the native plugin exists), privacy-page line | local → pushed | 23 new unit tests (invented fixtures; 135 total), lint clean. Reader run on the two real samples (kept outside the repo): day + time right on both, studio right once saved. Dev build at 375×812: paste filled name/studio/Thu/18:30 with "from what you pasted" marks, Add saved the class and added the studio with its link; three simulated shared classes → "Found 3 classes", the nameless one unpickable, two ticked → added; no-class text → notice, form unchanged; link for a studio that has one → kept; no "From a screenshot" button on the web; zero non-localhost requests; no console errors |
 | 2026-10-28 | TestFlight 1.0 (4): status-bar fix for every screen (onboarding included); uploaded, added to "Family/Friends" → Testing | Mac → App Store Connect | Fresh install on the simulator (iPhone 16 Pro / iOS 26.3): welcome screen starts below the camera, scrolled text stops at the strip, Today opens at the top after setup. 1.0 (3) failed this on the user's iPhone (Incidents) |
 | 2026-10-28 | 1.0 (3) added to "Family/Friends" and submitted (What to Test: Your studios, Find a class, header fix; auto-notify on) | App Store Connect | Approved at once: status Testing after reload. The group's one tester still shows **Invited** (invite not yet accepted in TestFlight) |
 | 2026-10-28 | TestFlight 1.0 (3) uploaded: Your studios + "Find a class" ClassPass handoff, status-bar strip, scroll-to-top on tab change, tab labels unselectable | Mac → App Store Connect | `npm run check` clean. Simulator (iPhone 16 Pro / iOS 26.3): studio added, "Find a class" with no link copied the name (pbpaste) and iOS opened classpass.com/search in Safari; the studio is a quick pick in Add a class; Today's heavy-gap card shows "Find a barbell class". Universal-link handoff to the ClassPass app needs the device. Same ITMS-90068 warning |
@@ -50,9 +51,12 @@ sentence; history lives in Release log / Incidents, not here.
 ## Backlog (top = next)
 
 1. On-device pass on the user's iPhone with 1.0 (4): TestFlight install, log a class, force-quit, reopen, data intact; header clear of the camera; a studio's ClassPass link opens the ClassPass app
-2. **Add a class from a screenshot or a pasted ClassPass link.** The tester's TestFlight feedback on 1.0 (4), 2026-10-28, said they didn't want to fill in the form. Spec: `docs/specs/class-from-screenshot.md`, a draft waiting for Sean's OK. It needs 3–5 real ClassPass screenshots, kept outside the repo, before the reader is built. The share sheet is in scope (Sean, 2026-11-04). The work, done on the Mac then shipped as TestFlight 1.0 (5):
-   - a Share Extension, which needs a new App Group and an extension App ID on the developer account, each with Sean's OK;
-   - an iOS Vision reader plugin.
+2. **Add a class from a screenshot or a pasted ClassPass link.** The tester's TestFlight feedback on 1.0 (4), 2026-10-28, said they didn't want to fill in the form. Spec: `docs/specs/class-from-screenshot.md`, approved by Sean 2026-11-04. The JS half is live. Next, on the **Mac**, following `HANDOFF.md`, then shipped as TestFlight 1.0 (5):
+   - the ClassReader Vision plugin;
+   - the WolframShare extension;
+   - App Group `group.com.seanmurray.wolfram`, which needs Sean's OK before each developer-account change.
+
+   Still needed from the user: a studio-schedule screenshot (the schedule layout isn't built), and a class page shot from the top.
 3. Status-bar strip doesn't cover while the keyboard is up (iOS shifts the page; seen on the simulator while typing in Your studios). Cosmetic
 4. Final brand artwork — `brand/mark.svg` is a placeholder (lit filament "W"); Sean may supply art, as he did for Perennial
 5. Upload a fresh TestFlight build at least every 90 days (builds expire; 1.0 (4) uploaded 2026-10-28 → by 2027-01-26)
@@ -101,4 +105,4 @@ sentence; history lives in Release log / Incidents, not here.
 
 ## Needs the other machine
 
-- None. (iPhone: install 1.0 (2) from TestFlight.)
+- **Mac:** TestFlight 1.0 (5), the native half of screenshot import. Steps are in `HANDOFF.md`.

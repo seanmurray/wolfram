@@ -30,6 +30,29 @@ export function studioLabel(studio) {
   return town ? `${studio.name.trim()}, ${town}` : studio.name.trim();
 }
 
+// What adding a class does with a ClassPass link that came in with it
+// (pasted, or shared to the app): save it on the studio the class names,
+// keep a studio's existing link, or add the studio. `studioName` and `town`
+// are the reader's split of the studio line, used when the field still holds
+// what was read.
+export function linkSavePlan(studios, { studio, studioName, town }, link) {
+  if (!link) return { action: 'none' };
+  const key = String(studio ?? '').trim().toLowerCase();
+  if (!key) return { action: 'needStudio' };
+  const st = studios.find((s) => studioLabel(s).toLowerCase() === key || s.name.trim().toLowerCase() === key);
+  if (st) {
+    if (!st.link) return { action: 'set', id: st.id };
+    return { action: st.link === link ? 'same' : 'kept', id: st.id };
+  }
+  const read = studioName?.trim() && studioLabel({ name: studioName, town }).toLowerCase() === key;
+  return {
+    action: 'add',
+    studio: read
+      ? { name: studioName.trim(), town: (town ?? '').trim(), link }
+      : { name: String(studio).trim(), town: '', link },
+  };
+}
+
 // Where "Find a class" goes for a saved studio: its page if we have it,
 // otherwise the search page with "name town" to paste.
 export function studioHandoff(studio) {

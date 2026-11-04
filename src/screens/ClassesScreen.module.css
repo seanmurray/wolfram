@@ -124,3 +124,90 @@
   margin-bottom: 16px;
 }
 .spineTitle { font-weight: 700; color: var(--t1); margin-bottom: 4px; }
+
+/* ── From a screenshot / paste ──────────────────────────────── */
+.importBox {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--hairline);
+  margin-bottom: 2px;
+}
+.importBtn {
+  min-height: var(--tap);
+  border-radius: var(--r2);
+  background: var(--green);
+  color: var(--on-accent);
+  font-size: 17px;
+  font-weight: 700;
+}
+.importBtn:disabled { opacity: 0.6; }
+.paste summary {
+  min-height: var(--tap);
+  display: flex;
+  align-items: center;
+  padding: 0 14px;
+  border-radius: var(--r2);
+  border: 1px solid var(--green-line);
+  color: var(--green);
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  list-style: none;
+}
+.paste summary::-webkit-details-marker { display: none; }
+.paste[open] summary { margin-bottom: 8px; }
+.pasteInput {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: var(--r2);
+  border: 1px solid var(--bg-raised);
+  background: var(--bg-input);
+  font: inherit;
+  font-size: 16px; /* 16px stops iOS Safari zooming on focus */
+  color: var(--t1);
+  resize: vertical;
+}
+.fillBtn {
+  margin-top: 8px;
+  min-height: var(--tap);
+  width: 100%;
+  border-radius: var(--r2);
+  background: var(--bg-pill);
+  color: var(--t1);
+  font-size: 16px;
+  font-weight: 600;
+}
+.fillBtn:disabled { opacity: 0.45; }
+.importTip { font-size: 14px; line-height: 1.45; color: var(--t3); }
+.notice {
+  background: var(--amber-bg);
+  border-left: 3px solid var(--amber);
+  border-radius: var(--r1);
+  padding: 10px 12px;
+  font-size: 15px;
+  line-height: 1.45;
+  color: var(--t1);
+}
+.readMark { font-weight: 500; color: var(--green); letter-spacing: 0; }
+.hint, .linkNote { font-size: 14px; line-height: 1.45; color: var(--t2); }
+.linkNote { color: var(--green); }
+
+/* ── Several classes from one reading ───────────────────────── */
+.found {
+  margin-top: 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--green-line);
+  border-radius: var(--r3);
+  padding: 16px;
+}
+.foundTitle {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 20px;
+  color: var(--t1);
+  margin-bottom: 4px;
+}
+.found .importTip { margin-bottom: 10px; }
+.tick { width: 22px; height: 22px; margin-top: 1px; flex-shrink: 0; accent-color: var(--green); }

@@ -16,9 +16,13 @@ import { useSessionStore } from './stores/sessionStore';
 import { useSettingsStore } from './stores/settingsStore';
 import { useSlotStore } from './stores/slotStore';
 import { useRestTimer } from './stores/restTimerStore';
+import { useClassStore } from './stores/classStore';
+import { useImportStore } from './stores/importStore';
 import { saveSession, getSessions } from './lib/localdb';
 import { impactLevel } from './lib/plan.js';
 import { nextGymDay } from './lib/progression.js';
+import { readClasses, textToLines } from './lib/readClass.js';
+import { takeShared } from './lib/classReader.js';
 import { EX } from './data/exercises';
 import {
   DAYS, WARMUP, IMPACT_LEVELS, IMPACT_LEVEL_EVERY, MIN_SETS_TO_COUNT, JUMPS_PER_SET,
@@ -69,6 +73,36 @@ export default function App() {
   // Finishing onboarding swaps screens without a tab change, so the app
   // would otherwise open at the welcome screen's scroll position.
   useEffect(() => { window.scrollTo(0, 0); }, [onboarded]);
+
+  // Screenshots, links or text shared to Wolfram from the share sheet wait in
+  // a queue until the app opens or comes to the front: a share extension
+  // can't open its app. Read them all as one and show the result on Classes.
+  // Waits for onboarding, so a share before first launch keeps until then.
+  useEffect(() => {
+    if (!onboarded) return undefined;
+    let busy = false;
+    const pickUp = async () => {
+      if (busy || document.visibilityState !== 'visible') return;
+      busy = true;
+      try {
+        const items = await takeShared();
+        if (!items.length) return;
+        const { studios } = useClassStore.getState();
+        const readings = items.map((it) => readClasses(it.lines ?? textToLines(it.text), { studios }));
+        useImportStore.getState().setPending({
+          classes: readings.flatMap((r) => r.classes),
+          link: readings.find((r) => r.link)?.link ?? null,
+          source: 'share',
+        });
+        setTab('classes');
+      } finally {
+        busy = false;
+      }
+    };
+    pickUp();
+    document.addEventListener('visibilitychange', pickUp);
+    return () => document.removeEventListener('visibilitychange', pickUp);
+  }, [onboarded]);
 
   if (!onboarded) {
     return <OnboardingScreen />;

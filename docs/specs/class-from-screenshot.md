@@ -1,8 +1,20 @@
 # Add a class from a screenshot — 2026-11-04
 
-Status: **draft, waiting for Sean's OK.** Comes from TestFlight feedback on 1.0 (4)
-(2026-10-28). The tester wanted to skip the Add a class form: "give it a screenshot
-of the class or like paste the link".
+Status: **approved by Sean 2026-11-04; partly built.** It comes from TestFlight
+feedback on 1.0 (4) (2026-10-28): the tester wanted to skip the Add a class form,
+"give it a screenshot of the class or like paste the link".
+
+**Built (web + JS, 2026-11-04):**
+- `lib/readClass.js` for class pages;
+- the paste box, the found-classes list, and link saving;
+- the share-queue pickup (`App.jsx` → `importStore`);
+- `lib/classReader.js`, a no-op until the plugin exists;
+- the privacy page line.
+
+**Not built:**
+- the native half (ClassReader plugin, share extension, App Group), which is the
+  Mac's job: see `HANDOFF.md`;
+- the schedule layout, which waits for a schedule screenshot (Open question 1).
 
 ## Goal
 
@@ -269,16 +281,32 @@ from your screenshot" marking.
 - **The web schedule doesn't help either.** Logged-out
   `classpass.com/studios/<slug>` pages showed no bookable classes and have no class
   links. Screenshots from the app are the source.
+- **What the class-page samples showed** (read with Windows' own text reader as a
+  stand-in for Vision; the rules are in the header comment of `lib/readClass.js`):
+  - The date line, "Wed, Nov 4 · 6:00 PM – 7:00 PM", is the anchor. It reads back
+    as `wed, Nov4-6:OO PM -7:00 PM`, and the back button can hide the W, so the
+    day is worked out from the date.
+  - The studio line is `<studio> • <town> >`, and the back button can hide its
+    first word. Matching against Your studios still finds it.
+  - Once the page scrolls, the class name sits under the status bar and isn't
+    read. The form then says so and asks for a screenshot from the top, instead
+    of guessing.
+  - Reviews below the Share/Add row name other classes, so nothing below that
+    row is read.
+
+  On both samples the reader got the day and time right, and the studio too
+  once it was saved in Your studios.
 - **The share sheet can't open the app.** See Non-goals. The queue-and-pick-up
   design means one extra step for the user: opening Wolfram. Picking up on
   `visibilitychange` means switching back to an open Wolfram is enough.
 
 ## Open questions
 
-1. **Sample screenshots, needed before building the reader.** 3–5 real ClassPass
-   screenshots from the user's phone: a couple of class pages and a couple of
-   studio schedules. They stay on Sean's machine, outside the repo. The reader's
-   layout rules are built from them; without them, those rules are guesses.
+1. **Sample screenshots.** Two class pages arrived on 2026-11-04; they're kept on
+   the PC in `C:\dev\personal\wolfram-samples\`, outside the repo. Still needed:
+   - **a studio's schedule**, so the schedule layout can be built;
+   - **a class page shot from the top**, before scrolling, to check the name is
+     read.
 2. **What does ClassPass's Share button send** for a class: a link, text, or both?
    This is a device check. If it includes the class name and time as text, sharing
    from ClassPass fills the form with no screenshot at all.
