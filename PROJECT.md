@@ -50,7 +50,9 @@ sentence; history lives in Release log / Incidents, not here.
 ## Backlog (top = next)
 
 1. On-device pass on the user's iPhone with 1.0 (4): TestFlight install, log a class, force-quit, reopen, data intact; header clear of the camera; a studio's ClassPass link opens the ClassPass app
-2. **Add a class from a screenshot or a pasted ClassPass link.** The tester's TestFlight feedback on 1.0 (4), 2026-10-28, said they didn't want to fill in the form. Spec: `docs/specs/class-from-screenshot.md`, a draft waiting for Sean's OK. It needs 3–5 real ClassPass screenshots, kept outside the repo, before the reader is built. The work is an iOS Vision plugin built on the Mac, then TestFlight 1.0 (5)
+2. **Add a class from a screenshot or a pasted ClassPass link.** The tester's TestFlight feedback on 1.0 (4), 2026-10-28, said they didn't want to fill in the form. Spec: `docs/specs/class-from-screenshot.md`, a draft waiting for Sean's OK. It needs 3–5 real ClassPass screenshots, kept outside the repo, before the reader is built. The share sheet is in scope (Sean, 2026-11-04). The work, done on the Mac then shipped as TestFlight 1.0 (5):
+   - a Share Extension, which needs a new App Group and an extension App ID on the developer account, each with Sean's OK;
+   - an iOS Vision reader plugin.
 3. Status-bar strip doesn't cover while the keyboard is up (iOS shifts the page; seen on the simulator while typing in Your studios). Cosmetic
 4. Final brand artwork — `brand/mark.svg` is a placeholder (lit filament "W"); Sean may supply art, as he did for Perennial
 5. Upload a fresh TestFlight build at least every 90 days (builds expire; 1.0 (4) uploaded 2026-10-28 → by 2027-01-26)
