@@ -57,7 +57,7 @@ sentence; history lives in Release log / Incidents, not here.
    - the WolframShare extension;
    - App Group `group.com.seanmurray.wolfram`, which needs Sean's OK before each developer-account change.
 
-   Both layouts are built against real samples (2026-11-04). Still open: what a class page's own Share button sends (spec Open question 2), and a schedule from a phone set to 12-hour time.
+   Both layouts are built against real samples (2026-11-04). A class page's Share → Copy gives only the invite link, with no class name or time (spec Open question 2, answered 2026-11-04). Still open: a schedule from a phone set to 12-hour time.
 3. Status-bar strip doesn't cover while the keyboard is up (iOS shifts the page; seen on the simulator while typing in Your studios). Cosmetic
 4. Final brand artwork — `brand/mark.svg` is a placeholder (lit filament "W"); Sean may supply art, as he did for Perennial
 5. Upload a fresh TestFlight build at least every 90 days (builds expire; 1.0 (4) uploaded 2026-10-28 → by 2027-01-26)

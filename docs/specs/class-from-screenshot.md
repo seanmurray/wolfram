@@ -23,7 +23,8 @@ be able to give Wolfram a screenshot instead. Either one class's page or a studi
 schedule works, by any of three routes:
 
 - **Share sheet:** Share → Wolfram, straight from the screenshot preview or Photos.
-  The same works from ClassPass's own Share button.
+  ClassPass's own Share button sends only an invite link (Open question 2), so
+  sharing from it saves the link but can't fill in the class.
 - **In the app:** a "From a screenshot" button that opens the photo picker.
 - **Paste:** text copied from a screenshot, or a ClassPass link.
 
@@ -277,8 +278,9 @@ from your screenshot" marking.
   `classpass.com/invite/<code>?placement=VenueDetails`: a referral link from
   ClassPass's Share button on a studio's page. The URL holds only the invite code.
   The page it serves embeds the studio's `/studios/<slug>` path in its page data,
-  under a field named `venueOrClassDetailUrl`. That name suggests sharing a class
-  may carry a class page instead (not checked). Getting even the studio means
+  under a field named `venueOrClassDetailUrl`. Sharing a class page gave the
+  identical URL (Open question 2), so the URL doesn't change with what was
+  shared. Getting even the studio means
   fetching ClassPass's page, which:
   - breaks the app's no-network design;
   - is unreliable (ClassPass answered 403 to the first of two test fetches);
@@ -330,11 +332,13 @@ from your screenshot" marking.
    `C:\dev\personal\wolfram-samples\`, outside the repo. Still open: a schedule
    from a phone set to 12-hour time. Until one is seen, 12-hour schedules are read
    by the usual "6:30 PM" rules.
-2. **What does ClassPass's Share button send** for a class: a link, text, or both?
-   This is a device check. If it includes the class name and time as text, sharing
-   from ClassPass fills the form with no screenshot at all. A second link came with
-   the schedule sample. It was the same `/invite/<code>?placement=VenueDetails`
-   link as the first, so it doesn't settle what a class page's Share gives.
+2. ~~**What does ClassPass's Share button send** for a class?~~ Answered
+   2026-11-04: Share → Copy on a class page gave only the invite link, the same
+   `/invite/<code>?placement=VenueDetails` as the first one, with no class name or
+   time. So the URL names neither the class nor which page it came from, and the
+   screenshot stays the way to fill in a class. Still unchecked: whether
+   Share → Wolfram passes text along with the link (the Mac's simulator check
+   will show it).
 3. **Does an `/invite/…` link open the studio for a member** in the ClassPass app,
    or only the "Join your friends" page? Device check. If it only reaches the
    invite page, `/invite/…` links aren't saved and the form says so. Studio-page
