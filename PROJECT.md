@@ -1,6 +1,6 @@
 # Wolfram — project status
 
-**Last updated:** 2026-11-04 — Screenshot import: JS half live on the web (ba776dc) and every real ClassPass sample reads right; the native half is next, on the Mac (`HANDOFF.md`).
+**Last updated:** 2026-11-04 — Screenshot import: native half built and passing on the simulator; uploading 1.0 (5) waits on an Apple account being signed in to Xcode on the Mac (`HANDOFF.md`).
 
 Section headers stay fixed so both machines and every session find things.
 Newest entries go at the TOP of each list. Keep the Last-updated line to one
@@ -17,13 +17,18 @@ sentence; history lives in Release log / Incidents, not here.
   (the user is the one tester), alongside 1.0 (3), 1.0 (2) and 1.0 (1). As of
   2026-11-03, App Store Connect showed installs of 1.0 (4) (2), 1.0 (3) (1) and
   1.0 (2) (1), one screenshot feedback (2026-10-28, see Backlog 1) and no crash
-  feedback. Next: the on-device pass on the user's iPhone. Spec:
-  `docs/specs/native-ios.md`.
+  feedback. 1.0 (5) (screenshot import) is built and simulator-checked but
+  not uploaded: the archive stopped at "No Accounts" (no Apple account signed
+  in to Xcode 26.3), so nothing was registered on the developer account yet.
+  Next: sign in, archive, upload. Spec: `docs/specs/native-ios.md`.
 
 ## Done ledger (dated — never redo these)
 
 | Date | Step | Where | Notes |
 |---|---|---|---|
+| 2026-11-04 | Archive for 1.0 (5) attempted with `-allowProvisioningUpdates` after Sean OK'd all three account changes (App Group `group.com.seanmurray.wolfram`, App ID `com.seanmurray.wolfram.share`, App Groups on both App IDs) | Mac | **Failed: "No Accounts"**. Xcode had no Apple account signed in, so nothing was registered and no profile made; the account is unchanged. Not uploaded |
+| 2026-11-04 | Status-bar strip follows the keyboard pan: `#root::before` sits at `--vv-top`, set from `visualViewport.offsetTop` (`main.jsx`). Closes Backlog 3, and criterion 14's "with the keyboard up" | local | Simulator, fresh install: focusing Class name panned the page; before, text showed under the clock, after, the strip covers it; after dismissing, the strip is back at the top. `npm run check` clean |
+| 2026-11-04 | Screenshot import, native half: `ClassReaderPlugin.swift` (Vision `.accurate`, en-US, language correction; top-left boxes) registered by `MainViewController` (storyboard class changed); `WolframShare` extension (plain view controller, "Saved for Wolfram…" + Done; image, or text + URL joined by a newline, queued with `at` in the App Group's `ShareQueue/`); App Group entitlements on both targets. Two reader fixes from Apple's text reader: a faded title tail behind the clock is no longer taken as the name, and day tabs are read left to right (tabs a hair apart in y had put "Thu 5" before "Today", so a schedule's Today rows came out as Thursday) | local | Simulator (iPhone 16 Pro / iOS 26.3), fresh install, Sean's real samples (outside the repo): a share before Wolfram's first open waited through onboarding, then Classes showed name, studio + town, Wed, 6:00 PM. Three shares → one "Found 9 classes" list, queue empty after; reopening showed nothing new. Schedule → 7 rows, right day and time each; two ticked → only those two saved. Text + link share (test page, invented studio) → studio filled, the link-only notice, "Adds … with the ClassPass link". Picker: no permission prompt; cancel left the form as it was; a photo with no class → "Couldn't find a class…". App Group held no files afterwards. `cap sync` left the target, entitlements and storyboard intact (criterion 15). 2 new unit tests (each fails without its fix); `npm run check` clean. Vision closes some digit gaps in names (an invented example: "Flow 1 80" → "Flow 180"); the form is there to fix them |
 | 2026-11-04 | Screenshot import, link-only message: where screenshots can be read (the iPhone app with the plugin), a ClassPass link with no class says "A ClassPass link names the studio, not the class. Share a screenshot of the class page instead, or fill it in below." Sean, 2026-11-04: the tester wanted to screenshot | local → pushed | Lint + 124 tests pass. Dev build (web): the old wording still shows, the studio is still filled, no console errors. The iPhone wording needs the plugin, so it's in the Mac's simulator check (`HANDOFF.md` step 7) |
 | 2026-11-04 | Screenshot import, ClassPass's share message: a link with no class fills the studio from "… spots like <studio> 😊 <link>" (`readClasses` → `studio`), so the link is saved with that studio; the "no class name" hint no longer repeats the link notice. Settled spec Open question 2 (Share on a class page sends the studio's invite message; codes differ per studio) and the 12-hour sample | local → pushed | 5 new unit tests (invented fixtures; 124 tests by the runner's count), lint clean. Real samples from Sean's trial (outside the repo): 12-hour schedule → all 6 classes right with no code change; second class page from the top → all four fields right. Dev build at 375×812: pasted an invented share message → studio "Example Strength Co" filled, "Adds … to Your studios, with the ClassPass link.", one notice and no repeated hint; Add saved the class and the studio with the link; a pasted class page with no name still shows its hint; zero non-localhost requests; no console errors |
 | 2026-11-04 | Screenshot import, schedule layout: `readClasses` reads a studio's schedule (studio from the header, day from each heading, "Today" from the day tabs, 24-hour times when nothing says AM/PM); found-list rows missing a name, day or time can't be ticked; shared items' `at` time passed to the reader (contract in `HANDOFF.md`) | local → pushed | 8 new unit tests (invented fixtures; 144 total), lint clean. Real samples (outside the repo): schedule → all 7 classes with the right day, time and name, "Today" still the screenshot's Wednesday when read as if on a Saturday; class page shot from the top → name, studio + town, day, time all right. Dev build at 375×812: pasted schedule text → "Found 3 classes", the row above any heading shown "Open it to add the day." and unpickable, two ticked → saved as Thursday 06:00 / 09:00 with the studio; zero non-localhost requests; no console errors |
@@ -53,15 +58,11 @@ sentence; history lives in Release log / Incidents, not here.
 
 ## Backlog (top = next)
 
-1. **Add a class from a screenshot or a pasted ClassPass link.** The tester's TestFlight feedback on 1.0 (4), 2026-10-28, said they didn't want to fill in the form. Spec: `docs/specs/class-from-screenshot.md`, approved by Sean 2026-11-04. The JS half is live. Next, on the **Mac**, following `HANDOFF.md`, then shipped as TestFlight 1.0 (5):
-   - the ClassReader Vision plugin;
-   - the WolframShare extension;
-   - App Group `group.com.seanmurray.wolfram`, which needs Sean's OK before each developer-account change.
+1. **Add a class from a screenshot or a pasted ClassPass link.** The tester's TestFlight feedback on 1.0 (4), 2026-10-28, said they didn't want to fill in the form. Spec: `docs/specs/class-from-screenshot.md`, approved by Sean 2026-11-04. Both halves are built and simulator-checked (2026-11-04). Left, on the **Mac** (`HANDOFF.md` steps 8–9): sign in to Xcode, archive (registers the App Group, the extension's App ID and App Groups on both App IDs; Sean OK'd all three 2026-11-04), upload 1.0 (5), add it to "Family/Friends".
 
    Both layouts are built against real samples (2026-11-04). A class page's Share sends the studio's invite message, with no class name or time (spec Open question 2, answered 2026-11-04); the reader takes the studio from it. A 12-hour schedule reads right too. Still open, on a device: where an `/invite/…` link opens for a member (spec Open question 3).
 2. On-device pass on the user's iPhone (now with 1.0 (5)): TestFlight install, log a class, force-quit, reopen, data intact; header clear of the camera; a studio's ClassPass link opens the ClassPass app
-3. Status-bar strip doesn't cover while the keyboard is up (iOS shifts the page; seen on the simulator while typing in Your studios). Cosmetic
-4. Final brand artwork — `brand/mark.svg` is a placeholder (lit filament "W"); Sean may supply art, as he did for Perennial
+3. Final brand artwork — `brand/mark.svg` is a placeholder (lit filament "W"); Sean may supply art, as he did for Perennial
 5. Upload a fresh TestFlight build at least every 90 days (builds expire; 1.0 (4) uploaded 2026-10-28 → by 2027-01-26)
 6. Raise the iOS deployment target 14.0 → 15.0 before April 2027 (ITMS-90068 on build 1; uploads below 15.0 are refused from then)
 7. Notification sound: plugin treats `sound: 'default'` as a file name (iOS logs "Failed to find sound"); check on the device whether the alert sounds

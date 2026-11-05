@@ -49,7 +49,9 @@ a { color: var(--green); text-decoration: none; }
 #root::before {
   content: '';
   position: fixed;
-  top: 0;
+  /* --vv-top (main.jsx): how far iOS has panned the page up for the
+     keyboard, which would otherwise carry the strip off the top. */
+  top: var(--vv-top, 0px);
   left: 0;
   right: 0;
   height: var(--sat);

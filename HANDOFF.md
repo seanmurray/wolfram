@@ -1,5 +1,18 @@
 # Handoff — 2026-11-04 — from PC
 
+## Mac session, 2026-11-04 evening
+
+Steps 1–7 are done; see the `PROJECT.md` Done ledger. Steps 8–9 are left:
+
+- The archive stopped at **"No Accounts"**: no Apple account was signed in to
+  Xcode 26.3 (`~/Downloads/Xcode 3.app`). Sean signs in (Xcode → Settings →
+  Accounts), then rerun the archive with `-allowProvisioningUpdates`.
+- Sean OK'd all three account changes on 2026-11-04: the App Group, the
+  extension's App ID, and App Groups on both App IDs. Nothing was registered
+  yet. Record each in the Done ledger once it happens.
+- Then do the export, the upload and adding the build to Family/Friends, as in
+  step 8.
+
 ## State
 
 - Branch `main`, pushed. The web app is live at build ba776dc

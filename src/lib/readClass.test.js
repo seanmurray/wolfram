@@ -76,6 +76,15 @@ describe('readClasses: a class page', () => {
     assert.deepEqual(c.missing, ['name']);
   });
 
+  it('ignores the faded title tail Vision reads behind the clock', () => {
+    // Apple's reader, unlike the stand-in, picks up the end of the
+    // scrolled-away title next to the clock, taller than the studio line.
+    const faded = [SCROLLED[0], line('sics', 0.038, 0.29, 0.026), ...SCROLLED.slice(1)];
+    const [c] = readClasses(faded, { now: NOW }).classes;
+    assert.equal(c.name, '');
+    assert.deepEqual(c.missing, ['name']);
+  });
+
   it('matches a saved studio even with its first word hidden', () => {
     const [c] = readClasses(SCROLLED, { now: NOW, studios: [STUDIO] }).classes;
     assert.equal(c.studio, 'Example Strength Co, Springfield');
@@ -148,6 +157,14 @@ describe('readClasses: a studio’s schedule', () => {
     const noTabs = SCHEDULE.filter((l) => l.y !== 0.156);
     assert.equal(readClasses(noTabs, { now: NOW }).classes[0].weekday, 2);
     assert.equal(readClasses(noTabs, { now: SAT }).classes[0].weekday, 5);
+  });
+
+  it('reads the tabs left to right when their heights put them out of order', () => {
+    // Apple's reader gives each tab a slightly different y, so sorting by y
+    // can put "Thu 5" before "Today" and "Sun 8" before "Fri 6".
+    const ys = { Today: 0.1512, 'Thu 5': 0.1509, 'Fri 6': 0.1531, 'Sat 7': 0.1530, 'Sun 8': 0.1521, 'Mon 9': 0.1533 };
+    const jittered = SCHEDULE.map((l) => (l.y === 0.156 ? { ...l, y: ys[l.text] } : l));
+    assert.deepEqual(readClasses(jittered, { now: SAT }).classes.map((c) => c.weekday), [2, 2, 2, 3, 3]);
   });
 
   it('matches a saved studio', () => {

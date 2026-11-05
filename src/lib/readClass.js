@@ -215,7 +215,10 @@ function readClassPage(all, { now, studios }) {
   if (studioAt !== -1) {
     studio = studioFrom(above[studioAt].text, studios);
     // The name is above the studio: the tallest line there, else the nearest.
-    const names = above.slice(0, studioAt);
+    // Not in the status-bar band, where Vision reads a scrolled-away title's
+    // faded tail ("ates") from behind the clock.
+    const names = above.slice(0, studioAt)
+      .filter((l) => !positioned || (l.y ?? 0) + (l.h ?? 0) / 2 >= 0.06);
     if (names.length) {
       const pick = positioned
         ? names.reduce((a, b) => ((b.h ?? 0) > (a.h ?? 0) ? b : a))
@@ -295,6 +298,13 @@ function readSchedule(all, { now, studios }) {
       && (positioned ? sameRow(lines[i], lines[j + 1]) : true)) {
       j += 1;
       labels.push(...dayLabels(lines[j].text));
+    }
+    // Tabs a hair apart in y sort out of order ("Thu 5" before "Today"),
+    // and the offset from "Today" needs them left to right.
+    if (positioned && labels.length >= 3) {
+      labels.splice(0, labels.length, ...lines.slice(i, j + 1)
+        .sort((a, b) => (a.x ?? 0) - (b.x ?? 0))
+        .flatMap((l) => dayLabels(l.text)));
     }
     if (labels.length >= 3) { tabs = labels; tabsEnd = j; }
   }

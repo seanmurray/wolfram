@@ -8,6 +8,19 @@ import { useSettingsStore } from './stores/settingsStore'
 import { useClassStore } from './stores/classStore'
 import { useSlotStore } from './stores/slotStore'
 
+// When a field takes focus, iOS pans the visual viewport up to clear the
+// keyboard, and fixed elements go with the layout viewport, so the
+// status-bar strip (#root::before) slid off and text showed under the clock.
+// Keep the strip at the top of what's on screen.
+if (typeof window !== 'undefined' && window.visualViewport) {
+  const vv = window.visualViewport;
+  const pin = () => document.documentElement.style
+    .setProperty('--vv-top', `${Math.max(0, Math.round(vv.offsetTop))}px`);
+  vv.addEventListener('resize', pin);
+  vv.addEventListener('scroll', pin);
+  pin();
+}
+
 // Dev-mode service-worker cleanup. vite-plugin-pwa only generates an SW in
 // production builds, but a developer who once ran `npm run build/preview`
 // can have a stale SW registered for localhost that then intercepts dev
