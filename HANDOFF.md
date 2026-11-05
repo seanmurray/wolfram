@@ -124,8 +124,10 @@ How to fill `lines`:
    - **Share text:** ClassPass can't be installed on the simulator, so type this
      into Notes (invented studio and code) and share the note to Wolfram:
      `Here's 14 workouts on me! I've been using ClassPass to check out spots like Example Strength Co 😊 https://classpass.com/invite/ABC123?placement=VenueDetails`.
-     Wolfram should open the form with the studio "Example Strength Co" and
-     "Adds Example Strength Co to Your studios, with the ClassPass link."
+     Wolfram should open the form with the studio "Example Strength Co", the
+     notice "A ClassPass link names the studio, not the class. Share a
+     screenshot of the class page instead, or fill it in below.", and "Adds
+     Example Strength Co to Your studios, with the ClassPass link."
    - **From a screenshot** opens the picker with no permission prompt, and
      cancelling changes nothing.
    - A screenshot with no class gives "Couldn't find a class…".
@@ -154,9 +156,6 @@ How to fill `lines`:
 - Once 1.0 (5) is on his iPhone (he has a ClassPass trial): Share → Wolfram from a
   ClassPass class page should fill in the studio. Also tap a ClassPass link in
   Notes and say where it lands, the studio or an invite page (spec Open question 3).
-- Asked on the PC, not yet answered: should the app's message for a ClassPass
-  link with no class point to sharing a screenshot instead? See `PROJECT.md`
-  Blockers.
 
 ## Don't
 

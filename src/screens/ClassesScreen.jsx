@@ -35,6 +35,12 @@ function fromReading(c) {
   return patch;
 }
 
+// A link names a studio at most, never the class. Where the app can read
+// screenshots, send the user there: a screenshot is what the tester asked for.
+const linkOnlyNotice = () => (canReadScreenshots()
+  ? 'A ClassPass link names the studio, not the class. Share a screenshot of the class page instead, or fill it in below.'
+  : 'That link doesn’t say which class or when. Fill those in below.');
+
 // One class fills the form; several go to a list to tick; none says so and
 // leaves the form as it was. A link with no class fills in the studio its
 // share message named, if any.
@@ -51,7 +57,7 @@ function applyReading({ classes, link, studio }, source, { setForm, setFound, se
     setForm((f) => (f?.id === 'new' ? f : { id: 'new', draft: BLANK }));
     return;
   }
-  setNotice(c ? null : 'That link doesn’t say which class or when. Fill those in below.');
+  setNotice(c ? null : linkOnlyNotice());
   setFound(null);
   setForm((f) => {
     const base = f?.id === 'new' ? f.draft : BLANK;

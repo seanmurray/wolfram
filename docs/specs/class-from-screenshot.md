@@ -112,7 +112,10 @@ the studio when you add this class". On Add:
 
 With a link and no class, the studio field is filled from ClassPass's share
 message ("… check out spots like <studio> 😊 <link>"), matched against Your
-studios first.
+studios first. The form then says "A ClassPass link names the studio, not the
+class. Share a screenshot of the class page instead, or fill it in below." On
+the web, which can't read screenshots: "That link doesn't say which class or
+when. Fill those in below."
 
 ## Data / API changes
 
