@@ -1,25 +1,39 @@
-# HANDOFF — Mac: TestFlight 1.0 (5), add a class from a screenshot
-
-**Written:** 2026-11-04 on the PC. **For:** the Mac (iOS station).
-Read `PROJECT.md` first, then the spec `docs/specs/class-from-screenshot.md`
-(approved by Sean 2026-11-04), then this.
+# Handoff — 2026-11-04 — from PC
 
 ## State
 
-- **The JS half is built and live on the web:**
-  - `lib/readClass.js` reads a class page;
+- Branch `main`, pushed. The web app is live at build ba776dc
+  (`npm run check-live` passes). iOS: TestFlight 1.0 (4) is the latest build;
+  this hands off **1.0 (5)**.
+- Read `PROJECT.md` first, then the spec `docs/specs/class-from-screenshot.md`
+  (approved by Sean 2026-11-04), then this.
+
+## Done this session (PC)
+
+- **The JS half of "add a class from a screenshot" is live on the web:**
+  - `lib/readClass.js` reads a class page, a studio's schedule (12- or 24-hour
+    time) and ClassPass's share message (it names the studio, not the class);
   - the paste box, the found-classes list, link saving and the share-queue
     pickup are in `App.jsx` and `ClassesScreen.jsx`;
   - `lib/classReader.js` calls the native plugin and stays a no-op until
     `Capacitor.isPluginAvailable('ClassReader')` is true, so a native build
     without the plugin is unchanged.
-- **Your job is the native half:** the `ClassReader` plugin, the `WolframShare`
-  extension and the App Group. Nothing native exists yet.
-- **Sample screenshots** are on the PC only, in `C:\dev\personal\wolfram-samples\`.
-  Ask Sean to AirDrop a couple of ClassPass screenshots to the Mac for the
-  simulator. **Never commit them** (public repo).
+- **Every real ClassPass sample reads right** with Windows' text reader standing
+  in for Vision: 3 class pages, 2 schedules, 3 share messages. The samples are on
+  the PC only, in `C:\dev\personal\wolfram-samples\`.
+- **Settled:** ClassPass's own Share button, even on a class page, sends
+  "…check out spots like <studio> 😊 https://classpass.com/invite/<code>…",
+  with one code per studio. So it can fill in the studio, never the class.
 
-## The contract the JS expects (don't change it without changing the JS)
+## In progress (exact next step)
+
+1. On the Mac, build the native half: the `ClassReader` plugin, the
+   `WolframShare` extension and the App Group, following the steps below. Nothing
+   native exists yet. Then upload TestFlight 1.0 (5).
+
+## Needs the other machine (Mac)
+
+### The contract the JS expects (don't change it without changing the JS)
 
 Plugin `jsName` **`ClassReader`**, both methods returning promises:
 
@@ -30,10 +44,11 @@ Plugin `jsName` **`ClassReader`**, both methods returning promises:
 - `takeShared()`:
   - Reads every item in the App Group share queue, oldest first.
   - Resolves `{ items: [ { lines: [...], at } | { text: "…", at } ] }`: `lines`
-    for an image, `text` for a shared URL and/or text (join them with a newline).
-    `at` is when the extension queued it, in ms since 1970 (the timestamp you
-    store with the item). The JS uses it so "Today" on a schedule means the day
-    it was shared, not the day Wolfram was opened.
+    for an image, `text` for a shared URL and/or text. **Join the share's text and
+    its URL with a newline**: ClassPass puts the studio's name in the text and
+    only the code in the URL. `at` is when the extension queued it, in ms since
+    1970 (the timestamp you store with the item). The JS uses it so "Today" on a
+    schedule means the day it was shared, not the day Wolfram was opened.
   - Then **deletes** the queue, images included. Resolves `{ items: [] }` when
     the queue is empty.
 
@@ -47,7 +62,7 @@ How to fill `lines`:
   `x`, `w` and `h` are taken straight from the box.
 - Run it off the main thread. Don't keep the image after reading.
 
-## Steps
+### Steps
 
 1. `cd ~/dev/wolfram && git pull --ff-only`, then
    `PATH="/usr/local/opt/node@22/bin:$PATH" npm ci`, `npm run check` (all tests
@@ -87,12 +102,13 @@ How to fill `lines`:
      `NSExtensionActivationSupportsImageWithMaxCount = 1`,
      `NSExtensionActivationSupportsWebURLWithMaxCount = 1`,
      `NSExtensionActivationSupportsText = YES`.
-   - Copy each image, or the URL/text, into the App Group container under
-     `ShareQueue/`, timestamped. It's your call how; the plugin is the only
-     reader.
+   - Copy each image, or the text and URL, into the App Group container under
+     `ShareQueue/`, timestamped. For text, take the item's
+     `attributedContentText` and any plain-text attachment as well as the URL.
+     How you store it is your call; the plugin is the only reader.
    - **Don't** try to open the app from the extension (Apple: not allowed; see the
      spec's Non-goals).
-   - Optional (Open question 4): try posting a local notification from the
+   - Optional (spec Open question 4): try posting a local notification from the
      extension. Keep it only if it works on the device.
 6. **Check criterion 15:** run `npm run build:native` again. The extension target,
    the App Group entitlements and the storyboard change must survive `cap sync`.
@@ -105,12 +121,11 @@ How to fill `lines`:
      again shows nothing.
    - A studio-schedule screenshot gives "Found N classes" with one row per class
      on it, each with its day and time.
-   - Share → Wolfram from a ClassPass class page (sign in to ClassPass on the
-     simulator if it lets you; otherwise note it for the device). Wolfram should
-     open the form with the studio filled in and "Adds <studio> to Your studios,
-     with the ClassPass link." If the studio is blank, the extension passed only
-     the URL: send the share's text too (`NSExtensionItem.attributedContentText`
-     and any plain-text attachment), joined with the URL by a newline.
+   - **Share text:** ClassPass can't be installed on the simulator, so type this
+     into Notes (invented studio and code) and share the note to Wolfram:
+     `Here's 14 workouts on me! I've been using ClassPass to check out spots like Example Strength Co 😊 https://classpass.com/invite/ABC123?placement=VenueDetails`.
+     Wolfram should open the form with the studio "Example Strength Co" and
+     "Adds Example Strength Co to Your studios, with the ClassPass link."
    - **From a screenshot** opens the picker with no permission prompt, and
      cancelling changes nothing.
    - A screenshot with no class gives "Couldn't find a class…".
@@ -124,16 +139,30 @@ How to fill `lines`:
    - In App Store Connect → TestFlight, add 1.0 (5) to "Family/Friends". Suggested
      What to Test: "Add a class from a screenshot: share a ClassPass screenshot
      to Wolfram, or use From a screenshot on Add a class. Screenshot the class
-     page before scrolling so the name is in it." Read the console; if it asks
-     for review because of the extension, submit it.
+     page before scrolling so the name is in it. ClassPass's own Share button
+     only fills in the studio." Read the console; if it asks for review because of
+     the extension, submit it.
 9. **`PROJECT.md`:** dated Done-ledger and Release-log rows, Status, and backlog
-   item 2. Commit named files only, then push. If `cap sync` rewrote
+   item 1. Commit named files only, then push. If `cap sync` rewrote
    `ios/App/CapApp-SPM/Package.swift`, commit that too.
+
+## Needs Sean
+
+- His OK before each developer-account change in step 3.
+- AirDrop two or three ClassPass screenshots to the Mac: a class page shot from
+  the top, and a studio's schedule.
+- Once 1.0 (5) is on his iPhone (he has a ClassPass trial): Share → Wolfram from a
+  ClassPass class page should fill in the studio. Also tap a ClassPass link in
+  Notes and say where it lands, the studio or an invite page (spec Open question 3).
+- Asked on the PC, not yet answered: should the app's message for a ClassPass
+  link with no class point to sharing a screenshot instead? See `PROJECT.md`
+  Blockers.
 
 ## Don't
 
 - Don't upgrade Capacitor (pinned 7.6.7), add an OCR package, or accept any
   Xcode "update project settings" prompt.
 - Don't hand-edit `CURRENT_PROJECT_VERSION` / `MARKETING_VERSION`.
-- Don't commit screenshots, studio names, or anything personal about the user
-  (public repo; see `CLAUDE.md` → Hard constraints).
+- Don't commit screenshots, studio names, teacher names, invite codes, or anything
+  personal about the user (public repo; see `CLAUDE.md` → Hard constraints).
+  Tests and checks use invented names.

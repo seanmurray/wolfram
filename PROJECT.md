@@ -1,6 +1,6 @@
 # Wolfram — project status
 
-**Last updated:** 2026-11-04 — Screenshot import: JS half live on the web, schedule layout included; native plugin + share extension handed to the Mac (`HANDOFF.md`).
+**Last updated:** 2026-11-04 — Screenshot import: JS half live on the web (ba776dc) and every real ClassPass sample reads right; the native half is next, on the Mac (`HANDOFF.md`).
 
 Section headers stay fixed so both machines and every session find things.
 Newest entries go at the TOP of each list. Keep the Last-updated line to one
@@ -16,7 +16,7 @@ sentence; history lives in Release log / Incidents, not here.
 - iOS: **TestFlight 1.0 (4) Testing** in external group "Family/Friends"
   (the user is the one tester), alongside 1.0 (3), 1.0 (2) and 1.0 (1). As of
   2026-11-03, App Store Connect showed installs of 1.0 (4) (2), 1.0 (3) (1) and
-  1.0 (2) (1), one screenshot feedback (2026-10-28, see Backlog 2) and no crash
+  1.0 (2) (1), one screenshot feedback (2026-10-28, see Backlog 1) and no crash
   feedback. Next: the on-device pass on the user's iPhone. Spec:
   `docs/specs/native-ios.md`.
 
@@ -52,13 +52,13 @@ sentence; history lives in Release log / Incidents, not here.
 
 ## Backlog (top = next)
 
-1. On-device pass on the user's iPhone with 1.0 (4): TestFlight install, log a class, force-quit, reopen, data intact; header clear of the camera; a studio's ClassPass link opens the ClassPass app
-2. **Add a class from a screenshot or a pasted ClassPass link.** The tester's TestFlight feedback on 1.0 (4), 2026-10-28, said they didn't want to fill in the form. Spec: `docs/specs/class-from-screenshot.md`, approved by Sean 2026-11-04. The JS half is live. Next, on the **Mac**, following `HANDOFF.md`, then shipped as TestFlight 1.0 (5):
+1. **Add a class from a screenshot or a pasted ClassPass link.** The tester's TestFlight feedback on 1.0 (4), 2026-10-28, said they didn't want to fill in the form. Spec: `docs/specs/class-from-screenshot.md`, approved by Sean 2026-11-04. The JS half is live. Next, on the **Mac**, following `HANDOFF.md`, then shipped as TestFlight 1.0 (5):
    - the ClassReader Vision plugin;
    - the WolframShare extension;
    - App Group `group.com.seanmurray.wolfram`, which needs Sean's OK before each developer-account change.
 
    Both layouts are built against real samples (2026-11-04). A class page's Share sends the studio's invite message, with no class name or time (spec Open question 2, answered 2026-11-04); the reader takes the studio from it. A 12-hour schedule reads right too. Still open, on a device: where an `/invite/…` link opens for a member (spec Open question 3).
+2. On-device pass on the user's iPhone (now with 1.0 (5)): TestFlight install, log a class, force-quit, reopen, data intact; header clear of the camera; a studio's ClassPass link opens the ClassPass app
 3. Status-bar strip doesn't cover while the keyboard is up (iOS shifts the page; seen on the simulator while typing in Your studios). Cosmetic
 4. Final brand artwork — `brand/mark.svg` is a placeholder (lit filament "W"); Sean may supply art, as he did for Perennial
 5. Upload a fresh TestFlight build at least every 90 days (builds expire; 1.0 (4) uploaded 2026-10-28 → by 2027-01-26)
@@ -68,7 +68,13 @@ sentence; history lives in Release log / Incidents, not here.
 
 ## Blockers
 
-- None.
+- **Waiting on Sean (asked 2026-11-04):** should the message for a ClassPass link
+  with no class change, in the iPhone app, from "That link doesn't say which
+  class or when. Fill those in below." to "ClassPass's Share only sends the
+  studio. To add the class, screenshot its page and share that, or fill it in
+  below."? The web keeps the current wording, since it can't read screenshots.
+- **Waiting on Sean's iPhone:** where a ClassPass `/invite/…` link lands when
+  tapped, the studio or an invite page (spec Open question 3).
 
 ## Decisions (with "do not chase")
 
