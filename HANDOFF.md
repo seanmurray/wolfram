@@ -2,16 +2,12 @@
 
 ## Mac session, 2026-11-04 evening
 
-Steps 1–7 are done; see the `PROJECT.md` Done ledger. Steps 8–9 are left:
-
-- The archive stopped at **"No Accounts"**: no Apple account was signed in to
-  Xcode 26.3 (`~/Downloads/Xcode 3.app`). Sean signs in (Xcode → Settings →
-  Accounts), then rerun the archive with `-allowProvisioningUpdates`.
-- Sean OK'd all three account changes on 2026-11-04: the App Group, the
-  extension's App ID, and App Groups on both App IDs. Nothing was registered
-  yet. Record each in the Done ledger once it happens.
-- Then do the export, the upload and adding the build to Family/Friends, as in
-  step 8.
+All nine steps are done, and 1.0 (5) is Testing in Family/Friends; see the
+`PROJECT.md` Done ledger. What's left is the on-device pass on the user's
+iPhone (Backlog 1–2). Gotcha for next time: after a macOS update, Xcode has to
+rerun its first-launch step (`xcodebuild -checkFirstLaunchStatus` exits 69),
+and until then xcodebuild reports "No Accounts". Install the required
+components only; the iOS platform download isn't needed.
 
 ## State
 

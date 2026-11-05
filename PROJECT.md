@@ -1,6 +1,6 @@
 # Wolfram — project status
 
-**Last updated:** 2026-11-04 — Screenshot import: native half built and passing on the simulator; uploading 1.0 (5) waits on an Apple account being signed in to Xcode on the Mac (`HANDOFF.md`).
+**Last updated:** 2026-11-04 — TestFlight 1.0 (5) (add a class from a screenshot) is Testing in Family/Friends; next is the on-device pass.
 
 Section headers stay fixed so both machines and every session find things.
 Newest entries go at the TOP of each list. Keep the Last-updated line to one
@@ -17,16 +17,17 @@ sentence; history lives in Release log / Incidents, not here.
   (the user is the one tester), alongside 1.0 (3), 1.0 (2) and 1.0 (1). As of
   2026-11-03, App Store Connect showed installs of 1.0 (4) (2), 1.0 (3) (1) and
   1.0 (2) (1), one screenshot feedback (2026-10-28, see Backlog 1) and no crash
-  feedback. 1.0 (5) (screenshot import) is built and simulator-checked but
-  not uploaded: the archive stopped at "No Accounts" (no Apple account signed
-  in to Xcode 26.3), so nothing was registered on the developer account yet.
-  Next: sign in, archive, upload. Spec: `docs/specs/native-ios.md`.
+  feedback. **1.0 (5)** (add a class from a screenshot) is Testing in
+  Family/Friends as of 2026-11-04. Next: the on-device pass (Backlog 1–2).
+  Spec: `docs/specs/native-ios.md`.
 
 ## Done ledger (dated — never redo these)
 
 | Date | Step | Where | Notes |
 |---|---|---|---|
-| 2026-11-04 | Archive for 1.0 (5) attempted with `-allowProvisioningUpdates` after Sean OK'd all three account changes (App Group `group.com.seanmurray.wolfram`, App ID `com.seanmurray.wolfram.share`, App Groups on both App IDs) | Mac | **Failed: "No Accounts"**. Xcode had no Apple account signed in, so nothing was registered and no profile made; the account is unchanged. Not uploaded |
+| 2026-11-04 | 1.0 (5) added to "Family/Friends" and submitted for Beta App Review (What to Test: share a ClassPass screenshot or use From a screenshot; screenshot before scrolling; ClassPass's Share only fills the studio; auto-notify on) | App Store Connect | Approved at once: status Testing after reload |
+| 2026-11-04 | TestFlight 1.0 (5) uploaded (screenshot import + share extension; Xcode bumped the build to 5) | Mac → App Store Connect | Processed to Ready to Submit. Same deployment-target warning (iOS 14.0; 15.0 needed from April 2027) |
+| 2026-11-04 | Developer account, with Sean's OK for each: App Group `group.com.seanmurray.wolfram` registered; App ID `com.seanmurray.wolfram.share` registered; App Groups turned on for both App IDs with that group. Done by Xcode's automatic signing (`archive -allowProvisioningUpdates`) | developer.apple.com, team 6RWD7M34MY | The archive's app and extension each carry their own "iOS Team Provisioning Profile" and the group entitlement. Before this: the first archive stopped at "No Accounts", and the Mac restart had reset Xcode's first-launch step (`-checkFirstLaunchStatus` 69). Sean ran the first-launch install (no platform download) and signed in to Xcode |
 | 2026-11-04 | Status-bar strip follows the keyboard pan: `#root::before` sits at `--vv-top`, set from `visualViewport.offsetTop` (`main.jsx`). Closes Backlog 3, and criterion 14's "with the keyboard up" | local | Simulator, fresh install: focusing Class name panned the page; before, text showed under the clock, after, the strip covers it; after dismissing, the strip is back at the top. `npm run check` clean |
 | 2026-11-04 | Screenshot import, native half: `ClassReaderPlugin.swift` (Vision `.accurate`, en-US, language correction; top-left boxes) registered by `MainViewController` (storyboard class changed); `WolframShare` extension (plain view controller, "Saved for Wolfram…" + Done; image, or text + URL joined by a newline, queued with `at` in the App Group's `ShareQueue/`); App Group entitlements on both targets. Two reader fixes from Apple's text reader: a faded title tail behind the clock is no longer taken as the name, and day tabs are read left to right (tabs a hair apart in y had put "Thu 5" before "Today", so a schedule's Today rows came out as Thursday) | local | Simulator (iPhone 16 Pro / iOS 26.3), fresh install, Sean's real samples (outside the repo): a share before Wolfram's first open waited through onboarding, then Classes showed name, studio + town, Wed, 6:00 PM. Three shares → one "Found 9 classes" list, queue empty after; reopening showed nothing new. Schedule → 7 rows, right day and time each; two ticked → only those two saved. Text + link share (test page, invented studio) → studio filled, the link-only notice, "Adds … with the ClassPass link". Picker: no permission prompt; cancel left the form as it was; a photo with no class → "Couldn't find a class…". App Group held no files afterwards. `cap sync` left the target, entitlements and storyboard intact (criterion 15). 2 new unit tests (each fails without its fix); `npm run check` clean. Vision closes some digit gaps in names (an invented example: "Flow 1 80" → "Flow 180"); the form is there to fix them |
 | 2026-11-04 | Screenshot import, link-only message: where screenshots can be read (the iPhone app with the plugin), a ClassPass link with no class says "A ClassPass link names the studio, not the class. Share a screenshot of the class page instead, or fill it in below." Sean, 2026-11-04: the tester wanted to screenshot | local → pushed | Lint + 124 tests pass. Dev build (web): the old wording still shows, the studio is still filled, no console errors. The iPhone wording needs the plugin, so it's in the Mac's simulator check (`HANDOFF.md` step 7) |
@@ -58,7 +59,7 @@ sentence; history lives in Release log / Incidents, not here.
 
 ## Backlog (top = next)
 
-1. **Add a class from a screenshot or a pasted ClassPass link.** The tester's TestFlight feedback on 1.0 (4), 2026-10-28, said they didn't want to fill in the form. Spec: `docs/specs/class-from-screenshot.md`, approved by Sean 2026-11-04. Both halves are built and simulator-checked (2026-11-04). Left, on the **Mac** (`HANDOFF.md` steps 8–9): sign in to Xcode, archive (registers the App Group, the extension's App ID and App Groups on both App IDs; Sean OK'd all three 2026-11-04), upload 1.0 (5), add it to "Family/Friends".
+1. **Add a class from a screenshot or a pasted ClassPass link.** The tester's TestFlight feedback on 1.0 (4), 2026-10-28, said they didn't want to fill in the form. Spec: `docs/specs/class-from-screenshot.md`, approved by Sean 2026-11-04. Shipped as TestFlight 1.0 (5), Testing in Family/Friends (2026-11-04). Left: the device check of spec criteria 1–7 and 9 on the user's iPhone with real ClassPass screenshots and ClassPass's Share button, airplane mode included. Open questions 3 (where an `/invite/…` link opens) and 4 (a local notification from the extension; not built) are answered there.
 
    Both layouts are built against real samples (2026-11-04). A class page's Share sends the studio's invite message, with no class name or time (spec Open question 2, answered 2026-11-04); the reader takes the studio from it. A 12-hour schedule reads right too. Still open, on a device: where an `/invite/…` link opens for a member (spec Open question 3).
 2. On-device pass on the user's iPhone (now with 1.0 (5)): TestFlight install, log a class, force-quit, reopen, data intact; header clear of the camera; a studio's ClassPass link opens the ClassPass app
@@ -103,6 +104,7 @@ sentence; history lives in Release log / Incidents, not here.
 
 | Date | Version | Build | Target | Status |
 |---|---|---|---|---|
+| 2026-11-04 | 1.0 | 5 | TestFlight (iOS) | Add a class from a screenshot (ClassReader plugin, WolframShare extension, App Group), keyboard status-bar fix. Family/Friends → Testing the same day |
 | 2026-10-28 | 1.0 | 4 | TestFlight (iOS) | Status-bar fix on every screen, onboarding included. Family/Friends → Testing the same day |
 | 2026-10-28 | 1.0 | 3 | TestFlight (iOS) | Your studios, ClassPass handoff, status-bar fix. Processed in ~3 min; added to Family/Friends → Testing the same day |
 | 2026-10-28 | 1.0 | 2 | TestFlight (iOS) | Program v2. Processed; submitted to Family/Friends → Testing the same day |
